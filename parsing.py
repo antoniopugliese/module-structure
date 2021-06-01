@@ -2,7 +2,6 @@
 Initial docstring for the parsing module
 """
 
-
 import os
 from git import Repo, Git
 import ast
@@ -11,9 +10,14 @@ repo_name = "snorkel"
 
 home = os.path.expanduser("~")
 
-
 def find_dir(target, start):
+    """
+    Returns the path of a target directory given a start directory. 
+
+    Assumes a top-down approach will be taken. 
+    """
     for path, dirs, files in os.walk(start):
+        # If the target directory is within current list of directories
         if target in dirs:
             return os.path.join(path, target)
 
