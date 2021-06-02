@@ -15,6 +15,7 @@ repo_name = config["repo_name"]
 
 home = os.path.expanduser("~")
 
+
 def find_dir(target, start):
     """
     Finds the path of a target directory given a start directory.
@@ -59,7 +60,6 @@ class Node():
     Otherwise, an instance contains the name of a directory, a reference to its
     parent directory (if any), and a list of children Nodes.
     """
-    global name, tree, parent, children
 
     def __init__(self, n, ast, p):
         self.name = n
@@ -86,11 +86,11 @@ def create_branch(tree, filepath, ast):
     :param tree: the tree the branch will be added to
     :type tree: Node
 
-    :param filepath: the path of directories to the target Python file
+    :param filepath: the sequence of directories to the target Python file
     :type filepath: str list
 
     :param ast: the AST of the target Python file
-    :type ast": ast
+    :type ast: ast
 
     :rtype: Node
     """
@@ -143,15 +143,16 @@ def create_ast_value(files):
 
     return root
 
+
 def create_ast_dict(commits):
     """
-    Returns a dictionary mapping the SHA1 of each version in [commits] to an
+    Returns a dictionary mapping the SHA1 of each version in `commits` to an
     abstract syntax tree of all the Python code in that version.
 
     :param commits: the list of commits in a repo
-    :type commits: [Commit] list
+    :type commits: ``Commit`` list
 
-    :rtype: dictionary {keys [SHA1] : values [AST]}
+    :rtype: dictionary {keys `SHA1` : values `AST`}
     """
 
     # Side effect for testing
@@ -175,6 +176,7 @@ def create_ast_dict(commits):
     print("Done.")
     return ast_dict
 
+
 def update_ast_dict(dict, commits):
     """
     Updates the dictionary
@@ -187,12 +189,12 @@ def update_ast_dict(dict, commits):
 
     :rtype: dictionary {keys [SHA1] : values [AST]} 
     """
-    
+
     # loop through commits
-    ### Improve this
-    for commit in commits: 
+    # Improve this
+    for commit in commits:
         sha1 = commit.hexsha
-        if dict.get(sha1) == None: 
+        if dict.get(sha1) == None:
             g.checkout(sha1)
             files = g.ls_files().split('\n')
             assert files != None
@@ -200,28 +202,28 @@ def update_ast_dict(dict, commits):
             root = create_ast_value(files)
 
             dict.update({sha1: root})
-    
+
     print("Done updating AST...")
     return dict
 
-# Find current directory path 
+
+# Find current directory path
 current_dir = os.path.dirname(os.path.abspath(__file__))
 
 try:
     print("Checking if file has been pickled...")
-    with open(os.path.join(current_dir, "pickeld_ast"), "rb") as file:
+    with open(os.path.join(current_dir, "module_data", repo_name), "rb") as file:
         ast_dict = pickle.load(file)
     file.close()
-    ast_dict = update_ast_dict(ast_dict, commits)
     print("File has been found...")
-    print("Updating AST...")
-except (FileNotFoundError): 
-    print("Creating dictionary...")
+    ast_dict = update_ast_dict(ast_dict, commits)
+except (FileNotFoundError):
     # Create dictionary
     ast_dict = create_ast_dict(commits)
-    with open(os.path.join(current_dir, "pickeld_ast"), "wb") as file:
+    with open(os.path.join(current_dir, "module_data", repo_name), "wb") as file:
         pickle.dump(ast_dict, file, protocol=pickle.HIGHEST_PROTOCOL)
     file.close()
+
 
 # print file structure
 print("Printing the AST")
