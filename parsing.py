@@ -4,9 +4,14 @@ Initial docstring for the parsing module
 import os
 from git import Repo, Git
 import ast
+import json
 import pickle
 
-repo_name = "snorkel"
+
+with open("config.json", "r") as f:
+    config = json.load(f)
+
+repo_name = config["repo_name"]
 
 home = os.path.expanduser("~")
 
@@ -41,11 +46,10 @@ except OSError:
 repo = Repo(repo_path)
 assert not repo.bare
 g = Git(repo_path)
-g.checkout('master')
+g.checkout(config["branch"])
 # limited to 10 for testing
-commits = list(repo.iter_commits('master', max_count=10))
-print("List of commits: ")
-print(commits)
+commits = list(repo.iter_commits('master', max_count=config["max_count"]))
+
 
 class Node():
     """
@@ -199,9 +203,6 @@ def update_ast_dict(dict, commits):
     
     print("Done updating AST...")
     return dict
-
-            
-
 
 # Find current directory path 
 current_dir = os.path.dirname(os.path.abspath(__file__))
