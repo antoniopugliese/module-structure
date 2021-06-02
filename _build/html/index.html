@@ -47,6 +47,59 @@
 <section id="module-parsing">
 <span id="parsing"></span><h1>Parsing<a class="headerlink" href="#module-parsing" title="Permalink to this headline">¶</a></h1>
 <p>Initial docstring for the parsing module</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="parsing.Node">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">parsing.</span></span><span class="sig-name descname"><span class="pre">Node</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ast</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#parsing.Node" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>If the Node is a leaf of a tree, an instance contains the name of a Python 
+file, its AST, and a reference to its parent directory.</p>
+<p>Otherwise, an instance contains the name of a directory, a reference to its
+parent directory (if any), and a list of children Nodes.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="parsing.Node.add_child">
+<span class="sig-name descname"><span class="pre">add_child</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">child</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#parsing.Node.add_child" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="parsing.Node.to_string">
+<span class="sig-name descname"><span class="pre">to_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#parsing.Node.to_string" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="parsing.create_ast_dict">
+<span class="sig-prename descclassname"><span class="pre">parsing.</span></span><span class="sig-name descname"><span class="pre">create_ast_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">commits</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#parsing.create_ast_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a dictionary mapping the SHA1 of each version in [commits] to an
+abstract syntax tree of all the Python code in that version.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="parsing.create_branch">
+<span class="sig-prename descclassname"><span class="pre">parsing.</span></span><span class="sig-name descname"><span class="pre">create_branch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tree</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filepath</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ast</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#parsing.create_branch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds a leaf to <cite>tree</cite> to represent the file structure of the Python file
+given by <cite>filepath</cite>. The leaf contains the AST of the Python file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>tree</strong> (<a class="reference internal" href="#parsing.Node" title="parsing.Node"><em>Node</em></a>) – the tree the branch will be added to</p></li>
+<li><p><strong>filepath</strong> (<em>str list</em>) – the path of directories to the target Python file</p></li>
+<li><p><strong>ast</strong> – the AST of the target Python file</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#parsing.Node" title="parsing.Node">Node</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="parsing.find_dir">
+<span class="sig-prename descclassname"><span class="pre">parsing.</span></span><span class="sig-name descname"><span class="pre">find_dir</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#parsing.find_dir" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the path of a target directory given a start directory.</p>
+<p>Assumes a top-down approach will be taken.</p>
+</dd></dl>
+
 </section>
 
 

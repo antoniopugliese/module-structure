@@ -1,21 +1,27 @@
 """
 Initial docstring for the parsing module
 """
-
 import os
 from git import Repo, Git
 import ast
+import pickle
 
 repo_name = "snorkel"
 
 home = os.path.expanduser("~")
 
-
 def find_dir(target, start):
     """
-    Returns the path of a target directory given a start directory.
-
+    Finds the path of a target directory given a start directory.
     Assumes a top-down approach will be taken.
+
+    :param target: the name of the target directory
+    :type target: string
+
+    :param start: the path of the directory where the search starts
+    :type start: string 
+
+    :rtype: string
     """
     for path, dirs, files in os.walk(start):
         # If the target directory is within current list of directories
@@ -112,6 +118,11 @@ def create_ast_dict(commits):
     """
     Returns a dictionary mapping the SHA1 of each version in [commits] to an
     abstract syntax tree of all the Python code in that version.
+
+    :param commits: the list of commits in a repo
+    :type commits: [Commit] list
+
+    :rtype: dictionary {keys [SHA1] : values [AST]}
     """
 
     # Side effect for testing
@@ -133,8 +144,7 @@ def create_ast_dict(commits):
             if file.endswith('.py'):
                 # print(file)
                 file_dir = file.split('/')
-                file_path = os.sep.join(
-                    [repo_path] + file_dir)
+                file_path = os.sep.join([repo_path] + file_dir)
                 with open(file_path) as fin:
                     text = fin.read()
                     tree = ast.parse(text)
@@ -146,42 +156,39 @@ def create_ast_dict(commits):
     print("Done.")
     return ast_dict
 
+def update_ast_dict(dict, commits):
+    """
+    Updates the dictionary
 
-ast_dict = create_ast_dict(commits)
+    :param dict: dictionary that maps SHA1 to an AST
+    :type dict: dictionary {keys [SHA1] : values [AST]} 
+
+    :param commits: the list of commits in a repo
+    :type commits: [Commit] list
+
+    :rtype: dictionary {keys [SHA1] : values [AST]} 
+    """
+    return None
+
+
+# Find current directory path 
+current_dir = os.path.dirname(os.path.abspath(__file__))
+
+try:
+    print("Checking if file has been pickled...")
+    with open(os.path.join(current_dir, "pickeld_ast"), "rb") as file:
+        ast_dict = pickle.load(file)
+    file.close()
+    print("File has been found...")
+except (FileNotFoundError): 
+    print("Creating dictionary...")
+    # Create dictionary
+    ast_dict = create_ast_dict(commits)
+    with open(os.path.join(current_dir, "pickeld_ast"), "wb") as file:
+        pickle.dump(ast_dict, file, protocol=pickle.HIGHEST_PROTOCOL)
+    file.close()
+
 # print file structure
+print("Printing the AST")
 first = list(ast_dict.keys())[0]
 print(ast_dict[first].to_string())
-
-
-### Node Testing ###
-# root = Node(repo_name, None, None)
-
-# f1 = ["setup.py"]
-# f1_path = os.sep.join([repo_path] + f1)
-# with open(f1_path) as fin:
-#     text = fin.read()
-#     ast1 = ast.parse(text)
-# t1 = create_branch(root, f1, ast1)
-
-# f2 = ["docs", "conf.py"]
-# f2_path = os.sep.join([repo_path] + f2)
-# with open(f2_path) as fin:
-#     text = fin.read()
-#     ast2 = ast.parse(text)
-# t2 = create_branch(root, f2, ast2)
-
-# f3 = ["scripts", "check_requirements.py"]
-# f3_path = os.sep.join([repo_path] + f1)
-# with open(f3_path) as fin:
-#     text = fin.read()
-#     ast3 = ast.parse(text)
-# t3 = create_branch(root, f3, ast3)
-
-# f4 = ["scripts", "sync_api_docs.py"]
-# f4_path = os.sep.join([repo_path] + f1)
-# with open(f4_path) as fin:
-#     text = fin.read()
-#     ast4 = ast.parse(text)
-# t4 = create_branch(root, f4, ast4)
-
-# print(t4.to_string())
