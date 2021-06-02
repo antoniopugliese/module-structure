@@ -44,7 +44,8 @@ g = Git(repo_path)
 g.checkout('master')
 # limited to 10 for testing
 commits = list(repo.iter_commits('master', max_count=10))
-
+print("List of commits: ")
+print(commits)
 
 class Node():
     """
@@ -114,6 +115,30 @@ def create_branch(tree, filepath, ast):
         return tree
 
 
+def create_ast_value(files):
+    """
+    Returns a new `tree` of Nodes based on a list of files. 
+
+    :param files: list of files
+    :type files: string list
+
+    :rtype: Node
+    """
+    # create root
+    root = Node(repo_name, None, None)
+
+    for file in files:
+        if file.endswith('.py'):
+            # print(file)
+            file_dir = file.split('/')
+            file_path = os.sep.join([repo_path] + file_dir)
+            with open(file_path) as fin:
+                text = fin.read()
+                tree = ast.parse(text)
+                create_branch(root, file_dir, tree)
+
+    return root
+
 def create_ast_dict(commits):
     """
     Returns a dictionary mapping the SHA1 of each version in [commits] to an
@@ -137,18 +162,8 @@ def create_ast_dict(commits):
         files = g.ls_files().split('\n')
         assert files != None
 
-        # create root
-        root = Node(repo_name, None, None)
-
-        for file in files:
-            if file.endswith('.py'):
-                # print(file)
-                file_dir = file.split('/')
-                file_path = os.sep.join([repo_path] + file_dir)
-                with open(file_path) as fin:
-                    text = fin.read()
-                    tree = ast.parse(text)
-                    create_branch(root, file_dir, tree)
+        # create tree
+        root = create_ast_value(files)
 
         ast_dict.update({sha1: root})
 
@@ -168,7 +183,24 @@ def update_ast_dict(dict, commits):
 
     :rtype: dictionary {keys [SHA1] : values [AST]} 
     """
-    return None
+    
+    # loop through commits
+    ### Improve this
+    for commit in commits: 
+        sha1 = commit.hexsha
+        if dict.get(sha1) == None: 
+            g.checkout(sha1)
+            files = g.ls_files().split('\n')
+            assert files != None
+
+            root = create_ast_value(files)
+
+            dict.update({sha1: root})
+    
+    print("Done updating AST...")
+    return dict
+
+            
 
 
 # Find current directory path 
@@ -179,7 +211,9 @@ try:
     with open(os.path.join(current_dir, "pickeld_ast"), "rb") as file:
         ast_dict = pickle.load(file)
     file.close()
+    ast_dict = update_ast_dict(ast_dict, commits)
     print("File has been found...")
+    print("Updating AST...")
 except (FileNotFoundError): 
     print("Creating dictionary...")
     # Create dictionary
