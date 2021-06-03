@@ -1,55 +1,17 @@
 """
-Initial docstring for the parsing module
+This module constructs an object representing the file structure and the abstract
+syntax tree (AST) for every Python code file in a given git repo.
+
+This module creates a dictionary object mapping the SHA1 hash of a commit of a git
+repo to a custom object that maintains information about the directory of the git
+repo, and the AST of every Python code file. A user can modify the ``config.json``
+file to alter what commits are analyzed.
 """
 import os
 from git import Repo, Git
 import ast
 import json
 import pickle
-
-
-with open("config.json", "r") as f:
-    config = json.load(f)
-
-repo_name = config["repo_name"]
-
-home = os.path.expanduser("~")
-
-
-def find_dir(target, start):
-    """
-    Finds the path of a target directory given a start directory.
-    Assumes a top-down approach will be taken.
-
-    :param target: the name of the target directory
-    :type target: string
-
-    :param start: the path of the directory where the search starts
-    :type start: string 
-
-    :rtype: string
-    """
-    for path, dirs, files in os.walk(start):
-        # If the target directory is within current list of directories
-        if target in dirs:
-            return os.path.join(path, target)
-
-
-# Recursively determine where target repo is based on home directory
-print("Finding path...")
-repo_path = find_dir(repo_name, home)
-
-try:
-    os.chdir(repo_path)
-except OSError:
-    print("Error changing directory")
-
-repo = Repo(repo_path)
-assert not repo.bare
-g = Git(repo_path)
-g.checkout(config["branch"])
-# limited to 10 for testing
-commits = list(repo.iter_commits('master', max_count=config["max_count"]))
 
 
 class Node():
@@ -78,18 +40,37 @@ class Node():
         return base
 
 
+def find_dir(target, start):
+    """
+    Finds the path of a target directory given a start directory.
+    Assumes a top-down approach will be taken.
+
+    :param target: the name of the target directory
+    :type target: str
+
+    :param start: the path of the directory where the search starts
+    :type start: str
+
+    :rtype: str
+    """
+    for path, dirs, files in os.walk(start):
+        # If the target directory is within current list of directories
+        if target in dirs:
+            return os.path.join(path, target)
+
+
 def create_branch(tree, filepath, ast):
     """
     Adds a leaf to `tree` to represent the file structure of the Python file
     given by `filepath`. The leaf contains the AST of the Python file.
 
-    :param tree: the tree the branch will be added to
+    :param tree: the existing tree the branch will be added to
     :type tree: Node
 
     :param filepath: the sequence of directories to the target Python file
     :type filepath: str list
 
-    :param ast: the AST of the target Python file
+    :param ast: the AST object of the target Python file
     :type ast: ast
 
     :rtype: Node
@@ -119,12 +100,15 @@ def create_branch(tree, filepath, ast):
         return tree
 
 
-def create_ast_value(files):
+def create_ast_value(files, repo_path):
     """
     Returns a new `tree` of Nodes based on a list of files. 
 
     :param files: list of files
-    :type files: string list
+    :type files: str list
+
+    :param repo_path: the path to the directory that contains the target repo
+    :type repo_path: str
 
     :rtype: Node
     """
@@ -146,13 +130,14 @@ def create_ast_value(files):
 
 def create_ast_dict(commits):
     """
-    Returns a dictionary mapping the SHA1 of each version in `commits` to an
-    abstract syntax tree of all the Python code in that version.
+    Returns a dictionary mapping the SHA1 of each version in `commits` to a Node
+    object that contains the abstract syntax trees of all the Python code in that
+    version.
 
     :param commits: the list of commits in a repo
-    :type commits: ``Commit`` list
+    :type commits: Git.Commit list
 
-    :rtype: dictionary {keys `SHA1` : values `AST`}
+    :rtype: dictionary {str : Node}
     """
 
     # Side effect for testing
@@ -168,7 +153,7 @@ def create_ast_dict(commits):
         assert files != None
 
         # create tree
-        root = create_ast_value(files)
+        root = create_ast_value(files, repo_path)
 
         ast_dict.update({sha1: root})
 
@@ -177,17 +162,17 @@ def create_ast_dict(commits):
     return ast_dict
 
 
-def update_ast_dict(dict, commits):
+def update_ast_dict(dict, commits, repo_path):
     """
     Updates the dictionary
 
-    :param dict: dictionary that maps SHA1 to an AST
-    :type dict: dictionary {keys [SHA1] : values [AST]} 
+    :param dict: dictionary that maps SHA1 to a Node object
+    :type dict: dictionary {str : Node} 
 
     :param commits: the list of commits in a repo
-    :type commits: [Commit] list
+    :type commits: Git.Commit list
 
-    :rtype: dictionary {keys [SHA1] : values [AST]} 
+    :rtype: dictionary {str : Node} 
     """
 
     # loop through commits
@@ -199,7 +184,7 @@ def update_ast_dict(dict, commits):
             files = g.ls_files().split('\n')
             assert files != None
 
-            root = create_ast_value(files)
+            root = create_ast_value(files, repo_path)
 
             dict.update({sha1: root})
 
@@ -207,25 +192,50 @@ def update_ast_dict(dict, commits):
     return dict
 
 
-# Find current directory path
-current_dir = os.path.dirname(os.path.abspath(__file__))
+# this prevents the module from running when imported, making docs, etc.
+if (__name__ == "__main__"):
+    home = os.path.expanduser("~")
 
-try:
-    print("Checking if file has been pickled...")
-    with open(os.path.join(current_dir, "module_data", repo_name), "rb") as file:
-        ast_dict = pickle.load(file)
-    file.close()
-    print("File has been found...")
-    ast_dict = update_ast_dict(ast_dict, commits)
-except (FileNotFoundError):
-    # Create dictionary
-    ast_dict = create_ast_dict(commits)
-    with open(os.path.join(current_dir, "module_data", repo_name), "wb") as file:
-        pickle.dump(ast_dict, file, protocol=pickle.HIGHEST_PROTOCOL)
-    file.close()
+    ### potentially need to find path to config.json as well ###
+    with open("config.json", "r") as f:
+        config = json.load(f)
 
+    repo_name = config["repo_name"]
 
-# print file structure
-print("Printing the AST")
-first = list(ast_dict.keys())[0]
-print(ast_dict[first].to_string())
+    # Recursively determine where target repo is based on home directory
+    print("Finding path to target repo...")
+    repo_path = find_dir(repo_name, home)
+
+    try:
+        os.chdir(repo_path)
+    except OSError:
+        print("Error changing directory")
+
+    repo = Repo(repo_path)
+    assert not repo.bare
+    g = Git(repo_path)
+    g.checkout(config["branch"])
+    # limited to 10 for testing
+    commits = list(repo.iter_commits('master', max_count=config["max_count"]))
+
+    # Find current directory path
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+
+    try:
+        print("Checking if file has been pickled...")
+        with open(os.path.join(current_dir, "module_data", repo_name), "rb") as file:
+            ast_dict = pickle.load(file)
+        file.close()
+        print("File has been found...")
+        ast_dict = update_ast_dict(ast_dict, commits, repo_path)
+    except (FileNotFoundError):
+        # Create dictionary
+        ast_dict = create_ast_dict(commits)
+        with open(os.path.join(current_dir, "module_data", repo_name), "wb") as file:
+            pickle.dump(ast_dict, file, protocol=pickle.HIGHEST_PROTOCOL)
+        file.close()
+
+    # print file structure
+    print("Printing the AST")
+    first = list(ast_dict.keys())[0]
+    print(ast_dict[first].to_string())

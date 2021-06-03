@@ -46,7 +46,12 @@
 </section>
 <section id="module-parsing">
 <span id="parsing"></span><h1>Parsing<a class="headerlink" href="#module-parsing" title="Permalink to this headline">¶</a></h1>
-<p>Initial docstring for the parsing module</p>
+<p>This module constructs an object representing the file structure and the abstract
+syntax tree (AST) for every Python code file in a given git repo.</p>
+<p>This module creates a dictionary object mapping the SHA1 hash of a commit of a git
+repo to a custom object that maintains information about the directory of the git
+repo, and the AST of every Python code file. A user can modify the <code class="docutils literal notranslate"><span class="pre">config.json</span></code>
+file to alter what commits are analyzed.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="parsing.Node">
 <em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">parsing.</span></span><span class="sig-name descname"><span class="pre">Node</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ast</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#parsing.Node" title="Permalink to this definition">¶</a></dt>
@@ -70,8 +75,34 @@ parent directory (if any), and a list of children Nodes.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="parsing.create_ast_dict">
 <span class="sig-prename descclassname"><span class="pre">parsing.</span></span><span class="sig-name descname"><span class="pre">create_ast_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">commits</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#parsing.create_ast_dict" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns a dictionary mapping the SHA1 of each version in [commits] to an
-abstract syntax tree of all the Python code in that version.</p>
+<dd><p>Returns a dictionary mapping the SHA1 of each version in <cite>commits</cite> to a Node
+object that contains the abstract syntax trees of all the Python code in that
+version.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>commits</strong> (<em>Git.Commit list</em>) – the list of commits in a repo</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dictionary {str : Node}</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="parsing.create_ast_value">
+<span class="sig-prename descclassname"><span class="pre">parsing.</span></span><span class="sig-name descname"><span class="pre">create_ast_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">files</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repo_path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#parsing.create_ast_value" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a new <cite>tree</cite> of Nodes based on a list of files.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>files</strong> (<em>str list</em>) – list of files</p></li>
+<li><p><strong>repo_path</strong> (<em>str</em>) – the path to the directory that contains the target repo</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#parsing.Node" title="parsing.Node">Node</a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
@@ -82,9 +113,9 @@ given by <cite>filepath</cite>. The leaf contains the AST of the Python file.</p
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>tree</strong> (<a class="reference internal" href="#parsing.Node" title="parsing.Node"><em>Node</em></a>) – the tree the branch will be added to</p></li>
-<li><p><strong>filepath</strong> (<em>str list</em>) – the path of directories to the target Python file</p></li>
-<li><p><strong>ast</strong> – the AST of the target Python file</p></li>
+<li><p><strong>tree</strong> (<a class="reference internal" href="#parsing.Node" title="parsing.Node"><em>Node</em></a>) – the existing tree the branch will be added to</p></li>
+<li><p><strong>filepath</strong> (<em>str list</em>) – the sequence of directories to the target Python file</p></li>
+<li><p><strong>ast</strong> (<em>ast</em>) – the AST object of the target Python file</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type</dt>
@@ -96,8 +127,36 @@ given by <cite>filepath</cite>. The leaf contains the AST of the Python file.</p
 <dl class="py function">
 <dt class="sig sig-object py" id="parsing.find_dir">
 <span class="sig-prename descclassname"><span class="pre">parsing.</span></span><span class="sig-name descname"><span class="pre">find_dir</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#parsing.find_dir" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the path of a target directory given a start directory.</p>
-<p>Assumes a top-down approach will be taken.</p>
+<dd><p>Finds the path of a target directory given a start directory.
+Assumes a top-down approach will be taken.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>target</strong> (<em>str</em>) – the name of the target directory</p></li>
+<li><p><strong>start</strong> (<em>str</em>) – the path of the directory where the search starts</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="parsing.update_ast_dict">
+<span class="sig-prename descclassname"><span class="pre">parsing.</span></span><span class="sig-name descname"><span class="pre">update_ast_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">commits</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repo_path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#parsing.update_ast_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Updates the dictionary</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dict</strong> (<em>dictionary {str : Node}</em>) – dictionary that maps SHA1 to a Node object</p></li>
+<li><p><strong>commits</strong> (<em>Git.Commit list</em>) – the list of commits in a repo</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dictionary {str : Node}</p>
+</dd>
+</dl>
 </dd></dl>
 
 </section>
