@@ -6,6 +6,8 @@ This module creates a dictionary object mapping the SHA1 hash of a commit of a g
 repo to a custom object that maintains information about the directory of the git
 repo, and the AST of every Python code file. A user can modify the ``config.json``
 file to alter what commits are analyzed.
+
+Requires Python 3.8.3 or above. 
 """
 import os
 from git import Repo, Git
@@ -16,6 +18,8 @@ import pickle
 
 class Node():
     """
+    This Node class is used to build a tree that represents a software module.
+
     If the Node is a leaf of a tree, an instance contains the name of a Python 
     file, its AST, and a reference to its parent directory.
 
@@ -24,15 +28,67 @@ class Node():
     """
 
     def __init__(self, n, ast, p):
+        """
+        The initializer for the Node object. 
+
+        :param n: name of the instance (file or directory) 
+        :type n: str
+
+        :param ast: the abstract syntax tree of n if a file, None otherwise
+        :type ast: ast.Module 
+
+        :param p: the parent of the Node object, None if doesn't exist
+        :type p: Node
+
+        :param children: the children of the Node object, initially empty
+        :type children: Node list
+
+        :return: A Node object containing, n, ast, and p.
+        :rtype: Node
+
+        >>> Node('example', None, None)
+        >>> tree = ast.parse('example')
+        >>> Node('parent', tree, None)
+        """
         self.name = n
         self.tree = ast
         self.parent = p
         self.children = []
 
     def add_child(self, child):
+        """
+        Adds a child to the Node object. 
+
+        :param child: Node object to add to tree. 
+        :type child: Node
+
+        :return: Node object with child added to children
+        :rtype: Node 
+
+        >>> example = Node('example', None, None)
+        >>> example.add_child(Node('child_1', None, 'example'))
+        >>> example.add_child(Node('child_2), None, 'example'))
+        """
         self.children.append(child)
 
     def to_string(self, level=0):
+        """
+        String representation of a Node and all its children. Mainly used for 
+        debugging purposes. 
+
+        :param level: the current depth of the Node (assume level = 0 for current Node)
+        :type level: int
+
+        :return: A string representing the Node and all its children
+        :rtype: str
+
+        >>> example = Node('example', None, None)
+        >>> example.to_string()
+        'example\n'
+        >>> example.add_child(Node('child', None, 'example'))
+        >>>  example.to_string()
+        'example\n    child\n'
+        """
         base = self.name + "\n"
         level += 1
         for child in self.children:
@@ -40,16 +96,16 @@ class Node():
         return base
 
 
-def find_dir(target, start):
+def find_dir(start, target):
     """
     Finds the path of a target directory given a start directory.
-    Assumes a top-down approach will be taken.
-
-    :param target: the name of the target directory
-    :type target: str
+    Assumes a top-down approach will be taken, and that 
 
     :param start: the path of the directory where the search starts
     :type start: str
+
+    :param target: the name of the target directory
+    :type target: str
 
     :return: path of the target directory
     :rtype: str
@@ -58,7 +114,6 @@ def find_dir(target, start):
     >>> repo_name = 'snorkel'
     >>> find_dir(repo_name, home)
     'C:\\Users\\Antonio\\Documents\\GitHub\\snorkel'
-
     """
     for path, dirs, files in os.walk(start):
         # If the target directory is within current list of directories
@@ -80,6 +135,7 @@ def create_branch(tree, filepath, ast):
     :param ast: the AST object of the target Python file
     :type ast: ast
 
+    :return: leaf to the `tree` that contains the AST of the Python file
     :rtype: Node
     """
     # the name of "folder" or Python file
@@ -109,7 +165,7 @@ def create_branch(tree, filepath, ast):
 
 def create_ast_value(files, repo_path):
     """
-    Returns a new `tree` of Nodes based on a list of files. 
+    Creates a new `tree` of Nodes based on a list of files. 
 
     :param files: list of files
     :type files: str list
@@ -117,6 +173,7 @@ def create_ast_value(files, repo_path):
     :param repo_path: the path to the directory that contains the target repo
     :type repo_path: str
 
+    :return: a `tree` of Nodes based on the files in repo_path
     :rtype: Node
     """
     # create root
@@ -137,13 +194,14 @@ def create_ast_value(files, repo_path):
 
 def create_ast_dict(commits):
     """
-    Returns a dictionary mapping the SHA1 of each version in `commits` to a Node
+    Creates a dictionary mapping the SHA1 of each version in `commits` to a Node
     object that contains the abstract syntax trees of all the Python code in that
     version.
 
     :param commits: the list of commits in a repo
     :type commits: Git.Commit list
 
+    :return: a dictionary mapping the SHA1 of each commit to a Node object. 
     :rtype: dictionary {str : Node}
     """
 
@@ -171,7 +229,7 @@ def create_ast_dict(commits):
 
 def update_ast_dict(dict, commits, repo_path):
     """
-    Updates the dictionary
+    Updates the dictionary to add any new commits in a repo. 
 
     :param dict: dictionary that maps SHA1 to a Node object
     :type dict: dictionary {str : Node} 
@@ -179,6 +237,7 @@ def update_ast_dict(dict, commits, repo_path):
     :param commits: the list of commits in a repo
     :type commits: Git.Commit list
 
+    :return: An updated dictionary with any new commits. 
     :rtype: dictionary {str : Node} 
     """
 
@@ -199,7 +258,6 @@ def update_ast_dict(dict, commits, repo_path):
     return dict
 
 
-# this prevents the module from running when imported, making docs, etc.
 if __name__ == "__main__":
     home = os.path.expanduser("~")
 
@@ -209,9 +267,20 @@ if __name__ == "__main__":
 
     repo_name = config["repo_name"]
 
+    # Find absolute current directory path
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+
     # Recursively determine where target repo is based on home directory
     print("Finding path to target repo...")
-    repo_path = find_dir(repo_name, home)
+    try:
+        print("Searching...")
+        with open(os.path.join(current_dir, "module_data", "repo_path"), "rb") as file:
+            repo_path = pickle.load(file)
+    except (FileNotFoundError):
+        print("Scanning start directory...")
+        repo_path = find_dir(home, repo_name)
+        with open(os.path.join(current_dir, "module_data", "repo_path"), "wb") as file:
+            pickle.dump(repo_path, file, protocol=pickle.HIGHEST_PROTOCOL)
 
     try:
         os.chdir(repo_path)
@@ -224,9 +293,6 @@ if __name__ == "__main__":
     g.checkout(config["branch"])
     # limited to 10 for testing
     commits = list(repo.iter_commits('master', max_count=config["max_count"]))
-
-    # Find current directory path
-    current_dir = os.path.dirname(os.path.abspath(__file__))
 
     try:
         print("Checking if file has been pickled...")

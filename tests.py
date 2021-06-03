@@ -2,6 +2,7 @@
 File used for testing. 
 
 TODO: Testing plan and motivation
+- Test last 10 commits
 """
 import os
 from git import Repo, Git
