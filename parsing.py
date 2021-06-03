@@ -19,6 +19,7 @@ import pickle
 class Node():
     """
     This Node class is used to build a tree that represents a software module.
+    Each Node represents either a folder or Python file. 
 
     If the Node is a leaf of a tree, an instance contains the name of a Python 
     file, its AST, and a reference to its parent directory.
@@ -29,7 +30,9 @@ class Node():
 
     def __init__(self, n, ast, p):
         """
-        The initializer for the Node object. 
+        Initializes the Node object. The Node will contain the name `n`,
+        a given AST `ast` (which could be ``None``), and a reference to the parent
+        Node `p`. The Node object intially has no children.
 
         :param n: name of the instance (file or directory) 
         :type n: str
@@ -46,9 +49,8 @@ class Node():
         :return: A Node object containing, n, ast, and p.
         :rtype: Node
 
-        >>> Node('example', None, None)
-        >>> tree = ast.parse('example')
-        >>> Node('parent', tree, None)
+        For example, to create a Node to represent a root folder named "src":
+        >>> Node("src", None, None)
         """
         self.name = n
         self.tree = ast
@@ -67,7 +69,9 @@ class Node():
 
         >>> example = Node('example', None, None)
         >>> example.add_child(Node('child_1', None, 'example'))
-        >>> example.add_child(Node('child_2), None, 'example'))
+        >>> example.add_child(Node('child_2', None, 'example'))
+        >>> example.children
+        [Node('child_1',None,'example'), Node('child_2', None, 'example')]
         """
         self.children.append(child)
 
@@ -76,7 +80,7 @@ class Node():
         String representation of a Node and all its children. Mainly used for 
         debugging purposes. 
 
-        :param level: the current depth of the Node (assume level = 0 for current Node)
+        :param level: the current depth of the Node. The default level is 0.
         :type level: int
 
         :return: A string representing the Node and all its children
@@ -85,8 +89,8 @@ class Node():
         >>> example = Node('example', None, None)
         >>> example.to_string()
         'example\n'
-        >>> example.add_child(Node('child', None, 'example'))
-        >>>  example.to_string()
+        >>> example.add_child(Node('child', None, example))
+        >>> example.to_string()
         'example\n    child\n'
         """
         base = self.name + "\n"
@@ -99,7 +103,7 @@ class Node():
 def find_dir(start, target):
     """
     Finds the path of a target directory given a start directory.
-    Assumes a top-down approach will be taken, and that 
+    Assumes a top-down approach will be taken.
 
     :param start: the path of the directory where the search starts
     :type start: str
@@ -270,16 +274,21 @@ if __name__ == "__main__":
     # Find absolute current directory path
     current_dir = os.path.dirname(os.path.abspath(__file__))
 
+    # Path to file containing pickled data
+    data_path = os.path.join(current_dir, "module_data")
+
     # Recursively determine where target repo is based on home directory
     print("Finding path to target repo...")
     try:
         print("Searching...")
-        with open(os.path.join(current_dir, "module_data", "repo_path"), "rb") as file:
+        with open(os.path.join(data_path, repo_name + "_path"), "rb") as file:
             repo_path = pickle.load(file)
     except (FileNotFoundError):
         print("Scanning start directory...")
         repo_path = find_dir(home, repo_name)
-        with open(os.path.join(current_dir, "module_data", "repo_path"), "wb") as file:
+        if not os.path.isdir(data_path):
+            os.mkdir(data_path)
+        with open(os.path.join(data_path, repo_name + "_path"), "wb") as file:
             pickle.dump(repo_path, file, protocol=pickle.HIGHEST_PROTOCOL)
 
     try:
@@ -287,6 +296,7 @@ if __name__ == "__main__":
     except OSError:
         print("Error changing directory")
 
+    # create Repo object and extract list of commits
     repo = Repo(repo_path)
     assert not repo.bare
     g = Git(repo_path)
@@ -296,7 +306,7 @@ if __name__ == "__main__":
 
     try:
         print("Checking if file has been pickled...")
-        with open(os.path.join(current_dir, "module_data", repo_name), "rb") as file:
+        with open(os.path.join(data_path, repo_name), "rb") as file:
             ast_dict = pickle.load(file)
         file.close()
         print("File has been found...")
@@ -304,7 +314,7 @@ if __name__ == "__main__":
     except (FileNotFoundError):
         # Create dictionary
         ast_dict = create_ast_dict(commits)
-        with open(os.path.join(current_dir, "module_data", repo_name), "wb") as file:
+        with open(os.path.join(data_path, repo_name), "wb") as file:
             pickle.dump(ast_dict, file, protocol=pickle.HIGHEST_PROTOCOL)
         file.close()
 
