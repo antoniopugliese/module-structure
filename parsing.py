@@ -51,7 +51,14 @@ def find_dir(target, start):
     :param start: the path of the directory where the search starts
     :type start: str
 
+    :return: path of the target directory
     :rtype: str
+
+    >>> home = os.path.expanduser("~")
+    >>> repo_name = 'snorkel'
+    >>> find_dir(repo_name, home)
+    'C:\\Users\\Antonio\\Documents\\GitHub\\snorkel'
+
     """
     for path, dirs, files in os.walk(start):
         # If the target directory is within current list of directories
@@ -193,7 +200,7 @@ def update_ast_dict(dict, commits, repo_path):
 
 
 # this prevents the module from running when imported, making docs, etc.
-if (__name__ == "__main__"):
+if __name__ == "__main__":
     home = os.path.expanduser("~")
 
     ### potentially need to find path to config.json as well ###
