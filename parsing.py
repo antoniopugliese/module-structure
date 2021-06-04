@@ -23,7 +23,7 @@ class Node(ABC):
     module. The Node subclasses represent either a folder or Python file. 
     """
 
-    def __init__(self, n, p):
+    def __init__(self, n, p, t):
         """
         Initializes the Node object.
 
@@ -33,21 +33,37 @@ class Node(ABC):
         :param p: the name of the parent of the Node object, None if doesn't exist
         :type p: str
 
+        :param t: the type of Node
+        :type t: str
+
         :return: A Node object containing n and p.
         :rtype: Node
         """
         self.name = n
         self.parent = p
+        self.type = t
 
     @abstractmethod
     def to_string(self, level=0):
         pass
 
-    # TODO:
-    # -walk()
-    # -file_walk()
-    # -folder_walk()
+    def get_name(self):
+        """
+        Getter method to return the name of the Node
 
+        :return: name of Node
+        :rtype: str
+        """
+        return self.name
+
+    def get_type(self):
+        """
+        Getter method to return the type of Node
+
+        :return: type of Node
+        :rtype: str
+        """
+        return self.type
 
 class FolderNode(Node):
     """
@@ -67,8 +83,11 @@ class FolderNode(Node):
 
         :return: A FolderNode object containing `n` and `p`.
         :rtype: FolderNode
+
+        >>> FolderNode('example', None)
+        >>> FolderNode('child', 'example')
         """
-        super().__init__(n, p)
+        super().__init__(n, p, "folder")
         self.children = []
 
     def add_child(self, child):
@@ -97,7 +116,7 @@ class FolderNode(Node):
         :param level: the current depth of the Node, defaults to 0.
         :type level: int
 
-        :returns: A string representing the FolderNode and all its children.
+        :return: A string representing the FolderNode and all its children.
         :rtype: str
 
         >>> example = FolderNode('src', None)
@@ -117,10 +136,32 @@ class FolderNode(Node):
             base += " "*4*level + child.to_string(level)
         return base
 
-        # TODO:
-        # -folder_walk()
-        # -get_dir(dir_name)
-        # -docs
+    def get_children(self):
+        """
+        Getter method for the children of the Node
+
+        :return: the list of children from the Node
+        :rtype: Node list
+        """
+        return self.children
+
+    def get_name(self):
+        """
+        Getter method to return the name of the directory. 
+
+        :return: directory name
+        :rtype: str
+        """
+        return super().get_name()
+    
+    def get_type(self):
+        """
+        Getter method to return type of current Node. 
+
+        :return: "folder"
+        :rtype: str
+        """
+        return super().get_type()
 
 
 class FileNode(Node):
@@ -146,13 +187,8 @@ class FileNode(Node):
         :return: A FileNode object containing `n`, `p`, and `ast`.
         :rtype: FileNode
         """
-        super().__init__(n, p)
+        super().__init__(n, p, "file")
         self.tree = ast
-
-    # TODO:
-    # -file_walk()
-    # -get_ast(file_name) ?
-    # -docs
 
     def to_string(self, level=0):
         """
@@ -161,14 +197,128 @@ class FileNode(Node):
         :param level: the current depth of the Node, defaults to 0.
         :type level: int
 
-        :returns: the name of the Python file.
+        :return: the name of the Python file.
         :rtype: str
 
         >>> FileNode("code.py",ast,"root").to_string()
         'code.py'
         """
         return self.name + "\n"
+    
+    def get_name(self):
+        """
+        Getter method to return the filename of the current node. 
 
+        :return: filename
+        :rtype: str
+        """
+        return super().get_name()
+    
+    
+    def get_type(self):
+        """
+        Getter method to return the type of Node
+
+        :return: "file"
+        :rtype: str
+        """
+        return super().get_type()
+
+    def get_ast(self):
+        """
+        Getter method to return the abstract syntax tree of the file.
+
+        :return: AST of file 
+        :rtype: ast
+        """
+        return self.tree
+
+def traversal(root):
+    """
+    Traverses the tree using a breadth-first-search approach. 
+
+    :param root: the root of the tree 
+    :type root: Node
+
+    :return: list of all the Nodes in the tree
+    :rtype: Node list
+    """
+    if root is None:
+        return []
+
+    visited = [root]
+    queue = [root]
+
+    while queue:
+        curr_node = queue.pop(0)
+
+        if curr_node.get_type() == "file": 
+            if curr_node not in visited:
+                visited.append(curr_node)
+        else: 
+            for child in curr_node.get_children(): 
+                if child not in visited:
+                    visited.append(child)
+                    queue.append(child)
+
+    return visited
+
+def find_name(root, n):
+    """
+    Finds a Node with name n in a tree starting at the root. 
+
+    :param root: the root of the tree
+    :type root: Node
+
+    :param n: the name of the Node
+    :type n: str
+
+    :return: the Node with name n, None if not found
+    :rtype: Node
+    """
+    if root is None:
+        return None
+    
+    visited = [root.get_name()]
+    queue = [root]
+
+    while queue:
+        curr_node = queue.pop(0)
+        curr_name = curr_node.get_name()
+
+        if curr_name == n:
+            return curr_node
+        
+        if curr_node.get_type() == "folder":
+            if curr_node not in visited:
+                for child in curr_node.get_children():
+                    visited.append(child.get_name())
+                    queue.append(child)
+        else: 
+            continue
+    
+    return None
+
+def find_ast(root, n):
+    """
+    Finds the abstract syntax tree of file with name n in a tree starting at 
+    root. If the file cannot be found, return None.
+
+    :param root: the root of the tree
+    :type root: Node
+
+    :param n: the name of the file
+    :type n: str
+
+    :return: the ast of file n
+    :rtype: ast.Module
+    """
+    node = find_name(root, n)
+
+    if node is None or node.get_type() == "folder":
+        return None
+    
+    return node.get_ast()
 
 def find_dir(start, target):
     """
@@ -186,7 +336,7 @@ def find_dir(start, target):
 
     >>> home = os.path.expanduser("~")
     >>> repo_name = 'snorkel'
-    >>> find_dir(repo_name, home)
+    >>> find_dir(home, repo_name)
     'C:\\Users\\Antonio\\Documents\\GitHub\\snorkel'
     """
     for path, dirs, files in os.walk(start):
@@ -302,7 +452,7 @@ def create_ast_dict(commits):
         ast_dict.update({sha1: root})
 
     # Side effect for testing
-    print("Done.")
+    print("Done")
     return ast_dict
 
 
@@ -323,10 +473,6 @@ def update_ast_dict(dict, commits, repo_path):
     # loop through commits
     # Improve this
 
-    # for i in range(0, len(commits)):
-    #     commit = commits[i]
-    #     if (i % 100 == 0):
-    #         print(f"{i} commits done.")
     print("Updating the dictionary...", end="", flush=True)
     for commit in commits:
         sha1 = commit.hexsha
@@ -339,7 +485,7 @@ def update_ast_dict(dict, commits, repo_path):
 
             dict.update({sha1: root})
 
-    print("Done.")
+    print("Done")
     return dict
 
 
