@@ -14,47 +14,50 @@ from git import Repo, Git
 import ast
 import json
 import pickle
+from abc import ABC, abstractmethod
 
 
-class Node():
+class Node(ABC):
     """
-    This Node class is used to build a tree that represents a software module.
-    Each Node represents either a folder or Python file. 
-
-    If the Node is a leaf of a tree, an instance contains the name of a Python 
-    file, its AST, and a reference to its parent directory.
-
-    Otherwise, an instance contains the name of a directory, a reference to its
-    parent directory (if any), and a list of children Nodes.
+    This abstract Node class is extended to build a tree that represents a software 
+    module. The Node subclasses represent either a folder or Python file. 
     """
 
-    def __init__(self, n, ast, p):
+    def __init__(self, n, p):
         """
-        Initializes the Node object. The Node will contain the name `n`,
-        a given AST `ast` (which could be ``None``), and a reference to the parent
-        Node `p`. The Node object intially has no children.
+        Initializes the Node object with the name `n` and a reference to the parent
+        Node `p`. 
 
         :param n: name of the instance (file or directory) 
         :type n: str
 
-        :param ast: the abstract syntax tree of n if a file, None otherwise
-        :type ast: ast.Module 
-
         :param p: the parent of the Node object, None if doesn't exist
         :type p: Node
 
-        :param children: the children of the Node object, initially empty
-        :type children: Node list
-
-        :return: A Node object containing, n, ast, and p.
+        :return: A Node object containing n and p.
         :rtype: Node
-
-        For example, to create a Node to represent a root folder named "src":
-        >>> Node("src", None, None)
         """
         self.name = n
-        self.tree = ast
         self.parent = p
+
+    @abstractmethod
+    def to_string(self, level=0):
+        pass
+
+    # TODO:
+    # -walk()
+    # -file_walk()
+    # -folder_walk()
+
+
+class FolderNode(Node):
+    """
+    """
+
+    def __init__(self, n, p):
+        """
+        """
+        super().__init__(n, p)
         self.children = []
 
     def add_child(self, child):
@@ -77,29 +80,38 @@ class Node():
 
     def to_string(self, level=0):
         """
-        String representation of a Node and all its children. Mainly used for 
-        debugging purposes. 
-
-        :param level: the current depth of the Node, defaults to 0.
-        :type level: int
-
-        :return: A string representing the Node and all its children
-        :rtype: str
-
-        >>> example = Node('example', None, None)
-        >>> example.to_string()
-        'example'
-
-        >>> example.add_child(Node('child', None, example))
-        >>> example.to_string()
-        'example'
-            'child'
         """
         base = self.name + "\n"
         level += 1
         for child in self.children:
             base += " "*4*level + child.to_string(level)
         return base
+
+        # TODO:
+        # -folder_walk()
+        # -get_dir(dir_name)
+        # -docs
+
+
+class FileNode(Node):
+    """
+    """
+
+    def __init__(self, n, p, ast):
+        """
+        """
+        super().__init__(n, p)
+        self.tree = ast
+
+    # TODO:
+    # -file_walk()
+    # -get_ast(file_name) ?
+    # -docs
+
+    def to_string(self, level=0):
+        """
+        """
+        return " "*4*level + self.name
 
 
 def find_dir(start, target):
