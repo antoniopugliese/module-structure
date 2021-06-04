@@ -111,7 +111,7 @@ class FileNode(Node):
     def to_string(self, level=0):
         """
         """
-        return " "*4*level + self.name
+        return self.name + "\n"
 
 
 def find_dir(start, target):
@@ -162,7 +162,7 @@ def create_branch(tree, filepath, ast):
     # if at the Python file
     if (len(filepath) == 1):
         # add AST to the leaf
-        tree.add_child(Node(name, ast, tree))
+        tree.add_child(FileNode(name, tree, ast))
         return tree
     else:
         filepath.pop(0)
@@ -176,7 +176,7 @@ def create_branch(tree, filepath, ast):
                 break
         # create the "folder", and then add the branch
         if (not branch_exists):
-            tree.add_child(Node(name, None, tree))
+            tree.add_child(FolderNode(name, tree))
             create_branch(tree.children[-1], filepath, ast)
         return tree
 
@@ -195,7 +195,7 @@ def create_ast_value(files, repo_path):
     :rtype: Node
     """
     # create root
-    root = Node(repo_name, None, None)
+    root = FolderNode(repo_name, None)
 
     for file in files:
         if file.endswith('.py'):
@@ -351,6 +351,6 @@ if __name__ == "__main__":
     print("Done.")
 
     # print file structure of the latest commit
-    # print("Printing the AST")
-    # first = list(ast_dict.keys())[1]
-    # print(ast_dict[first].to_string())
+    print("Printing the AST")
+    first = list(ast_dict.keys())[1]
+    print(ast_dict[first].to_string())
