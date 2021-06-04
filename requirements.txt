@@ -1,0 +1,2 @@
+GitPython==3.1.17
+pytest==6.2.4
