@@ -23,7 +23,7 @@ class Node(ABC):
     module. The Node subclasses represent either a folder or Python file. 
     """
 
-    def __init__(self, n, p, t):
+    def __init__(self, n, p):
         """
         Initializes the Node object.
 
@@ -33,15 +33,11 @@ class Node(ABC):
         :param p: the name of the parent of the Node object, None if doesn't exist
         :type p: str
 
-        :param t: the type of Node
-        :type t: str
-
         :return: A Node object containing n and p.
         :rtype: Node
         """
         self.name = n
         self.parent = p
-        self.type = t
 
     @abstractmethod
     def to_string(self, level=0):
@@ -49,21 +45,13 @@ class Node(ABC):
 
     def get_name(self):
         """
-        Getter method to return the name of the Node
+        Getter method to return the name of the Node.
 
         :return: name of Node
         :rtype: str
         """
         return self.name
 
-    def get_type(self):
-        """
-        Getter method to return the type of Node
-
-        :return: type of Node
-        :rtype: str
-        """
-        return self.type
 
 class FolderNode(Node):
     """
@@ -87,7 +75,7 @@ class FolderNode(Node):
         >>> FolderNode('example', None)
         >>> FolderNode('child', 'example')
         """
-        super().__init__(n, p, "folder")
+        super().__init__(n, p)
         self.children = []
 
     def add_child(self, child):
@@ -124,7 +112,7 @@ class FolderNode(Node):
         'src'
 
         >>> example.add_child(FolderNode('child', 'src'))
-        >>> example.add_child(FileNode('code.py', ast, 'src'))
+        >>> example.add_child(FileNode('code.py', 'src', 'ast'))
         >>> example.to_string()
         'src'
             'child'
@@ -153,15 +141,6 @@ class FolderNode(Node):
         :rtype: str
         """
         return super().get_name()
-    
-    def get_type(self):
-        """
-        Getter method to return type of current Node. 
-
-        :return: "folder"
-        :rtype: str
-        """
-        return super().get_type()
 
 
 class FileNode(Node):
@@ -187,7 +166,7 @@ class FileNode(Node):
         :return: A FileNode object containing `n`, `p`, and `ast`.
         :rtype: FileNode
         """
-        super().__init__(n, p, "file")
+        super().__init__(n, p)
         self.tree = ast
 
     def to_string(self, level=0):
@@ -200,11 +179,11 @@ class FileNode(Node):
         :return: the name of the Python file.
         :rtype: str
 
-        >>> FileNode("code.py",ast,"root").to_string()
+        >>> FileNode("code.py","root","ast").to_string()
         'code.py'
         """
         return self.name + "\n"
-    
+
     def get_name(self):
         """
         Getter method to return the filename of the current node. 
@@ -213,16 +192,6 @@ class FileNode(Node):
         :rtype: str
         """
         return super().get_name()
-    
-    
-    def get_type(self):
-        """
-        Getter method to return the type of Node
-
-        :return: "file"
-        :rtype: str
-        """
-        return super().get_type()
 
     def get_ast(self):
         """
@@ -232,6 +201,7 @@ class FileNode(Node):
         :rtype: ast
         """
         return self.tree
+
 
 def traversal(root):
     """
@@ -252,16 +222,17 @@ def traversal(root):
     while queue:
         curr_node = queue.pop(0)
 
-        if curr_node.get_type() == "file": 
+        if type(curr_node) is FileNode:
             if curr_node not in visited:
                 visited.append(curr_node)
-        else: 
-            for child in curr_node.get_children(): 
+        else:
+            for child in curr_node.get_children():
                 if child not in visited:
                     visited.append(child)
                     queue.append(child)
 
     return visited
+
 
 def find_name(root, n):
     """
@@ -278,7 +249,7 @@ def find_name(root, n):
     """
     if root is None:
         return None
-    
+
     visited = [root.get_name()]
     queue = [root]
 
@@ -288,20 +259,21 @@ def find_name(root, n):
 
         if curr_name == n:
             return curr_node
-        
-        if curr_node.get_type() == "folder":
+
+        if type(curr_node) is FolderNode:
             if curr_node not in visited:
                 for child in curr_node.get_children():
                     visited.append(child.get_name())
                     queue.append(child)
-        else: 
+        else:
             continue
-    
+
     return None
+
 
 def find_ast(root, n):
     """
-    Finds the abstract syntax tree of file with name n in a tree starting at 
+    Finds the abstract syntax tree of file with name `n` in a tree starting at 
     root. If the file cannot be found, return None.
 
     :param root: the root of the tree
@@ -315,10 +287,11 @@ def find_ast(root, n):
     """
     node = find_name(root, n)
 
-    if node is None or node.get_type() == "folder":
+    if node is None or type(node) is FolderNode:
         return None
-    
+
     return node.get_ast()
+
 
 def find_dir(start, target):
     """
@@ -368,7 +341,7 @@ def create_branch(tree, filepath, ast):
     # if at the Python file
     if (len(filepath) == 1):
         # add AST to the leaf
-        tree.add_child(FileNode(name, tree, ast))
+        tree.add_child(FileNode(name, tree.name, ast))
         return tree
     else:
         filepath.pop(0)
@@ -382,7 +355,7 @@ def create_branch(tree, filepath, ast):
                 break
         # create the "folder", and then add the branch
         if (not branch_exists):
-            tree.add_child(FolderNode(name, tree))
+            tree.add_child(FolderNode(name, tree.name))
             create_branch(tree.children[-1], filepath, ast)
         return tree
 
