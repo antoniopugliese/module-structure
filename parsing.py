@@ -133,15 +133,6 @@ class FolderNode(Node):
         """
         return self.children
 
-    def get_name(self):
-        """
-        Getter method to return the name of the directory. 
-
-        :return: directory name
-        :rtype: str
-        """
-        return super().get_name()
-
 
 class FileNode(Node):
     """
@@ -183,15 +174,6 @@ class FileNode(Node):
         'code.py'
         """
         return self.name + "\n"
-
-    def get_name(self):
-        """
-        Getter method to return the filename of the current node. 
-
-        :return: filename
-        :rtype: str
-        """
-        return super().get_name()
 
     def get_ast(self):
         """

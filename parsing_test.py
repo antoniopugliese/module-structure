@@ -16,7 +16,8 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 ### Node Testing ###
 
 
-def test_Node():  # Node abstract class
+# Node abstract class
+def test_Node():
     with pytest.raises(TypeError):
         parsing.Node("test", "test")
 
@@ -65,4 +66,64 @@ def test_add_child(fn, children):
         assert child.parent == fn.name
     assert fn.children == children
 
-# test whether FolderNode can use Node's get_name instead of using its own
+
+# get_name() from Node class
+@pytest.mark.parametrize("fn, name", [
+    (fold_test_repo, "test_repo"),
+    (fold_a, "a"),
+    (file_a, "a.py"),
+    (file_b, "b.py")
+])
+def test_get_name(fn, name):
+    assert fn.get_name() == name
+
+
+# to_string()
+@pytest.mark.parametrize("fn, output", [
+    (fold_test_repo, "test_repo\n    a\n        a.py\n    b.py\n"),
+    (fold_a, "a\n    a.py\n"),
+    (file_b, "b.py\n"),
+    (file_a, "a.py\n")
+])
+def test_to_string(fn, output):
+    assert fn.to_string() == output
+
+
+# traversal()
+@pytest.mark.parametrize("fn, nodes", [
+    (fold_test_repo, [fold_test_repo, fold_a, file_b, file_a]),
+    (fold_a, [fold_a, file_a]),
+    (file_b, [file_b]),
+    (file_a, [file_a])
+])
+def test_traversal(fn, nodes):
+    assert parsing.traversal(fn) == nodes
+
+
+# find_name()
+@pytest.mark.parametrize("fn, name, node", [
+    (fold_test_repo, "test_repo", fold_test_repo),
+    (fold_test_repo, "a", fold_a),
+    (fold_test_repo, "a.py", file_a),
+    (fold_test_repo, "b.py", file_b),
+    (fold_test_repo, "c.py", None),
+    (fold_a, "test_repo", None),
+    (fold_a, "a.py", file_a),
+    (file_b, "test_repo", None),
+    (file_b, "b.py", file_b),
+])
+def test_find_name(fn, name, node):
+    assert parsing.find_name(fn, name) is node
+
+
+# find_ast()
+@pytest.mark.parametrize("fn, name, ast", [
+    (fold_test_repo, "test_repo", None),
+    (fold_test_repo, "a.py", a_ast),
+    (fold_test_repo, "b.py", b_ast),
+    (fold_test_repo, "c.py", None),
+    (fold_a, "a.py", a_ast),
+    (file_b, "b.py", b_ast),
+])
+def test_find_ast(fn, name, ast):
+    assert parsing.find_ast(fn, name) is ast
