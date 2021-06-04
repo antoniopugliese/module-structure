@@ -192,8 +192,13 @@ def create_ast_value(files, repo_path):
             file_path = os.sep.join([repo_path] + file_dir)
             with open(file_path) as fin:
                 text = fin.read()
-                tree = ast.parse(text)
-                create_branch(root, file_dir, tree)
+                try:
+                    tree = ast.parse(text)
+                    create_branch(root, file_dir, tree)
+                except SyntaxError:
+                    pass
+                    # if the code that ast parses has a syntax error, it causes
+                    # the function call to result in a syntax error.
 
     return root
 
@@ -212,7 +217,7 @@ def create_ast_dict(commits):
     """
 
     # Side effect for testing
-    print("Creating ast dictionary...")
+    print("Creating ast dictionary...", end="", flush=True)
 
     ast_dict = {}
 
@@ -249,6 +254,12 @@ def update_ast_dict(dict, commits, repo_path):
 
     # loop through commits
     # Improve this
+
+    # for i in range(0, len(commits)):
+    #     commit = commits[i]
+    #     if (i % 100 == 0):
+    #         print(f"{i} commits done.")
+    print("Updating the dictionary...", end="", flush=True)
     for commit in commits:
         sha1 = commit.hexsha
         if dict.get(sha1) == None:
@@ -260,7 +271,7 @@ def update_ast_dict(dict, commits, repo_path):
 
             dict.update({sha1: root})
 
-    print("Done updating AST...")
+    print("Done.")
     return dict
 
 
@@ -280,14 +291,16 @@ if __name__ == "__main__":
     data_path = os.path.join(current_dir, "module_data")
 
     # Recursively determine where target repo is based on home directory
-    print("Finding path to target repo...")
+    print("Finding path to target repo...", end="", flush=True)
+
     try:
-        print("Searching...")
         with open(os.path.join(data_path, repo_name + "_path"), "rb") as file:
             repo_path = pickle.load(file)
+        print("Found path.")
     except (FileNotFoundError):
-        print("Scanning start directory...")
+        print("Scanning start directory...", end="", flush=True)
         repo_path = find_dir(home, repo_name)
+        print("Done.")
         if not os.path.isdir(data_path):
             os.mkdir(data_path)
         with open(os.path.join(data_path, repo_name + "_path"), "wb") as file:
@@ -307,20 +320,24 @@ if __name__ == "__main__":
     commits = list(repo.iter_commits('master', max_count=config["max_count"]))
 
     try:
-        print("Checking if file has been pickled...")
+        print("Checking if file has been pickled...", end="", flush=True)
+        if os.path.exists(os.path.join(data_path, repo_name)):
+            print("Found a file.")
         with open(os.path.join(data_path, repo_name), "rb") as file:
             ast_dict = pickle.load(file)
         file.close()
-        print("File has been found...")
         ast_dict = update_ast_dict(ast_dict, commits, repo_path)
     except (FileNotFoundError):
         # Create dictionary
+        print("Not Found.")
         ast_dict = create_ast_dict(commits)
-        with open(os.path.join(data_path, repo_name), "wb") as file:
-            pickle.dump(ast_dict, file, protocol=pickle.HIGHEST_PROTOCOL)
         file.close()
 
-    # print file structure
-    print("Printing the AST")
-    first = list(ast_dict.keys())[0]
-    print(ast_dict[first].to_string())
+    # store the pickled dictionary
+    with open(os.path.join(data_path, repo_name), "wb") as file:
+        pickle.dump(ast_dict, file, protocol=pickle.HIGHEST_PROTOCOL)
+
+    # print file structure of the latest commit
+    # print("Printing the AST")
+    # first = list(ast_dict.keys())[1]
+    # print(ast_dict[first].to_string())
