@@ -277,15 +277,14 @@ def update_ast_dict(dict, commits, repo_path):
 
 if __name__ == "__main__":
     home = os.path.expanduser("~")
+    # Find absolute current directory path
+    current_dir = os.path.dirname(os.path.abspath(__file__))
 
     ### potentially need to find path to config.json as well ###
-    with open("config.json", "r") as f:
+    with open(os.path.join(current_dir, "config.json"), "r") as f:
         config = json.load(f)
 
     repo_name = config["repo_name"]
-
-    # Find absolute current directory path
-    current_dir = os.path.dirname(os.path.abspath(__file__))
 
     # Path to file containing pickled data
     data_path = os.path.join(current_dir, "module_data")
@@ -334,8 +333,10 @@ if __name__ == "__main__":
         file.close()
 
     # store the pickled dictionary
+    print("Storing dictionary...", end="", flush=True)
     with open(os.path.join(data_path, repo_name), "wb") as file:
         pickle.dump(ast_dict, file, protocol=pickle.HIGHEST_PROTOCOL)
+    print("Done.")
 
     # print file structure of the latest commit
     # print("Printing the AST")
