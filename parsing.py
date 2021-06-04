@@ -64,7 +64,7 @@ class Node():
         :param child: Node object to add to tree. 
         :type child: Node
 
-        :return: Node object with child added to children
+        :return: Node object with child added to its list of children
         :rtype: Node 
 
         >>> example = Node('example', None, None)
@@ -80,7 +80,7 @@ class Node():
         String representation of a Node and all its children. Mainly used for 
         debugging purposes. 
 
-        :param level: the current depth of the Node. The default level is 0.
+        :param level: the current depth of the Node, defaults to 0.
         :type level: int
 
         :return: A string representing the Node and all its children
@@ -88,10 +88,12 @@ class Node():
 
         >>> example = Node('example', None, None)
         >>> example.to_string()
-        'example\n'
+        'example'
+
         >>> example.add_child(Node('child', None, example))
         >>> example.to_string()
-        'example\n    child\n'
+        'example'
+            'child'
         """
         base = self.name + "\n"
         level += 1

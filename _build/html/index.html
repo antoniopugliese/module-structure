@@ -52,10 +52,13 @@ syntax tree (AST) for every Python code file in a given git repo.</p>
 repo to a custom object that maintains information about the directory of the git
 repo, and the AST of every Python code file. A user can modify the <code class="docutils literal notranslate"><span class="pre">config.json</span></code>
 file to alter what commits are analyzed.</p>
+<p>Requires Python 3.8.3 or above.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="parsing.Node">
 <em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">parsing.</span></span><span class="sig-name descname"><span class="pre">Node</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ast</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#parsing.Node" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>This Node class is used to build a tree that represents a software module.
+Each Node represents either a folder or Python file.</p>
 <p>If the Node is a leaf of a tree, an instance contains the name of a Python 
 file, its AST, and a reference to its parent directory.</p>
 <p>Otherwise, an instance contains the name of a directory, a reference to its
@@ -63,27 +66,73 @@ parent directory (if any), and a list of children Nodes.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="parsing.Node.add_child">
 <span class="sig-name descname"><span class="pre">add_child</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">child</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#parsing.Node.add_child" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Adds a child to the Node object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>child</strong> (<a class="reference internal" href="#parsing.Node" title="parsing.Node"><em>Node</em></a>) – Node object to add to tree.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Node object with child added to its list of children</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#parsing.Node" title="parsing.Node">Node</a></p>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">example</span> <span class="o">=</span> <span class="n">Node</span><span class="p">(</span><span class="s1">&#39;example&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">example</span><span class="o">.</span><span class="n">add_child</span><span class="p">(</span><span class="n">Node</span><span class="p">(</span><span class="s1">&#39;child_1&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;example&#39;</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">example</span><span class="o">.</span><span class="n">add_child</span><span class="p">(</span><span class="n">Node</span><span class="p">(</span><span class="s1">&#39;child_2&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;example&#39;</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">example</span><span class="o">.</span><span class="n">children</span>
+<span class="go">[Node(&#39;child_1&#39;,None,&#39;example&#39;), Node(&#39;child_2&#39;, None, &#39;example&#39;)]</span>
+</pre></div>
+</div>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="parsing.Node.to_string">
 <span class="sig-name descname"><span class="pre">to_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#parsing.Node.to_string" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>String representation of a Node and all its children. Mainly used for 
+debugging purposes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>level</strong> (<em>int</em>) – the current depth of the Node, defaults to 0.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A string representing the Node and all its children</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">example</span> <span class="o">=</span> <span class="n">Node</span><span class="p">(</span><span class="s1">&#39;example&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">example</span><span class="o">.</span><span class="n">to_string</span><span class="p">()</span>
+<span class="go">&#39;example&#39;</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">example</span><span class="o">.</span><span class="n">add_child</span><span class="p">(</span><span class="n">Node</span><span class="p">(</span><span class="s1">&#39;child&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">example</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">example</span><span class="o">.</span><span class="n">to_string</span><span class="p">()</span>
+<span class="go">&#39;example&#39;</span>
+<span class="go">    &#39;child&#39;</span>
+</pre></div>
+</div>
+</dd></dl>
 
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="parsing.create_ast_dict">
 <span class="sig-prename descclassname"><span class="pre">parsing.</span></span><span class="sig-name descname"><span class="pre">create_ast_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">commits</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#parsing.create_ast_dict" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns a dictionary mapping the SHA1 of each version in <cite>commits</cite> to a Node
+<dd><p>Creates a dictionary mapping the SHA1 of each version in <cite>commits</cite> to a Node
 object that contains the abstract syntax trees of all the Python code in that
 version.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>commits</strong> (<em>Git.Commit list</em>) – the list of commits in a repo</p>
 </dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>dictionary {str : Node}</p>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a dictionary mapping the SHA1 of each commit to a Node object.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dictionary {str : Node}</p>
 </dd>
 </dl>
 </dd></dl>
@@ -91,7 +140,7 @@ version.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="parsing.create_ast_value">
 <span class="sig-prename descclassname"><span class="pre">parsing.</span></span><span class="sig-name descname"><span class="pre">create_ast_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">files</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repo_path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#parsing.create_ast_value" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns a new <cite>tree</cite> of Nodes based on a list of files.</p>
+<dd><p>Creates a new <cite>tree</cite> of Nodes based on a list of files.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -99,8 +148,11 @@ version.</p>
 <li><p><strong>repo_path</strong> (<em>str</em>) – the path to the directory that contains the target repo</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference internal" href="#parsing.Node" title="parsing.Node">Node</a></p>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a <cite>tree</cite> of Nodes based on the files in repo_path</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#parsing.Node" title="parsing.Node">Node</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -118,26 +170,32 @@ given by <cite>filepath</cite>. The leaf contains the AST of the Python file.</p
 <li><p><strong>ast</strong> (<em>ast</em>) – the AST object of the target Python file</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference internal" href="#parsing.Node" title="parsing.Node">Node</a></p>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>leaf to the <cite>tree</cite> that contains the AST of the Python file</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#parsing.Node" title="parsing.Node">Node</a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="parsing.find_dir">
-<span class="sig-prename descclassname"><span class="pre">parsing.</span></span><span class="sig-name descname"><span class="pre">find_dir</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#parsing.find_dir" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">parsing.</span></span><span class="sig-name descname"><span class="pre">find_dir</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#parsing.find_dir" title="Permalink to this definition">¶</a></dt>
 <dd><p>Finds the path of a target directory given a start directory.
 Assumes a top-down approach will be taken.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>target</strong> (<em>str</em>) – the name of the target directory</p></li>
 <li><p><strong>start</strong> (<em>str</em>) – the path of the directory where the search starts</p></li>
+<li><p><strong>target</strong> (<em>str</em>) – the name of the target directory</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>str</p>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>path of the target directory</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>str</p>
 </dd>
 </dl>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">home</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span><span class="s2">&quot;~&quot;</span><span class="p">)</span>
@@ -151,7 +209,7 @@ Assumes a top-down approach will be taken.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="parsing.update_ast_dict">
 <span class="sig-prename descclassname"><span class="pre">parsing.</span></span><span class="sig-name descname"><span class="pre">update_ast_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">commits</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repo_path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#parsing.update_ast_dict" title="Permalink to this definition">¶</a></dt>
-<dd><p>Updates the dictionary</p>
+<dd><p>Updates the dictionary to add any new commits in a repo.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -159,8 +217,11 @@ Assumes a top-down approach will be taken.</p>
 <li><p><strong>commits</strong> (<em>Git.Commit list</em>) – the list of commits in a repo</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>dictionary {str : Node}</p>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>An updated dictionary with any new commits.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dictionary {str : Node}</p>
 </dd>
 </dl>
 </dd></dl>
