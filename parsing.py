@@ -25,14 +25,13 @@ class Node(ABC):
 
     def __init__(self, n, p):
         """
-        Initializes the Node object with the name `n` and a reference to the parent
-        Node `p`. 
+        Initializes the Node object.
 
         :param n: name of the instance (file or directory) 
         :type n: str
 
-        :param p: the parent of the Node object, None if doesn't exist
-        :type p: Node
+        :param p: the name of the parent of the Node object, None if doesn't exist
+        :type p: str
 
         :return: A Node object containing n and p.
         :rtype: Node
@@ -52,34 +51,65 @@ class Node(ABC):
 
 class FolderNode(Node):
     """
+    The Node subclass that represents a directory. It contains a ``children``
+    attribute that stores its child Nodes, which may be files or other directories.
     """
 
     def __init__(self, n, p):
         """
+        Initializes the FolderNode with no children Nodes.
+
+        :param n: name of the directory.
+        :type n: str
+
+        :param p: the name of the parent directory, None if this directory is root folder.
+        :type p: str
+
+        :return: A FolderNode object containing `n` and `p`.
+        :rtype: FolderNode
         """
         super().__init__(n, p)
         self.children = []
 
     def add_child(self, child):
         """
-        Adds a child to the Node object. 
+        Adds a child to the FolderNode object. 
 
-        :param child: Node object to add to tree. 
+        :param child: Node object to add to the FolderNode. 
         :type child: Node
 
-        :return: Node object with child added to its list of children
-        :rtype: Node 
+        :return: FolderNode object with child added to its list of children.
+        :rtype: FolderNode 
 
-        >>> example = Node('example', None, None)
-        >>> example.add_child(Node('child_1', None, 'example'))
-        >>> example.add_child(Node('child_2', None, 'example'))
+        >>> example = FolderNode('example', None)
+        >>> example.add_child(FolderNode('child_1', 'example'))
+        >>> example.add_child(FolderNode('child_2', 'example'))
         >>> example.children
-        [Node('child_1',None,'example'), Node('child_2', None, 'example')]
+        [FolderNode('child_1', 'example'), FolderNode('child_2', 'example')]
         """
         self.children.append(child)
 
     def to_string(self, level=0):
         """
+        The string representation of the FolderNode and all of its children Nodes.
+        Mainly intended for debugging purposes.
+
+        :param level: the current depth of the Node, defaults to 0.
+        :type level: int
+
+        :returns: A string representing the FolderNode and all its children.
+        :rtype: str
+
+        >>> example = FolderNode('src', None)
+        >>> example.to_string()
+        'src'
+
+        >>> example.add_child(FolderNode('child', 'src'))
+        >>> example.add_child(FileNode('code.py', ast, 'src'))
+        >>> example.to_string()
+        'src'
+            'child'
+            'code.py'
         """
         base = self.name + "\n"
         level += 1
@@ -95,10 +125,26 @@ class FolderNode(Node):
 
 class FileNode(Node):
     """
+    The Node subclass that represents a Python file. It contains a ``tree``
+    attribute that stores the abstract syntax tree (AST) of the Python file it
+    represents. A FileNode cannot have any children Nodes (it must be a leaf).
     """
 
     def __init__(self, n, p, ast):
         """
+        Initializes the FileNode with the AST of the Python file given by `n`.
+
+        :param n: name of the Python file.
+        :type n: str
+
+        :param p: the name of the parent directory, if any.
+        :type p: str
+
+        :param ast: the AST of the Python file.
+        :type ast: ast
+
+        :return: A FileNode object containing `n`, `p`, and `ast`.
+        :rtype: FileNode
         """
         super().__init__(n, p)
         self.tree = ast
@@ -110,6 +156,16 @@ class FileNode(Node):
 
     def to_string(self, level=0):
         """
+        The string representation of the FileNode. Mainly intended for debugging purposes.
+
+        :param level: the current depth of the Node, defaults to 0.
+        :type level: int
+
+        :returns: the name of the Python file.
+        :rtype: str
+
+        >>> FileNode("code.py",ast,"root").to_string()
+        'code.py'
         """
         return self.name + "\n"
 
