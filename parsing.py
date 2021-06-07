@@ -342,7 +342,7 @@ def create_branch(tree, filepath, ast):
         return tree
 
 
-def create_ast_value(files, repo_path):
+def create_ast_value(files, repo_path, repo_name):
     """
     Creates a new `tree` of Nodes based on a list of files. 
 
@@ -351,6 +351,9 @@ def create_ast_value(files, repo_path):
 
     :param repo_path: the path to the directory that contains the target repo
     :type repo_path: str
+
+    :param repo_name: the name of the target repo
+    :type repo_name: str
 
     :return: a `tree` of Nodes based on the files in repo_path
     :rtype: Node
@@ -376,7 +379,7 @@ def create_ast_value(files, repo_path):
     return root
 
 
-def create_ast_dict(commits):
+def create_ast_dict(commits, repo_path, repo_name, g):
     """
     Creates a dictionary mapping the SHA1 of each version in `commits` to a Node
     object that contains the abstract syntax trees of all the Python code in that
@@ -385,6 +388,15 @@ def create_ast_dict(commits):
     :param commits: the list of commits in a repo
     :type commits: Git.Commit list
 
+    :param repo_path: the path to the directory that contains the target repo
+    :type repo_path: str
+
+    :param repo_name: the name of the target repo
+    :type repo_name: str
+
+    :param g: the git module to analyze
+    :type g: Git
+    
     :return: a dictionary mapping the SHA1 of each commit to a Node object. 
     :rtype: dictionary {str : Node}
     """
@@ -402,7 +414,7 @@ def create_ast_dict(commits):
         assert files != None
 
         # create tree
-        root = create_ast_value(files, repo_path)
+        root = create_ast_value(files, repo_path, repo_name)
 
         ast_dict.update({sha1: root})
 
@@ -411,7 +423,7 @@ def create_ast_dict(commits):
     return ast_dict
 
 
-def update_ast_dict(dict, commits, repo_path):
+def update_ast_dict(dict, commits, repo_path, repo_name, g):
     """
     Updates the dictionary to add any new commits in a repo. 
 
@@ -420,6 +432,15 @@ def update_ast_dict(dict, commits, repo_path):
 
     :param commits: the list of commits in a repo
     :type commits: Git.Commit list
+
+    :param repo_path: the path to the directory that contains the target repo
+    :type repo_path: str
+
+    :param repo_name: the name of the target repo
+    :type repo_name: str
+
+    :param g: the git module to analyze
+    :type g: Git
 
     :return: An updated dictionary with any new commits. 
     :rtype: dictionary {str : Node} 
@@ -436,78 +457,10 @@ def update_ast_dict(dict, commits, repo_path):
             files = g.ls_files().split('\n')
             assert files != None
 
-            root = create_ast_value(files, repo_path)
+            root = create_ast_value(files, repo_path, repo_name)
 
             dict.update({sha1: root})
 
     print("Done")
     return dict
 
-
-if __name__ == "__main__":
-    home = os.path.expanduser("~")
-    # Find absolute current directory path
-    current_dir = os.path.dirname(os.path.abspath(__file__))
-
-    ### potentially need to find path to config.json as well ###
-    with open(os.path.join(current_dir, "config.json"), "r") as f:
-        config = json.load(f)
-
-    repo_name = config["repo_name"]
-
-    # Path to file containing pickled data
-    data_path = os.path.join(current_dir, "module_data")
-
-    # Recursively determine where target repo is based on home directory
-    print("Finding path to target repo...", end="", flush=True)
-
-    try:
-        with open(os.path.join(data_path, repo_name + "_path"), "rb") as file:
-            repo_path = pickle.load(file)
-        print("Found path.")
-    except (FileNotFoundError):
-        print("Scanning start directory...", end="", flush=True)
-        repo_path = find_dir(home, repo_name)
-        print("Done.")
-        if not os.path.isdir(data_path):
-            os.mkdir(data_path)
-        with open(os.path.join(data_path, repo_name + "_path"), "wb") as file:
-            pickle.dump(repo_path, file, protocol=pickle.HIGHEST_PROTOCOL)
-
-    try:
-        os.chdir(repo_path)
-    except OSError:
-        print("Error changing directory")
-
-    # create Repo object and extract list of commits
-    repo = Repo(repo_path)
-    assert not repo.bare
-    g = Git(repo_path)
-    g.checkout(config["branch"])
-    # limited to 10 for testing
-    commits = list(repo.iter_commits('master', max_count=config["max_count"]))
-
-    try:
-        print("Checking if file has been pickled...", end="", flush=True)
-        if os.path.exists(os.path.join(data_path, repo_name)):
-            print("Found a file.")
-        with open(os.path.join(data_path, repo_name), "rb") as file:
-            ast_dict = pickle.load(file)
-        file.close()
-        ast_dict = update_ast_dict(ast_dict, commits, repo_path)
-    except (FileNotFoundError):
-        # Create dictionary
-        print("Not Found.")
-        ast_dict = create_ast_dict(commits)
-        file.close()
-
-    # store the pickled dictionary
-    print("Storing dictionary...", end="", flush=True)
-    with open(os.path.join(data_path, repo_name), "wb") as file:
-        pickle.dump(ast_dict, file, protocol=pickle.HIGHEST_PROTOCOL)
-    print("Done.")
-
-    # print file structure of the latest commit
-    print("Printing the AST")
-    first = list(ast_dict.keys())[1]
-    print(ast_dict[first].to_string())

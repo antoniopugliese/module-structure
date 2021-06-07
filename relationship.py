@@ -1,8 +1,20 @@
+"""
+This module will construct a graph representing the dependencies between files 
+in a repo. It will take in tree that represents the file structure and parse the 
+abstract syntax trees (AST) of each of the relevant files in order to construct 
+the final graph.
+
+Requires:
+Python 3.8.3 or above. 
+NetworkX 2.5 or above
+"""
+
 import ast
 import os
 import pickle
 import Node
 import parsing
+import networkx as nx
 
 
 # lists the name of every function in the ast
@@ -76,3 +88,8 @@ import_relationship(ast_dict[first])
 # node_visitor.visit(ast1)
 # print(node_visitor.imported_mods)
 # print(list(map(lambda n: n + ".py", node_visitor.imported_mods)))
+
+class AstGraph(nx.MultiGraph):
+    """
+    This class represents the graph that will be constructed.
+    """
