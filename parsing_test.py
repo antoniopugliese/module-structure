@@ -13,6 +13,9 @@ import pytest
 # Find absolute current directory path
 current_dir = os.path.dirname(os.path.abspath(__file__))
 
+# Home directory
+home = os.path.expanduser("~")
+
 ### Node Testing ###
 
 
