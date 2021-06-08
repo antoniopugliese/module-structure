@@ -53,80 +53,20 @@ repo to a custom object that maintains information about the directory of the gi
 repo, and the AST of every Python code file. A user can modify the <code class="docutils literal notranslate"><span class="pre">config.json</span></code>
 file to alter what commits are analyzed.</p>
 <p>Requires Python 3.8.3 or above.</p>
-<dl class="py class">
-<dt class="sig sig-object py" id="parsing.Node">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">parsing.</span></span><span class="sig-name descname"><span class="pre">Node</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ast</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#parsing.Node" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>This Node class is used to build a tree that represents a software module.
-Each Node represents either a folder or Python file.</p>
-<p>If the Node is a leaf of a tree, an instance contains the name of a Python 
-file, its AST, and a reference to its parent directory.</p>
-<p>Otherwise, an instance contains the name of a directory, a reference to its
-parent directory (if any), and a list of children Nodes.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="parsing.Node.add_child">
-<span class="sig-name descname"><span class="pre">add_child</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">child</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#parsing.Node.add_child" title="Permalink to this definition">¶</a></dt>
-<dd><p>Adds a child to the Node object.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>child</strong> (<a class="reference internal" href="#parsing.Node" title="parsing.Node"><em>Node</em></a>) – Node object to add to tree.</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Node object with child added to its list of children</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference internal" href="#parsing.Node" title="parsing.Node">Node</a></p>
-</dd>
-</dl>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">example</span> <span class="o">=</span> <span class="n">Node</span><span class="p">(</span><span class="s1">&#39;example&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">example</span><span class="o">.</span><span class="n">add_child</span><span class="p">(</span><span class="n">Node</span><span class="p">(</span><span class="s1">&#39;child_1&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;example&#39;</span><span class="p">))</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">example</span><span class="o">.</span><span class="n">add_child</span><span class="p">(</span><span class="n">Node</span><span class="p">(</span><span class="s1">&#39;child_2&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;example&#39;</span><span class="p">))</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">example</span><span class="o">.</span><span class="n">children</span>
-<span class="go">[Node(&#39;child_1&#39;,None,&#39;example&#39;), Node(&#39;child_2&#39;, None, &#39;example&#39;)]</span>
-</pre></div>
-</div>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="parsing.Node.to_string">
-<span class="sig-name descname"><span class="pre">to_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#parsing.Node.to_string" title="Permalink to this definition">¶</a></dt>
-<dd><p>String representation of a Node and all its children. Mainly used for 
-debugging purposes.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>level</strong> (<em>int</em>) – the current depth of the Node, defaults to 0.</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A string representing the Node and all its children</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>str</p>
-</dd>
-</dl>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">example</span> <span class="o">=</span> <span class="n">Node</span><span class="p">(</span><span class="s1">&#39;example&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">example</span><span class="o">.</span><span class="n">to_string</span><span class="p">()</span>
-<span class="go">&#39;example&#39;</span>
-</pre></div>
-</div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">example</span><span class="o">.</span><span class="n">add_child</span><span class="p">(</span><span class="n">Node</span><span class="p">(</span><span class="s1">&#39;child&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">example</span><span class="p">))</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">example</span><span class="o">.</span><span class="n">to_string</span><span class="p">()</span>
-<span class="go">&#39;example&#39;</span>
-<span class="go">    &#39;child&#39;</span>
-</pre></div>
-</div>
-</dd></dl>
-
-</dd></dl>
-
 <dl class="py function">
 <dt class="sig sig-object py" id="parsing.create_ast_dict">
-<span class="sig-prename descclassname"><span class="pre">parsing.</span></span><span class="sig-name descname"><span class="pre">create_ast_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">commits</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#parsing.create_ast_dict" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">parsing.</span></span><span class="sig-name descname"><span class="pre">create_ast_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">commits</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repo_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repo_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">g</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#parsing.create_ast_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates a dictionary mapping the SHA1 of each version in <cite>commits</cite> to a Node
 object that contains the abstract syntax trees of all the Python code in that
 version.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>commits</strong> (<em>Git.Commit list</em>) – the list of commits in a repo</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>commits</strong> (<em>Git.Commit list</em>) – the list of commits in a repo</p></li>
+<li><p><strong>repo_path</strong> (<em>str</em>) – the path to the directory that contains the target repo</p></li>
+<li><p><strong>repo_name</strong> (<em>str</em>) – the name of the target repo</p></li>
+<li><p><strong>g</strong> (<em>Git</em>) – the git module to analyze</p></li>
+</ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>a dictionary mapping the SHA1 of each commit to a Node object.</p>
@@ -139,20 +79,21 @@ version.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="parsing.create_ast_value">
-<span class="sig-prename descclassname"><span class="pre">parsing.</span></span><span class="sig-name descname"><span class="pre">create_ast_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">files</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repo_path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#parsing.create_ast_value" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">parsing.</span></span><span class="sig-name descname"><span class="pre">create_ast_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">files</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repo_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repo_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#parsing.create_ast_value" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates a new <cite>tree</cite> of Nodes based on a list of files.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>files</strong> (<em>str list</em>) – list of files</p></li>
 <li><p><strong>repo_path</strong> (<em>str</em>) – the path to the directory that contains the target repo</p></li>
+<li><p><strong>repo_name</strong> (<em>str</em>) – the name of the target repo</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>a <cite>tree</cite> of Nodes based on the files in repo_path</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference internal" href="#parsing.Node" title="parsing.Node">Node</a></p>
+<dd class="field-odd"><p><a class="reference internal" href="#Node.Node" title="Node.Node">Node</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -165,7 +106,7 @@ given by <cite>filepath</cite>. The leaf contains the AST of the Python file.</p
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>tree</strong> (<a class="reference internal" href="#parsing.Node" title="parsing.Node"><em>Node</em></a>) – the existing tree the branch will be added to</p></li>
+<li><p><strong>tree</strong> (<a class="reference internal" href="#Node.Node" title="Node.Node"><em>Node</em></a>) – the existing tree the branch will be added to</p></li>
 <li><p><strong>filepath</strong> (<em>str list</em>) – the sequence of directories to the target Python file</p></li>
 <li><p><strong>ast</strong> (<em>ast</em>) – the AST object of the target Python file</p></li>
 </ul>
@@ -174,7 +115,7 @@ given by <cite>filepath</cite>. The leaf contains the AST of the Python file.</p
 <dd class="field-even"><p>leaf to the <cite>tree</cite> that contains the AST of the Python file</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference internal" href="#parsing.Node" title="parsing.Node">Node</a></p>
+<dd class="field-odd"><p><a class="reference internal" href="#Node.Node" title="Node.Node">Node</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -200,7 +141,7 @@ Assumes a top-down approach will be taken.</p>
 </dl>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">home</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span><span class="s2">&quot;~&quot;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">repo_name</span> <span class="o">=</span> <span class="s1">&#39;snorkel&#39;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">find_dir</span><span class="p">(</span><span class="n">repo_name</span><span class="p">,</span> <span class="n">home</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">find_dir</span><span class="p">(</span><span class="n">home</span><span class="p">,</span> <span class="n">repo_name</span><span class="p">)</span>
 <span class="go">&#39;C:\Users\Antonio\Documents\GitHub\snorkel&#39;</span>
 </pre></div>
 </div>
@@ -208,13 +149,16 @@ Assumes a top-down approach will be taken.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="parsing.update_ast_dict">
-<span class="sig-prename descclassname"><span class="pre">parsing.</span></span><span class="sig-name descname"><span class="pre">update_ast_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">commits</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repo_path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#parsing.update_ast_dict" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">parsing.</span></span><span class="sig-name descname"><span class="pre">update_ast_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">commits</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repo_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repo_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">g</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#parsing.update_ast_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Updates the dictionary to add any new commits in a repo.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>dict</strong> (<em>dictionary {str : Node}</em>) – dictionary that maps SHA1 to a Node object</p></li>
 <li><p><strong>commits</strong> (<em>Git.Commit list</em>) – the list of commits in a repo</p></li>
+<li><p><strong>repo_path</strong> (<em>str</em>) – the path to the directory that contains the target repo</p></li>
+<li><p><strong>repo_name</strong> (<em>str</em>) – the name of the target repo</p></li>
+<li><p><strong>g</strong> (<em>Git</em>) – the git module to analyze</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -222,6 +166,1625 @@ Assumes a top-down approach will be taken.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>dictionary {str : Node}</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-Node">
+<span id="node"></span><h1>Node<a class="headerlink" href="#module-Node" title="Permalink to this headline">¶</a></h1>
+<p>Node module comment</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="Node.FileNode">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">Node.</span></span><span class="sig-name descname"><span class="pre">FileNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ast</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Node.FileNode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#Node.Node" title="Node.Node"><code class="xref py py-class docutils literal notranslate"><span class="pre">Node.Node</span></code></a></p>
+<p>The Node subclass that represents a Python file. It contains a <code class="docutils literal notranslate"><span class="pre">tree</span></code>
+attribute that stores the abstract syntax tree (AST) of the Python file it
+represents. A FileNode cannot have any children Nodes (it must be a leaf).</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="Node.FileNode.get_ast">
+<span class="sig-name descname"><span class="pre">get_ast</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Node.FileNode.get_ast" title="Permalink to this definition">¶</a></dt>
+<dd><p>Getter method to return the abstract syntax tree of the file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>AST of file</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>ast</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Node.FileNode.get_name">
+<span class="sig-name descname"><span class="pre">get_name</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Node.FileNode.get_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Getter method to return the name of the Node.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>name of Node</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Node.FileNode.to_string">
+<span class="sig-name descname"><span class="pre">to_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Node.FileNode.to_string" title="Permalink to this definition">¶</a></dt>
+<dd><p>The string representation of the FileNode. Mainly intended for debugging purposes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>level</strong> (<em>int</em>) – the current depth of the Node, defaults to 0.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the name of the Python file.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">FileNode</span><span class="p">(</span><span class="s2">&quot;code.py&quot;</span><span class="p">,</span><span class="s2">&quot;root&quot;</span><span class="p">,</span><span class="s2">&quot;ast&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">to_string</span><span class="p">()</span>
+<span class="go">&#39;code.py&#39;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="Node.FolderNode">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">Node.</span></span><span class="sig-name descname"><span class="pre">FolderNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Node.FolderNode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#Node.Node" title="Node.Node"><code class="xref py py-class docutils literal notranslate"><span class="pre">Node.Node</span></code></a></p>
+<p>The Node subclass that represents a directory. It contains a <code class="docutils literal notranslate"><span class="pre">children</span></code>
+attribute that stores its child Nodes, which may be files or other directories.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="Node.FolderNode.add_child">
+<span class="sig-name descname"><span class="pre">add_child</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">child</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Node.FolderNode.add_child" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds a child to the FolderNode object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>child</strong> (<a class="reference internal" href="#Node.Node" title="Node.Node"><em>Node</em></a>) – Node object to add to the FolderNode.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>FolderNode object with child added to its list of children.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#Node.FolderNode" title="Node.FolderNode">FolderNode</a></p>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">example</span> <span class="o">=</span> <span class="n">FolderNode</span><span class="p">(</span><span class="s1">&#39;example&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">example</span><span class="o">.</span><span class="n">add_child</span><span class="p">(</span><span class="n">FolderNode</span><span class="p">(</span><span class="s1">&#39;child_1&#39;</span><span class="p">,</span> <span class="s1">&#39;example&#39;</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">example</span><span class="o">.</span><span class="n">add_child</span><span class="p">(</span><span class="n">FolderNode</span><span class="p">(</span><span class="s1">&#39;child_2&#39;</span><span class="p">,</span> <span class="s1">&#39;example&#39;</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">example</span><span class="o">.</span><span class="n">children</span>
+<span class="go">[FolderNode(&#39;child_1&#39;, &#39;example&#39;), FolderNode(&#39;child_2&#39;, &#39;example&#39;)]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Node.FolderNode.get_children">
+<span class="sig-name descname"><span class="pre">get_children</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Node.FolderNode.get_children" title="Permalink to this definition">¶</a></dt>
+<dd><p>Getter method for the children of the Node</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>the list of children from the Node</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>Node list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Node.FolderNode.get_name">
+<span class="sig-name descname"><span class="pre">get_name</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Node.FolderNode.get_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Getter method to return the name of the Node.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>name of Node</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Node.FolderNode.to_string">
+<span class="sig-name descname"><span class="pre">to_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Node.FolderNode.to_string" title="Permalink to this definition">¶</a></dt>
+<dd><p>The string representation of the FolderNode and all of its children Nodes.
+Mainly intended for debugging purposes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>level</strong> (<em>int</em>) – the current depth of the Node, defaults to 0.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A string representing the FolderNode and all its children.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">example</span> <span class="o">=</span> <span class="n">FolderNode</span><span class="p">(</span><span class="s1">&#39;src&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">example</span><span class="o">.</span><span class="n">to_string</span><span class="p">()</span>
+<span class="go">&#39;src&#39;</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">example</span><span class="o">.</span><span class="n">add_child</span><span class="p">(</span><span class="n">FolderNode</span><span class="p">(</span><span class="s1">&#39;child&#39;</span><span class="p">,</span> <span class="s1">&#39;src&#39;</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">example</span><span class="o">.</span><span class="n">add_child</span><span class="p">(</span><span class="n">FileNode</span><span class="p">(</span><span class="s1">&#39;code.py&#39;</span><span class="p">,</span> <span class="s1">&#39;src&#39;</span><span class="p">,</span> <span class="s1">&#39;ast&#39;</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">example</span><span class="o">.</span><span class="n">to_string</span><span class="p">()</span>
+<span class="go">&#39;src&#39;</span>
+<span class="go">    &#39;child&#39;</span>
+<span class="go">    &#39;code.py&#39;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="Node.Node">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">Node.</span></span><span class="sig-name descname"><span class="pre">Node</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Node.Node" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></p>
+<p>This abstract Node class is extended to build a tree that represents a software 
+module. The Node subclasses represent either a folder or Python file.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="Node.Node.get_name">
+<span class="sig-name descname"><span class="pre">get_name</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Node.Node.get_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Getter method to return the name of the Node.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>name of Node</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Node.Node.to_string">
+<em class="property"><span class="pre">abstract</span> </em><span class="sig-name descname"><span class="pre">to_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Node.Node.to_string" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="Node.find_ast">
+<span class="sig-prename descclassname"><span class="pre">Node.</span></span><span class="sig-name descname"><span class="pre">find_ast</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Node.find_ast" title="Permalink to this definition">¶</a></dt>
+<dd><p>Finds the abstract syntax tree of file with name <cite>n</cite> in a tree starting at 
+root. If the file cannot be found, return None.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>root</strong> (<a class="reference internal" href="#Node.Node" title="Node.Node"><em>Node</em></a>) – the root of the tree</p></li>
+<li><p><strong>n</strong> (<em>str</em>) – the name of the file</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the ast of file n</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ast.Module</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="Node.find_name">
+<span class="sig-prename descclassname"><span class="pre">Node.</span></span><span class="sig-name descname"><span class="pre">find_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Node.find_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Finds a Node with name n in a tree starting at the root.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>root</strong> (<a class="reference internal" href="#Node.Node" title="Node.Node"><em>Node</em></a>) – the root of the tree</p></li>
+<li><p><strong>n</strong> (<em>str</em>) – the name of the Node</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the Node with name n, None if not found</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#Node.Node" title="Node.Node">Node</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="Node.traversal">
+<span class="sig-prename descclassname"><span class="pre">Node.</span></span><span class="sig-name descname"><span class="pre">traversal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Node.traversal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Traverses the tree using a breadth-first-search approach.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>root</strong> (<a class="reference internal" href="#Node.Node" title="Node.Node"><em>Node</em></a>) – the root of the tree</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>list of all the Nodes in the tree</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Node list</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="relationship">
+<h1>Relationship<a class="headerlink" href="#relationship" title="Permalink to this headline">¶</a></h1>
+<span class="target" id="module-relationship"></span><p>This module will construct a graph representing the dependencies between files
+in a repo. It will take in tree that represents the file structure and parse the
+abstract syntax trees (AST) of each of the relevant files in order to construct
+the final graph.</p>
+<p>Requires:
+Python 3.8.3 or above.
+NetworkX 2.5 or above</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="relationship.AstGraph">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">relationship.</span></span><span class="sig-name descname"><span class="pre">AstGraph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">incoming_graph_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">attr</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#relationship.AstGraph" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">networkx.classes.multigraph.MultiGraph</span></code></p>
+<p>This class represents the graph that will be constructed.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="relationship.AstGraph.add_edge">
+<span class="sig-name descname"><span class="pre">add_edge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u_for_edge</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v_for_edge</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">attr</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#relationship.AstGraph.add_edge" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add an edge between u and v.</p>
+<p>The nodes u and v will be automatically added if they are
+not already in the graph.</p>
+<p>Edge attributes can be specified with keywords or by directly
+accessing the edge’s attribute dictionary. See examples below.</p>
+<dl class="simple">
+<dt>u_for_edge, v_for_edge<span class="classifier">nodes</span></dt><dd><p>Nodes can be, for example, strings or numbers.
+Nodes must be hashable (and not None) Python objects.</p>
+</dd>
+<dt>key<span class="classifier">hashable identifier, optional (default=lowest unused integer)</span></dt><dd><p>Used to distinguish multiedges between a pair of nodes.</p>
+</dd>
+<dt>attr<span class="classifier">keyword arguments, optional</span></dt><dd><p>Edge data (or labels or objects) can be assigned using
+keyword arguments.</p>
+</dd>
+</dl>
+<p>The edge key assigned to the edge.</p>
+<p>add_edges_from : add a collection of edges</p>
+<p>To replace/update edge data, use the optional key argument
+to identify a unique edge.  Otherwise a new edge will be created.</p>
+<p>NetworkX algorithms designed for weighted graphs cannot use
+multigraphs directly because it is not clear how to handle
+multiedge weights.  Convert to Graph using edge attribute
+‘weight’ to enable weighted graph algorithms.</p>
+<p>Default keys are generated using the method <cite>new_edge_key()</cite>.
+This method can be overridden by subclassing the base class and
+providing a custom <cite>new_edge_key()</cite> method.</p>
+<p>The following all add the edge e=(1, 2) to graph G:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">G</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">MultiGraph</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">e</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ekey</span> <span class="o">=</span> <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>  <span class="c1"># explicit two-node form</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="o">*</span><span class="n">e</span><span class="p">)</span>  <span class="c1"># single edge as tuple of two nodes</span>
+<span class="go">1</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">G</span><span class="o">.</span><span class="n">add_edges_from</span><span class="p">([(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)])</span>  <span class="c1"># add edges from iterable container</span>
+<span class="go">[2]</span>
+</pre></div>
+</div>
+<p>Associate data to edges using keywords:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ekey</span> <span class="o">=</span> <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ekey</span> <span class="o">=</span> <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>  <span class="c1"># update data for key=0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ekey</span> <span class="o">=</span> <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">capacity</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mf">342.7</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>For non-string attribute keys, use subscript notation.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ekey</span> <span class="o">=</span> <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">G</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">2</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="mi">0</span><span class="p">:</span> <span class="mi">5</span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">G</span><span class="o">.</span><span class="n">edges</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="mi">0</span><span class="p">:</span> <span class="mi">5</span><span class="p">})</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="relationship.AstGraph.add_edges_from">
+<span class="sig-name descname"><span class="pre">add_edges_from</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ebunch_to_add</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">attr</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#relationship.AstGraph.add_edges_from" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add all the edges in ebunch_to_add.</p>
+<dl>
+<dt>ebunch_to_add<span class="classifier">container of edges</span></dt><dd><p>Each edge given in the container will be added to the
+graph. The edges can be:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>2-tuples (u, v) or</p></li>
+<li><p>3-tuples (u, v, d) for an edge data dict d, or</p></li>
+<li><p>3-tuples (u, v, k) for not iterable key k, or</p></li>
+<li><p>4-tuples (u, v, k, d) for an edge with data and key k</p></li>
+</ul>
+</div></blockquote>
+</dd>
+<dt>attr<span class="classifier">keyword arguments, optional</span></dt><dd><p>Edge data (or labels or objects) can be assigned using
+keyword arguments.</p>
+</dd>
+</dl>
+<p>A list of edge keys assigned to the edges in <cite>ebunch</cite>.</p>
+<p>add_edge : add a single edge
+add_weighted_edges_from : convenient way to add weighted edges</p>
+<p>Adding the same edge twice has no effect but any edge data
+will be updated when each duplicate edge is added.</p>
+<p>Edge attributes specified in an ebunch take precedence over
+attributes specified via keyword arguments.</p>
+<p>Default keys are generated using the method <code class="docutils literal notranslate"><span class="pre">new_edge_key()</span></code>.
+This method can be overridden by subclassing the base class and
+providing a custom <code class="docutils literal notranslate"><span class="pre">new_edge_key()</span></code> method.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">G</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">Graph</span><span class="p">()</span>  <span class="c1"># or DiGraph, MultiGraph, MultiDiGraph, etc</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">G</span><span class="o">.</span><span class="n">add_edges_from</span><span class="p">([(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)])</span>  <span class="c1"># using a list of edge tuples</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">e</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">G</span><span class="o">.</span><span class="n">add_edges_from</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>  <span class="c1"># Add the path graph 0-1-2-3</span>
+</pre></div>
+</div>
+<p>Associate data to edges</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">G</span><span class="o">.</span><span class="n">add_edges_from</span><span class="p">([(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">)],</span> <span class="n">weight</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">G</span><span class="o">.</span><span class="n">add_edges_from</span><span class="p">([(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">)],</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;WN2898&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="relationship.AstGraph.add_node">
+<span class="sig-name descname"><span class="pre">add_node</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node_for_adding</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">attr</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#relationship.AstGraph.add_node" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a single node <cite>node_for_adding</cite> and update node attributes.</p>
+<dl class="simple">
+<dt>node_for_adding<span class="classifier">node</span></dt><dd><p>A node can be any hashable Python object except None.</p>
+</dd>
+<dt>attr<span class="classifier">keyword arguments, optional</span></dt><dd><p>Set or change node attributes using key=value.</p>
+</dd>
+</dl>
+<p>add_nodes_from</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">G</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">Graph</span><span class="p">()</span>  <span class="c1"># or DiGraph, MultiGraph, MultiDiGraph, etc</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="s2">&quot;Hello&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">K3</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">Graph</span><span class="p">([(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">)])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="n">K3</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">G</span><span class="o">.</span><span class="n">number_of_nodes</span><span class="p">()</span>
+<span class="go">3</span>
+</pre></div>
+</div>
+<p>Use keywords set/change node attributes:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="mf">0.4</span><span class="p">,</span> <span class="n">UTM</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;13S&quot;</span><span class="p">,</span> <span class="mi">382871</span><span class="p">,</span> <span class="mi">3972649</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>A hashable object is one that can be used as a key in a Python
+dictionary. This includes strings, numbers, tuples of strings
+and numbers, etc.</p>
+<p>On many platforms hashable items also include mutables such as
+NetworkX Graphs, though one should be careful that the hash
+doesn’t change on mutables.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="relationship.AstGraph.add_nodes_from">
+<span class="sig-name descname"><span class="pre">add_nodes_from</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nodes_for_adding</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">attr</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#relationship.AstGraph.add_nodes_from" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add multiple nodes.</p>
+<dl class="simple">
+<dt>nodes_for_adding<span class="classifier">iterable container</span></dt><dd><p>A container of nodes (list, dict, set, etc.).
+OR
+A container of (node, attribute dict) tuples.
+Node attributes are updated using the attribute dict.</p>
+</dd>
+<dt>attr<span class="classifier">keyword arguments, optional (default= no attributes)</span></dt><dd><p>Update attributes for all nodes in nodes.
+Node attributes specified in nodes as a tuple take
+precedence over attributes specified via keyword arguments.</p>
+</dd>
+</dl>
+<p>add_node</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">G</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">Graph</span><span class="p">()</span>  <span class="c1"># or DiGraph, MultiGraph, MultiDiGraph, etc</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">G</span><span class="o">.</span><span class="n">add_nodes_from</span><span class="p">(</span><span class="s2">&quot;Hello&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">K3</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">Graph</span><span class="p">([(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">)])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">G</span><span class="o">.</span><span class="n">add_nodes_from</span><span class="p">(</span><span class="n">K3</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">sorted</span><span class="p">(</span><span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="nb">str</span><span class="p">)</span>
+<span class="go">[0, 1, 2, &#39;H&#39;, &#39;e&#39;, &#39;l&#39;, &#39;o&#39;]</span>
+</pre></div>
+</div>
+<p>Use keywords to update specific node attributes for every node.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">G</span><span class="o">.</span><span class="n">add_nodes_from</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="n">size</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">G</span><span class="o">.</span><span class="n">add_nodes_from</span><span class="p">([</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span> <span class="n">weight</span><span class="o">=</span><span class="mf">0.4</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Use (node, attrdict) tuples to update attributes for specific nodes.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">G</span><span class="o">.</span><span class="n">add_nodes_from</span><span class="p">([(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">11</span><span class="p">)),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="s2">&quot;blue&quot;</span><span class="p">})])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s2">&quot;size&quot;</span><span class="p">]</span>
+<span class="go">11</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">H</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">Graph</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">H</span><span class="o">.</span><span class="n">add_nodes_from</span><span class="p">(</span><span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">H</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s2">&quot;size&quot;</span><span class="p">]</span>
+<span class="go">11</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="relationship.AstGraph.add_weighted_edges_from">
+<span class="sig-name descname"><span class="pre">add_weighted_edges_from</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ebunch_to_add</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'weight'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">attr</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#relationship.AstGraph.add_weighted_edges_from" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add weighted edges in <cite>ebunch_to_add</cite> with specified weight attr</p>
+<dl class="simple">
+<dt>ebunch_to_add<span class="classifier">container of edges</span></dt><dd><p>Each edge given in the list or container will be added
+to the graph. The edges must be given as 3-tuples (u, v, w)
+where w is a number.</p>
+</dd>
+<dt>weight<span class="classifier">string, optional (default= ‘weight’)</span></dt><dd><p>The attribute name for the edge weights to be added.</p>
+</dd>
+<dt>attr<span class="classifier">keyword arguments, optional (default= no attributes)</span></dt><dd><p>Edge attributes to add/update for all edges.</p>
+</dd>
+</dl>
+<p>add_edge : add a single edge
+add_edges_from : add multiple edges</p>
+<p>Adding the same edge twice for Graph/DiGraph simply updates
+the edge data. For MultiGraph/MultiDiGraph, duplicate edges
+are stored.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">G</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">Graph</span><span class="p">()</span>  <span class="c1"># or DiGraph, MultiGraph, MultiDiGraph, etc</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">G</span><span class="o">.</span><span class="n">add_weighted_edges_from</span><span class="p">([(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mf">7.5</span><span class="p">)])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="relationship.AstGraph.adj">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">adj</span></span><a class="headerlink" href="#relationship.AstGraph.adj" title="Permalink to this definition">¶</a></dt>
+<dd><p>Graph adjacency object holding the neighbors of each node.</p>
+<p>This object is a read-only dict-like structure with node keys
+and neighbor-dict values.  The neighbor-dict is keyed by neighbor
+to the edgekey-data-dict.  So <cite>G.adj[3][2][0][‘color’] = ‘blue’</cite> sets
+the color of the edge <cite>(3, 2, 0)</cite> to <cite>“blue”</cite>.</p>
+<p>Iterating over G.adj behaves like a dict. Useful idioms include
+<cite>for nbr, nbrdict in G.adj[n].items():</cite>.</p>
+<p>The neighbor information is also provided by subscripting the graph.
+So <cite>for nbr, foovalue in G[node].data(‘foo’, default=1):</cite> works.</p>
+<p>For directed graphs, <cite>G.adj</cite> holds outgoing (successor) info.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="relationship.AstGraph.adjacency">
+<span class="sig-name descname"><span class="pre">adjacency</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#relationship.AstGraph.adjacency" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns an iterator over (node, adjacency dict) tuples for all nodes.</p>
+<p>For directed graphs, only outgoing neighbors/adjacencies are included.</p>
+<dl class="simple">
+<dt>adj_iter<span class="classifier">iterator</span></dt><dd><p>An iterator over (node, adjacency dictionary) for all nodes in
+the graph.</p>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">G</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">path_graph</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>  <span class="c1"># or DiGraph, MultiGraph, MultiDiGraph, etc</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">[(</span><span class="n">n</span><span class="p">,</span> <span class="n">nbrdict</span><span class="p">)</span> <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">nbrdict</span> <span class="ow">in</span> <span class="n">G</span><span class="o">.</span><span class="n">adjacency</span><span class="p">()]</span>
+<span class="go">[(0, {1: {}}), (1, {0: {}, 2: {}}), (2, {1: {}, 3: {}}), (3, {2: {}})]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="relationship.AstGraph.adjlist_inner_dict_factory">
+<span class="sig-name descname"><span class="pre">adjlist_inner_dict_factory</span></span><a class="headerlink" href="#relationship.AstGraph.adjlist_inner_dict_factory" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="relationship.AstGraph.adjlist_outer_dict_factory">
+<span class="sig-name descname"><span class="pre">adjlist_outer_dict_factory</span></span><a class="headerlink" href="#relationship.AstGraph.adjlist_outer_dict_factory" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="relationship.AstGraph.clear">
+<span class="sig-name descname"><span class="pre">clear</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#relationship.AstGraph.clear" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove all nodes and edges from the graph.</p>
+<p>This also removes the name, and all graph, node, and edge attributes.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">G</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">path_graph</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>  <span class="c1"># or DiGraph, MultiGraph, MultiDiGraph, etc</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">G</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">)</span>
+<span class="go">[]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">G</span><span class="o">.</span><span class="n">edges</span><span class="p">)</span>
+<span class="go">[]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="relationship.AstGraph.clear_edges">
+<span class="sig-name descname"><span class="pre">clear_edges</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#relationship.AstGraph.clear_edges" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove all edges from the graph without altering nodes.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">G</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">path_graph</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>  <span class="c1"># or DiGraph, MultiGraph, MultiDiGraph, etc</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">G</span><span class="o">.</span><span class="n">clear_edges</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">)</span>
+<span class="go">[0, 1, 2, 3]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">G</span><span class="o">.</span><span class="n">edges</span><span class="p">)</span>
+<span class="go">[]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="relationship.AstGraph.copy">
+<span class="sig-name descname"><span class="pre">copy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">as_view</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#relationship.AstGraph.copy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a copy of the graph.</p>
+<p>The copy method by default returns an independent shallow copy
+of the graph and attributes. That is, if an attribute is a
+container, that container is shared by the original an the copy.
+Use Python’s <cite>copy.deepcopy</cite> for new containers.</p>
+<p>If <cite>as_view</cite> is True then a view is returned instead of a copy.</p>
+<p>All copies reproduce the graph structure, but data attributes
+may be handled in different ways. There are four types of copies
+of a graph that people might want.</p>
+<p>Deepcopy – A “deepcopy” copies the graph structure as well as
+all data attributes and any objects they might contain.
+The entire graph object is new so that changes in the copy
+do not affect the original object. (see Python’s copy.deepcopy)</p>
+<p>Data Reference (Shallow) – For a shallow copy the graph structure
+is copied but the edge, node and graph attribute dicts are
+references to those in the original graph. This saves
+time and memory but could cause confusion if you change an attribute
+in one graph and it changes the attribute in the other.
+NetworkX does not provide this level of shallow copy.</p>
+<p>Independent Shallow – This copy creates new independent attribute
+dicts and then does a shallow copy of the attributes. That is, any
+attributes that are containers are shared between the new graph
+and the original. This is exactly what <cite>dict.copy()</cite> provides.
+You can obtain this style copy using:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">G</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">path_graph</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">H</span> <span class="o">=</span> <span class="n">G</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">H</span> <span class="o">=</span> <span class="n">G</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">as_view</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">H</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">Graph</span><span class="p">(</span><span class="n">G</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">H</span> <span class="o">=</span> <span class="n">G</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">G</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Fresh Data – For fresh data, the graph structure is copied while
+new empty data attribute dicts are created. The resulting graph
+is independent of the original and it has no edge, node or graph
+attributes. Fresh copies are not enabled. Instead use:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">H</span> <span class="o">=</span> <span class="n">G</span><span class="o">.</span><span class="vm">__class__</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">H</span><span class="o">.</span><span class="n">add_nodes_from</span><span class="p">(</span><span class="n">G</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">H</span><span class="o">.</span><span class="n">add_edges_from</span><span class="p">(</span><span class="n">G</span><span class="o">.</span><span class="n">edges</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>View – Inspired by dict-views, graph-views act like read-only
+versions of the original graph, providing a copy of the original
+structure without requiring any memory for copying the information.</p>
+<p>See the Python copy module for more information on shallow
+and deep copies, <a class="reference external" href="https://docs.python.org/3/library/copy.html">https://docs.python.org/3/library/copy.html</a>.</p>
+<dl class="simple">
+<dt>as_view<span class="classifier">bool, optional (default=False)</span></dt><dd><p>If True, the returned graph-view provides a read-only view
+of the original graph without actually copying any data.</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>G<span class="classifier">Graph</span></dt><dd><p>A copy of the graph.</p>
+</dd>
+</dl>
+<p>to_directed: return a directed copy of the graph.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">G</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">path_graph</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>  <span class="c1"># or DiGraph, MultiGraph, MultiDiGraph, etc</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">H</span> <span class="o">=</span> <span class="n">G</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="relationship.AstGraph.degree">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">degree</span></span><a class="headerlink" href="#relationship.AstGraph.degree" title="Permalink to this definition">¶</a></dt>
+<dd><p>A DegreeView for the Graph as G.degree or G.degree().</p>
+<p>The node degree is the number of edges adjacent to the node.
+The weighted node degree is the sum of the edge weights for
+edges incident to that node.</p>
+<p>This object provides an iterator for (node, degree) as well as
+lookup for the degree for a single node.</p>
+<dl class="simple">
+<dt>nbunch<span class="classifier">single node, container, or all nodes (default= all nodes)</span></dt><dd><p>The view will only report edges incident to these nodes.</p>
+</dd>
+<dt>weight<span class="classifier">string or None, optional (default=None)</span></dt><dd><p>The name of an edge attribute that holds the numerical value used
+as a weight.  If None, then each edge has weight 1.
+The degree is the sum of the edge weights adjacent to the node.</p>
+</dd>
+</dl>
+<p>If a single node is requested
+deg : int</p>
+<blockquote>
+<div><p>Degree of the node, if a single node is passed as argument.</p>
+</div></blockquote>
+<p>OR if multiple nodes are requested
+nd_iter : iterator</p>
+<blockquote>
+<div><p>The iterator returns two-tuples of (node, degree).</p>
+</div></blockquote>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">G</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">Graph</span><span class="p">()</span>  <span class="c1"># or DiGraph, MultiGraph, MultiDiGraph, etc</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">nx</span><span class="o">.</span><span class="n">add_path</span><span class="p">(</span><span class="n">G</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">G</span><span class="o">.</span><span class="n">degree</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>  <span class="c1"># node 0 with degree 1</span>
+<span class="go">1</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">G</span><span class="o">.</span><span class="n">degree</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]))</span>
+<span class="go">[(0, 1), (1, 2)]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="relationship.AstGraph.edge_attr_dict_factory">
+<span class="sig-name descname"><span class="pre">edge_attr_dict_factory</span></span><a class="headerlink" href="#relationship.AstGraph.edge_attr_dict_factory" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="relationship.AstGraph.edge_key_dict_factory">
+<span class="sig-name descname"><span class="pre">edge_key_dict_factory</span></span><a class="headerlink" href="#relationship.AstGraph.edge_key_dict_factory" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="relationship.AstGraph.edge_subgraph">
+<span class="sig-name descname"><span class="pre">edge_subgraph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">edges</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#relationship.AstGraph.edge_subgraph" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the subgraph induced by the specified edges.</p>
+<p>The induced subgraph contains each edge in <cite>edges</cite> and each
+node incident to any one of those edges.</p>
+<dl class="simple">
+<dt>edges<span class="classifier">iterable</span></dt><dd><p>An iterable of edges in this graph.</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>G<span class="classifier">Graph</span></dt><dd><p>An edge-induced subgraph of this graph with the same edge
+attributes.</p>
+</dd>
+</dl>
+<p>The graph, edge, and node attributes in the returned subgraph
+view are references to the corresponding attributes in the original
+graph. The view is read-only.</p>
+<p>To create a full graph version of the subgraph with its own copy
+of the edge or node attributes, use:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">G</span><span class="o">.</span><span class="n">edge_subgraph</span><span class="p">(</span><span class="n">edges</span><span class="p">)</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>  
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">G</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">path_graph</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">H</span> <span class="o">=</span> <span class="n">G</span><span class="o">.</span><span class="n">edge_subgraph</span><span class="p">([(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">)])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">H</span><span class="o">.</span><span class="n">nodes</span><span class="p">)</span>
+<span class="go">[0, 1, 3, 4]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">H</span><span class="o">.</span><span class="n">edges</span><span class="p">)</span>
+<span class="go">[(0, 1), (3, 4)]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="relationship.AstGraph.edges">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">edges</span></span><a class="headerlink" href="#relationship.AstGraph.edges" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns an iterator over the edges.</p>
+<p>edges(self, nbunch=None, data=False, keys=False, default=None)</p>
+<p>The EdgeView provides set-like operations on the edge-tuples
+as well as edge attribute lookup. When called, it also provides
+an EdgeDataView object which allows control of access to edge
+attributes (but does not provide set-like operations).
+Hence, <cite>G.edges[u, v][‘color’]</cite> provides the value of the color
+attribute for edge <cite>(u, v)</cite> while
+<cite>for (u, v, c) in G.edges(data=’color’, default=’red’):</cite>
+iterates through all the edges yielding the color attribute.</p>
+<p>Edges are returned as tuples with optional data and keys
+in the order (node, neighbor, key, data).</p>
+<dl class="simple">
+<dt>nbunch<span class="classifier">single node, container, or all nodes (default= all nodes)</span></dt><dd><p>The view will only report edges incident to these nodes.</p>
+</dd>
+<dt>data<span class="classifier">string or bool, optional (default=False)</span></dt><dd><p>The edge attribute returned in 3-tuple (u, v, ddict[data]).
+If True, return edge attribute dict in 3-tuple (u, v, ddict).
+If False, return 2-tuple (u, v).</p>
+</dd>
+<dt>keys<span class="classifier">bool, optional (default=False)</span></dt><dd><p>If True, return edge keys with each edge.</p>
+</dd>
+<dt>default<span class="classifier">value, optional (default=None)</span></dt><dd><p>Value used for edges that don’t have the requested attribute.
+Only relevant if data is not True or False.</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>edges<span class="classifier">MultiEdgeView</span></dt><dd><p>A view of edge attributes, usually it iterates over (u, v)
+(u, v, k) or (u, v, k, d) tuples of edges, but can also be
+used for attribute lookup as <cite>edges[u, v, k][‘foo’]</cite>.</p>
+</dd>
+</dl>
+<p>Nodes in nbunch that are not in the graph will be (quietly) ignored.
+For directed graphs this returns the out-edges.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">G</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">MultiGraph</span><span class="p">()</span>  <span class="c1"># or MultiDiGraph</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">nx</span><span class="o">.</span><span class="n">add_path</span><span class="p">(</span><span class="n">G</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">key</span> <span class="o">=</span> <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">[</span><span class="n">e</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">G</span><span class="o">.</span><span class="n">edges</span><span class="p">()]</span>
+<span class="go">[(0, 1), (1, 2), (2, 3)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">G</span><span class="o">.</span><span class="n">edges</span><span class="o">.</span><span class="n">data</span><span class="p">()</span>  <span class="c1"># default data is {} (empty dict)</span>
+<span class="go">MultiEdgeDataView([(0, 1, {}), (1, 2, {}), (2, 3, {&#39;weight&#39;: 5})])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">G</span><span class="o">.</span><span class="n">edges</span><span class="o">.</span><span class="n">data</span><span class="p">(</span><span class="s2">&quot;weight&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="go">MultiEdgeDataView([(0, 1, 1), (1, 2, 1), (2, 3, 5)])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">G</span><span class="o">.</span><span class="n">edges</span><span class="p">(</span><span class="n">keys</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># default keys are integers</span>
+<span class="go">MultiEdgeView([(0, 1, 0), (1, 2, 0), (2, 3, 0)])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">G</span><span class="o">.</span><span class="n">edges</span><span class="o">.</span><span class="n">data</span><span class="p">(</span><span class="n">keys</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="go">MultiEdgeDataView([(0, 1, 0, {}), (1, 2, 0, {}), (2, 3, 0, {&#39;weight&#39;: 5})])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">G</span><span class="o">.</span><span class="n">edges</span><span class="o">.</span><span class="n">data</span><span class="p">(</span><span class="s2">&quot;weight&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">keys</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="go">MultiEdgeDataView([(0, 1, 0, 1), (1, 2, 0, 1), (2, 3, 0, 5)])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">G</span><span class="o">.</span><span class="n">edges</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span>
+<span class="go">MultiEdgeDataView([(0, 1), (3, 2)])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">G</span><span class="o">.</span><span class="n">edges</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="go">MultiEdgeDataView([(0, 1)])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="relationship.AstGraph.get_edge_data">
+<span class="sig-name descname"><span class="pre">get_edge_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#relationship.AstGraph.get_edge_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the attribute dictionary associated with edge (u, v).</p>
+<p>This is identical to <cite>G[u][v][key]</cite> except the default is returned
+instead of an exception is the edge doesn’t exist.</p>
+<p>u, v : nodes</p>
+<dl class="simple">
+<dt>default<span class="classifier">any Python object (default=None)</span></dt><dd><p>Value to return if the edge (u, v) is not found.</p>
+</dd>
+<dt>key<span class="classifier">hashable identifier, optional (default=None)</span></dt><dd><p>Return data only for the edge with specified key.</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>edge_dict<span class="classifier">dictionary</span></dt><dd><p>The edge attribute dictionary.</p>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">G</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">MultiGraph</span><span class="p">()</span>  <span class="c1"># or MultiDiGraph</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">key</span> <span class="o">=</span> <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">G</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">][</span><span class="s2">&quot;a&quot;</span><span class="p">]</span>  <span class="c1"># key=&#39;a&#39;</span>
+<span class="go">{&#39;weight&#39;: 7}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">G</span><span class="o">.</span><span class="n">edges</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;a&quot;</span><span class="p">]</span>  <span class="c1"># key=&#39;a&#39;</span>
+<span class="go">{&#39;weight&#39;: 7}</span>
+</pre></div>
+</div>
+<p>Warning: we protect the graph data structure by making
+<cite>G.edges</cite> and <cite>G[1][2]</cite> read-only dict-like structures.
+However, you can assign values to attributes in e.g.
+<cite>G.edges[1, 2, ‘a’]</cite> or <cite>G[1][2][‘a’]</cite> using an additional
+bracket as shown next. You need to specify all edge info
+to assign to the edge data associated with an edge.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">G</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">][</span><span class="s2">&quot;a&quot;</span><span class="p">][</span><span class="s2">&quot;weight&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">G</span><span class="o">.</span><span class="n">edges</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;a&quot;</span><span class="p">][</span><span class="s2">&quot;weight&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">G</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">][</span><span class="s2">&quot;a&quot;</span><span class="p">][</span><span class="s2">&quot;weight&quot;</span><span class="p">]</span>
+<span class="go">10</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">G</span><span class="o">.</span><span class="n">edges</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;a&quot;</span><span class="p">][</span><span class="s2">&quot;weight&quot;</span><span class="p">]</span>
+<span class="go">10</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">G</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">MultiGraph</span><span class="p">()</span>  <span class="c1"># or MultiDiGraph</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">nx</span><span class="o">.</span><span class="n">add_path</span><span class="p">(</span><span class="n">G</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">G</span><span class="o">.</span><span class="n">get_edge_data</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="go">{0: {}}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">e</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">G</span><span class="o">.</span><span class="n">get_edge_data</span><span class="p">(</span><span class="o">*</span><span class="n">e</span><span class="p">)</span>  <span class="c1"># tuple form</span>
+<span class="go">{0: {}}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">G</span><span class="o">.</span><span class="n">get_edge_data</span><span class="p">(</span><span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="s2">&quot;b&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>  <span class="c1"># edge not in graph, return 0</span>
+<span class="go">0</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="relationship.AstGraph.graph_attr_dict_factory">
+<span class="sig-name descname"><span class="pre">graph_attr_dict_factory</span></span><a class="headerlink" href="#relationship.AstGraph.graph_attr_dict_factory" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="relationship.AstGraph.has_edge">
+<span class="sig-name descname"><span class="pre">has_edge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#relationship.AstGraph.has_edge" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns True if the graph has an edge between nodes u and v.</p>
+<p>This is the same as <cite>v in G[u] or key in G[u][v]</cite>
+without KeyError exceptions.</p>
+<dl class="simple">
+<dt>u, v<span class="classifier">nodes</span></dt><dd><p>Nodes can be, for example, strings or numbers.</p>
+</dd>
+<dt>key<span class="classifier">hashable identifier, optional (default=None)</span></dt><dd><p>If specified return True only if the edge with
+key is found.</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>edge_ind<span class="classifier">bool</span></dt><dd><p>True if edge is in the graph, False otherwise.</p>
+</dd>
+</dl>
+<p>Can be called either using two nodes u, v, an edge tuple (u, v),
+or an edge tuple (u, v, key).</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">G</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">MultiGraph</span><span class="p">()</span>  <span class="c1"># or MultiDiGraph</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">nx</span><span class="o">.</span><span class="n">add_path</span><span class="p">(</span><span class="n">G</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">G</span><span class="o">.</span><span class="n">has_edge</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>  <span class="c1"># using two nodes</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">e</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">G</span><span class="o">.</span><span class="n">has_edge</span><span class="p">(</span><span class="o">*</span><span class="n">e</span><span class="p">)</span>  <span class="c1">#  e is a 2-tuple (u, v)</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="s2">&quot;a&quot;</span><span class="p">)</span>
+<span class="go">&#39;a&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">G</span><span class="o">.</span><span class="n">has_edge</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="s2">&quot;a&quot;</span><span class="p">)</span>  <span class="c1"># specify key</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">e</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;a&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">G</span><span class="o">.</span><span class="n">has_edge</span><span class="p">(</span><span class="o">*</span><span class="n">e</span><span class="p">)</span>  <span class="c1"># e is a 3-tuple (u, v, &#39;a&#39;)</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+<p>The following syntax are equivalent:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">G</span><span class="o">.</span><span class="n">has_edge</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="mi">1</span> <span class="ow">in</span> <span class="n">G</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># though this gives :exc:`KeyError` if 0 not in G</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="relationship.AstGraph.has_node">
+<span class="sig-name descname"><span class="pre">has_node</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#relationship.AstGraph.has_node" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns True if the graph contains the node n.</p>
+<p>Identical to <cite>n in G</cite></p>
+<p>n : node</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">G</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">path_graph</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>  <span class="c1"># or DiGraph, MultiGraph, MultiDiGraph, etc</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">G</span><span class="o">.</span><span class="n">has_node</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+<p>It is more readable and simpler to use</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="mi">0</span> <span class="ow">in</span> <span class="n">G</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="relationship.AstGraph.is_directed">
+<span class="sig-name descname"><span class="pre">is_directed</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#relationship.AstGraph.is_directed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns True if graph is directed, False otherwise.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="relationship.AstGraph.is_multigraph">
+<span class="sig-name descname"><span class="pre">is_multigraph</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#relationship.AstGraph.is_multigraph" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns True if graph is a multigraph, False otherwise.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="relationship.AstGraph.name">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#relationship.AstGraph.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>String identifier of the graph.</p>
+<p>This graph attribute appears in the attribute dict G.graph
+keyed by the string <cite>“name”</cite>. as well as an attribute (technically
+a property) <cite>G.name</cite>. This is entirely user controlled.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="relationship.AstGraph.nbunch_iter">
+<span class="sig-name descname"><span class="pre">nbunch_iter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nbunch</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#relationship.AstGraph.nbunch_iter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns an iterator over nodes contained in nbunch that are
+also in the graph.</p>
+<p>The nodes in nbunch are checked for membership in the graph
+and if not are silently ignored.</p>
+<dl class="simple">
+<dt>nbunch<span class="classifier">single node, container, or all nodes (default= all nodes)</span></dt><dd><p>The view will only report edges incident to these nodes.</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>niter<span class="classifier">iterator</span></dt><dd><p>An iterator over nodes in nbunch that are also in the graph.
+If nbunch is None, iterate over all nodes in the graph.</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>NetworkXError</dt><dd><p>If nbunch is not a node or or sequence of nodes.
+If a node in nbunch is not hashable.</p>
+</dd>
+</dl>
+<p>Graph.__iter__</p>
+<p>When nbunch is an iterator, the returned iterator yields values
+directly from nbunch, becoming exhausted when nbunch is exhausted.</p>
+<p>To test whether nbunch is a single node, one can use
+“if nbunch in self:”, even after processing with this routine.</p>
+<p>If nbunch is not a node or a (possibly empty) sequence/iterator
+or None, a <code class="xref py py-exc docutils literal notranslate"><span class="pre">NetworkXError</span></code> is raised.  Also, if any object in
+nbunch is not hashable, a <code class="xref py py-exc docutils literal notranslate"><span class="pre">NetworkXError</span></code> is raised.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="relationship.AstGraph.neighbors">
+<span class="sig-name descname"><span class="pre">neighbors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#relationship.AstGraph.neighbors" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns an iterator over all neighbors of node n.</p>
+<p>This is identical to <cite>iter(G[n])</cite></p>
+<dl class="simple">
+<dt>n<span class="classifier">node</span></dt><dd><p>A node in the graph</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>neighbors<span class="classifier">iterator</span></dt><dd><p>An iterator over all neighbors of node n</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>NetworkXError</dt><dd><p>If the node n is not in the graph.</p>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">G</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">path_graph</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>  <span class="c1"># or DiGraph, MultiGraph, MultiDiGraph, etc</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">[</span><span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">G</span><span class="o">.</span><span class="n">neighbors</span><span class="p">(</span><span class="mi">0</span><span class="p">)]</span>
+<span class="go">[1]</span>
+</pre></div>
+</div>
+<p>Alternate ways to access the neighbors are <code class="docutils literal notranslate"><span class="pre">G.adj[n]</span></code> or <code class="docutils literal notranslate"><span class="pre">G[n]</span></code>:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">G</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">Graph</span><span class="p">()</span>  <span class="c1"># or DiGraph, MultiGraph, MultiDiGraph, etc</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="s2">&quot;b&quot;</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">G</span><span class="p">[</span><span class="s2">&quot;a&quot;</span><span class="p">]</span>
+<span class="go">AtlasView({&#39;b&#39;: {&#39;weight&#39;: 7}})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">G</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">path_graph</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">[</span><span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">G</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+<span class="go">[1]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="relationship.AstGraph.new_edge_key">
+<span class="sig-name descname"><span class="pre">new_edge_key</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#relationship.AstGraph.new_edge_key" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns an unused key for edges between nodes <cite>u</cite> and <cite>v</cite>.</p>
+<p>The nodes <cite>u</cite> and <cite>v</cite> do not need to be already in the graph.</p>
+<p>In the standard MultiGraph class the new key is the number of existing
+edges between <cite>u</cite> and <cite>v</cite> (increased if necessary to ensure unused).
+The first edge will have key 0, then 1, etc. If an edge is removed
+further new_edge_keys may not be in this order.</p>
+<p>u, v : nodes</p>
+<p>key : int</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="relationship.AstGraph.node_attr_dict_factory">
+<span class="sig-name descname"><span class="pre">node_attr_dict_factory</span></span><a class="headerlink" href="#relationship.AstGraph.node_attr_dict_factory" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="relationship.AstGraph.node_dict_factory">
+<span class="sig-name descname"><span class="pre">node_dict_factory</span></span><a class="headerlink" href="#relationship.AstGraph.node_dict_factory" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="relationship.AstGraph.nodes">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">nodes</span></span><a class="headerlink" href="#relationship.AstGraph.nodes" title="Permalink to this definition">¶</a></dt>
+<dd><p>A NodeView of the Graph as G.nodes or G.nodes().</p>
+<p>Can be used as <cite>G.nodes</cite> for data lookup and for set-like operations.
+Can also be used as <cite>G.nodes(data=’color’, default=None)</cite> to return a
+NodeDataView which reports specific node data but no set operations.
+It presents a dict-like interface as well with <cite>G.nodes.items()</cite>
+iterating over <cite>(node, nodedata)</cite> 2-tuples and <cite>G.nodes[3][‘foo’]</cite>
+providing the value of the <cite>foo</cite> attribute for node <cite>3</cite>. In addition,
+a view <cite>G.nodes.data(‘foo’)</cite> provides a dict-like interface to the
+<cite>foo</cite> attribute of each node. <cite>G.nodes.data(‘foo’, default=1)</cite>
+provides a default for nodes that do not have attribute <cite>foo</cite>.</p>
+<dl class="simple">
+<dt>data<span class="classifier">string or bool, optional (default=False)</span></dt><dd><p>The node attribute returned in 2-tuple (n, ddict[data]).
+If True, return entire node attribute dict as (n, ddict).
+If False, return just the nodes n.</p>
+</dd>
+<dt>default<span class="classifier">value, optional (default=None)</span></dt><dd><p>Value used for nodes that don’t have the requested attribute.
+Only relevant if data is not True or False.</p>
+</dd>
+</dl>
+<dl>
+<dt>NodeView</dt><dd><p>Allows set-like operations over the nodes as well as node
+attribute dict lookup and calling to get a NodeDataView.
+A NodeDataView iterates over <cite>(n, data)</cite> and has no set operations.
+A NodeView iterates over <cite>n</cite> and includes set operations.</p>
+<p>When called, if data is False, an iterator over nodes.
+Otherwise an iterator of 2-tuples (node, attribute value)
+where the attribute is specified in <cite>data</cite>.
+If data is True then the attribute becomes the
+entire data dictionary.</p>
+</dd>
+</dl>
+<p>If your node data is not needed, it is simpler and equivalent
+to use the expression <code class="docutils literal notranslate"><span class="pre">for</span> <span class="pre">n</span> <span class="pre">in</span> <span class="pre">G</span></code>, or <code class="docutils literal notranslate"><span class="pre">list(G)</span></code>.</p>
+<p>There are two simple ways of getting a list of all nodes in the graph:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">G</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">path_graph</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">)</span>
+<span class="go">[0, 1, 2]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">G</span><span class="p">)</span>
+<span class="go">[0, 1, 2]</span>
+</pre></div>
+</div>
+<p>To get the node data along with the nodes:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="s2">&quot;5pm&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;foo&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;bar&quot;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+<span class="go">[(0, {&#39;foo&#39;: &#39;bar&#39;}), (1, {&#39;time&#39;: &#39;5pm&#39;}), (2, {})]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">data</span><span class="p">())</span>
+<span class="go">[(0, {&#39;foo&#39;: &#39;bar&#39;}), (1, {&#39;time&#39;: &#39;5pm&#39;}), (2, {})]</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="s2">&quot;foo&quot;</span><span class="p">))</span>
+<span class="go">[(0, &#39;bar&#39;), (1, None), (2, None)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">data</span><span class="p">(</span><span class="s2">&quot;foo&quot;</span><span class="p">))</span>
+<span class="go">[(0, &#39;bar&#39;), (1, None), (2, None)]</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">))</span>
+<span class="go">[(0, None), (1, &#39;5pm&#39;), (2, None)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">data</span><span class="p">(</span><span class="s2">&quot;time&quot;</span><span class="p">))</span>
+<span class="go">[(0, None), (1, &#39;5pm&#39;), (2, None)]</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;Not Available&quot;</span><span class="p">))</span>
+<span class="go">[(0, &#39;Not Available&#39;), (1, &#39;5pm&#39;), (2, &#39;Not Available&#39;)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">data</span><span class="p">(</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;Not Available&quot;</span><span class="p">))</span>
+<span class="go">[(0, &#39;Not Available&#39;), (1, &#39;5pm&#39;), (2, &#39;Not Available&#39;)]</span>
+</pre></div>
+</div>
+<p>If some of your nodes have an attribute and the rest are assumed
+to have a default attribute value you can create a dictionary
+from node/attribute pairs using the <cite>default</cite> keyword argument
+to guarantee the value is never None:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">G</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">Graph</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">dict</span><span class="p">(</span><span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="s2">&quot;weight&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+<span class="go">{0: 1, 1: 2, 2: 3}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="relationship.AstGraph.number_of_edges">
+<span class="sig-name descname"><span class="pre">number_of_edges</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#relationship.AstGraph.number_of_edges" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the number of edges between two nodes.</p>
+<dl class="simple">
+<dt>u, v<span class="classifier">nodes, optional (Gefault=all edges)</span></dt><dd><p>If u and v are specified, return the number of edges between
+u and v. Otherwise return the total number of all edges.</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>nedges<span class="classifier">int</span></dt><dd><p>The number of edges in the graph.  If nodes <cite>u</cite> and <cite>v</cite> are
+specified return the number of edges between those nodes. If
+the graph is directed, this only returns the number of edges
+from <cite>u</cite> to <cite>v</cite>.</p>
+</dd>
+</dl>
+<p>size</p>
+<p>For undirected multigraphs, this method counts the total number
+of edges in the graph:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">G</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">MultiGraph</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">G</span><span class="o">.</span><span class="n">add_edges_from</span><span class="p">([(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)])</span>
+<span class="go">[0, 1, 0]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">G</span><span class="o">.</span><span class="n">number_of_edges</span><span class="p">()</span>
+<span class="go">3</span>
+</pre></div>
+</div>
+<p>If you specify two nodes, this counts the total number of edges
+joining the two nodes:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">G</span><span class="o">.</span><span class="n">number_of_edges</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="go">2</span>
+</pre></div>
+</div>
+<p>For directed multigraphs, this method can count the total number
+of directed edges from <cite>u</cite> to <cite>v</cite>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">G</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">MultiDiGraph</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">G</span><span class="o">.</span><span class="n">add_edges_from</span><span class="p">([(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)])</span>
+<span class="go">[0, 1, 0]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">G</span><span class="o">.</span><span class="n">number_of_edges</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="go">2</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">G</span><span class="o">.</span><span class="n">number_of_edges</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+<span class="go">1</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="relationship.AstGraph.number_of_nodes">
+<span class="sig-name descname"><span class="pre">number_of_nodes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#relationship.AstGraph.number_of_nodes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the number of nodes in the graph.</p>
+<dl class="simple">
+<dt>nnodes<span class="classifier">int</span></dt><dd><p>The number of nodes in the graph.</p>
+</dd>
+</dl>
+<p>order, __len__  which are identical</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">G</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">path_graph</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>  <span class="c1"># or DiGraph, MultiGraph, MultiDiGraph, etc</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">G</span><span class="o">.</span><span class="n">number_of_nodes</span><span class="p">()</span>
+<span class="go">3</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="relationship.AstGraph.order">
+<span class="sig-name descname"><span class="pre">order</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#relationship.AstGraph.order" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the number of nodes in the graph.</p>
+<dl class="simple">
+<dt>nnodes<span class="classifier">int</span></dt><dd><p>The number of nodes in the graph.</p>
+</dd>
+</dl>
+<p>number_of_nodes, __len__  which are identical</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">G</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">path_graph</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>  <span class="c1"># or DiGraph, MultiGraph, MultiDiGraph, etc</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">G</span><span class="o">.</span><span class="n">order</span><span class="p">()</span>
+<span class="go">3</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="relationship.AstGraph.remove_edge">
+<span class="sig-name descname"><span class="pre">remove_edge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#relationship.AstGraph.remove_edge" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove an edge between u and v.</p>
+<dl class="simple">
+<dt>u, v<span class="classifier">nodes</span></dt><dd><p>Remove an edge between nodes u and v.</p>
+</dd>
+<dt>key<span class="classifier">hashable identifier, optional (default=None)</span></dt><dd><p>Used to distinguish multiple edges between a pair of nodes.
+If None remove a single (arbitrary) edge between u and v.</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>NetworkXError</dt><dd><p>If there is not an edge between u and v, or
+if there is no edge with the specified key.</p>
+</dd>
+</dl>
+<p>remove_edges_from : remove a collection of edges</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">G</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">MultiGraph</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">nx</span><span class="o">.</span><span class="n">add_path</span><span class="p">(</span><span class="n">G</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">G</span><span class="o">.</span><span class="n">remove_edge</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">e</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">G</span><span class="o">.</span><span class="n">remove_edge</span><span class="p">(</span><span class="o">*</span><span class="n">e</span><span class="p">)</span>  <span class="c1"># unpacks e from an edge tuple</span>
+</pre></div>
+</div>
+<p>For multiple edges</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">G</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">MultiGraph</span><span class="p">()</span>  <span class="c1"># or MultiDiGraph, etc</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">G</span><span class="o">.</span><span class="n">add_edges_from</span><span class="p">([(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)])</span>  <span class="c1"># key_list returned</span>
+<span class="go">[0, 1, 2]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">G</span><span class="o">.</span><span class="n">remove_edge</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>  <span class="c1"># remove a single (arbitrary) edge</span>
+</pre></div>
+</div>
+<p>For edges with keys</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">G</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">MultiGraph</span><span class="p">()</span>  <span class="c1"># or MultiDiGraph, etc</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="s2">&quot;first&quot;</span><span class="p">)</span>
+<span class="go">&#39;first&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="s2">&quot;second&quot;</span><span class="p">)</span>
+<span class="go">&#39;second&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">G</span><span class="o">.</span><span class="n">remove_edge</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="s2">&quot;second&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="relationship.AstGraph.remove_edges_from">
+<span class="sig-name descname"><span class="pre">remove_edges_from</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ebunch</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#relationship.AstGraph.remove_edges_from" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove all edges specified in ebunch.</p>
+<dl>
+<dt>ebunch: list or container of edge tuples</dt><dd><p>Each edge given in the list or container will be removed
+from the graph. The edges can be:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>2-tuples (u, v) All edges between u and v are removed.</p></li>
+<li><p>3-tuples (u, v, key) The edge identified by key is removed.</p></li>
+<li><p>4-tuples (u, v, key, data) where data is ignored.</p></li>
+</ul>
+</div></blockquote>
+</dd>
+</dl>
+<p>remove_edge : remove a single edge</p>
+<p>Will fail silently if an edge in ebunch is not in the graph.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">G</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">path_graph</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>  <span class="c1"># or DiGraph, MultiGraph, MultiDiGraph, etc</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ebunch</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">G</span><span class="o">.</span><span class="n">remove_edges_from</span><span class="p">(</span><span class="n">ebunch</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Removing multiple copies of edges</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">G</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">MultiGraph</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">keys</span> <span class="o">=</span> <span class="n">G</span><span class="o">.</span><span class="n">add_edges_from</span><span class="p">([(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">G</span><span class="o">.</span><span class="n">remove_edges_from</span><span class="p">([(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">G</span><span class="o">.</span><span class="n">edges</span><span class="p">())</span>
+<span class="go">[(1, 2)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">G</span><span class="o">.</span><span class="n">remove_edges_from</span><span class="p">([(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)])</span>  <span class="c1"># silently ignore extra copy</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">G</span><span class="o">.</span><span class="n">edges</span><span class="p">)</span>  <span class="c1"># now empty graph</span>
+<span class="go">[]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="relationship.AstGraph.remove_node">
+<span class="sig-name descname"><span class="pre">remove_node</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#relationship.AstGraph.remove_node" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove node n.</p>
+<p>Removes the node n and all adjacent edges.
+Attempting to remove a non-existent node will raise an exception.</p>
+<dl class="simple">
+<dt>n<span class="classifier">node</span></dt><dd><p>A node in the graph</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>NetworkXError</dt><dd><p>If n is not in the graph.</p>
+</dd>
+</dl>
+<p>remove_nodes_from</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">G</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">path_graph</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>  <span class="c1"># or DiGraph, MultiGraph, MultiDiGraph, etc</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">G</span><span class="o">.</span><span class="n">edges</span><span class="p">)</span>
+<span class="go">[(0, 1), (1, 2)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">G</span><span class="o">.</span><span class="n">remove_node</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">G</span><span class="o">.</span><span class="n">edges</span><span class="p">)</span>
+<span class="go">[]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="relationship.AstGraph.remove_nodes_from">
+<span class="sig-name descname"><span class="pre">remove_nodes_from</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nodes</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#relationship.AstGraph.remove_nodes_from" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove multiple nodes.</p>
+<dl class="simple">
+<dt>nodes<span class="classifier">iterable container</span></dt><dd><p>A container of nodes (list, dict, set, etc.).  If a node
+in the container is not in the graph it is silently
+ignored.</p>
+</dd>
+</dl>
+<p>remove_node</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">G</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">path_graph</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>  <span class="c1"># or DiGraph, MultiGraph, MultiDiGraph, etc</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">e</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">e</span>
+<span class="go">[0, 1, 2]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">G</span><span class="o">.</span><span class="n">remove_nodes_from</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">)</span>
+<span class="go">[]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="relationship.AstGraph.size">
+<span class="sig-name descname"><span class="pre">size</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">weight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#relationship.AstGraph.size" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the number of edges or total of all edge weights.</p>
+<dl class="simple">
+<dt>weight<span class="classifier">string or None, optional (default=None)</span></dt><dd><p>The edge attribute that holds the numerical value used
+as a weight. If None, then each edge has weight 1.</p>
+</dd>
+</dl>
+<dl>
+<dt>size<span class="classifier">numeric</span></dt><dd><p>The number of edges or
+(if weight keyword is provided) the total weight sum.</p>
+<p>If weight is None, returns an int. Otherwise a float
+(or more general numeric if the weights are more general).</p>
+</dd>
+</dl>
+<p>number_of_edges</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">G</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">path_graph</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>  <span class="c1"># or DiGraph, MultiGraph, MultiDiGraph, etc</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">G</span><span class="o">.</span><span class="n">size</span><span class="p">()</span>
+<span class="go">3</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">G</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">Graph</span><span class="p">()</span>  <span class="c1"># or DiGraph, MultiGraph, MultiDiGraph, etc</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="s2">&quot;b&quot;</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="s2">&quot;b&quot;</span><span class="p">,</span> <span class="s2">&quot;c&quot;</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">G</span><span class="o">.</span><span class="n">size</span><span class="p">()</span>
+<span class="go">2</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">G</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="n">weight</span><span class="o">=</span><span class="s2">&quot;weight&quot;</span><span class="p">)</span>
+<span class="go">6.0</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="relationship.AstGraph.subgraph">
+<span class="sig-name descname"><span class="pre">subgraph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nodes</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#relationship.AstGraph.subgraph" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a SubGraph view of the subgraph induced on <cite>nodes</cite>.</p>
+<p>The induced subgraph of the graph contains the nodes in <cite>nodes</cite>
+and the edges between those nodes.</p>
+<dl class="simple">
+<dt>nodes<span class="classifier">list, iterable</span></dt><dd><p>A container of nodes which will be iterated through once.</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>G<span class="classifier">SubGraph View</span></dt><dd><p>A subgraph view of the graph. The graph structure cannot be
+changed but node/edge attributes can and are shared with the
+original graph.</p>
+</dd>
+</dl>
+<p>The graph, edge and node attributes are shared with the original graph.
+Changes to the graph structure is ruled out by the view, but changes
+to attributes are reflected in the original graph.</p>
+<p>To create a subgraph with its own copy of the edge/node attributes use:
+G.subgraph(nodes).copy()</p>
+<p>For an inplace reduction of a graph to a subgraph you can remove nodes:
+G.remove_nodes_from([n for n in G if n not in set(nodes)])</p>
+<p>Subgraph views are sometimes NOT what you want. In most cases where
+you want to do more than simply look at the induced edges, it makes
+more sense to just create the subgraph as its own graph with code like:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create a subgraph SG based on a (possibly multigraph) G</span>
+<span class="n">SG</span> <span class="o">=</span> <span class="n">G</span><span class="o">.</span><span class="vm">__class__</span><span class="p">()</span>
+<span class="n">SG</span><span class="o">.</span><span class="n">add_nodes_from</span><span class="p">((</span><span class="n">n</span><span class="p">,</span> <span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">n</span><span class="p">])</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">largest_wcc</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">SG</span><span class="o">.</span><span class="n">is_multigraph</span><span class="p">():</span>
+    <span class="n">SG</span><span class="o">.</span><span class="n">add_edges_from</span><span class="p">((</span><span class="n">n</span><span class="p">,</span> <span class="n">nbr</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">nbrs</span> <span class="ow">in</span> <span class="n">G</span><span class="o">.</span><span class="n">adj</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">largest_wcc</span>
+        <span class="k">for</span> <span class="n">nbr</span><span class="p">,</span> <span class="n">keydict</span> <span class="ow">in</span> <span class="n">nbrs</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">nbr</span> <span class="ow">in</span> <span class="n">largest_wcc</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">keydict</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">SG</span><span class="o">.</span><span class="n">add_edges_from</span><span class="p">((</span><span class="n">n</span><span class="p">,</span> <span class="n">nbr</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">nbrs</span> <span class="ow">in</span> <span class="n">G</span><span class="o">.</span><span class="n">adj</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">largest_wcc</span>
+        <span class="k">for</span> <span class="n">nbr</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">nbrs</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">nbr</span> <span class="ow">in</span> <span class="n">largest_wcc</span><span class="p">)</span>
+<span class="n">SG</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">G</span><span class="o">.</span><span class="n">graph</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">G</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">path_graph</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>  <span class="c1"># or DiGraph, MultiGraph, MultiDiGraph, etc</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">H</span> <span class="o">=</span> <span class="n">G</span><span class="o">.</span><span class="n">subgraph</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">H</span><span class="o">.</span><span class="n">edges</span><span class="p">)</span>
+<span class="go">[(0, 1), (1, 2)]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="relationship.AstGraph.to_directed">
+<span class="sig-name descname"><span class="pre">to_directed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">as_view</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#relationship.AstGraph.to_directed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a directed representation of the graph.</p>
+<dl class="simple">
+<dt>G<span class="classifier">MultiDiGraph</span></dt><dd><p>A directed graph with the same name, same nodes, and with
+each edge (u, v, data) replaced by two directed edges
+(u, v, data) and (v, u, data).</p>
+</dd>
+</dl>
+<p>This returns a “deepcopy” of the edge, node, and
+graph attributes which attempts to completely copy
+all of the data and references.</p>
+<p>This is in contrast to the similar D=DiGraph(G) which returns a
+shallow copy of the data.</p>
+<p>See the Python copy module for more information on shallow
+and deep copies, <a class="reference external" href="https://docs.python.org/3/library/copy.html">https://docs.python.org/3/library/copy.html</a>.</p>
+<p>Warning: If you have subclassed MultiGraph to use dict-like objects
+in the data structure, those changes do not transfer to the
+MultiDiGraph created by this method.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">G</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">Graph</span><span class="p">()</span>  <span class="c1"># or MultiGraph, etc</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">H</span> <span class="o">=</span> <span class="n">G</span><span class="o">.</span><span class="n">to_directed</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">H</span><span class="o">.</span><span class="n">edges</span><span class="p">)</span>
+<span class="go">[(0, 1), (1, 0)]</span>
+</pre></div>
+</div>
+<p>If already directed, return a (deep) copy</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">G</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">DiGraph</span><span class="p">()</span>  <span class="c1"># or MultiDiGraph, etc</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">H</span> <span class="o">=</span> <span class="n">G</span><span class="o">.</span><span class="n">to_directed</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">H</span><span class="o">.</span><span class="n">edges</span><span class="p">)</span>
+<span class="go">[(0, 1)]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="relationship.AstGraph.to_directed_class">
+<span class="sig-name descname"><span class="pre">to_directed_class</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#relationship.AstGraph.to_directed_class" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the class to use for empty directed copies.</p>
+<p>If you subclass the base classes, use this to designate
+what directed class to use for <cite>to_directed()</cite> copies.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="relationship.AstGraph.to_undirected">
+<span class="sig-name descname"><span class="pre">to_undirected</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">as_view</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#relationship.AstGraph.to_undirected" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns an undirected copy of the graph.</p>
+<dl class="simple">
+<dt>G<span class="classifier">Graph/MultiGraph</span></dt><dd><p>A deepcopy of the graph.</p>
+</dd>
+</dl>
+<p>copy, add_edge, add_edges_from</p>
+<p>This returns a “deepcopy” of the edge, node, and
+graph attributes which attempts to completely copy
+all of the data and references.</p>
+<p>This is in contrast to the similar <cite>G = nx.MultiGraph(D)</cite>
+which returns a shallow copy of the data.</p>
+<p>See the Python copy module for more information on shallow
+and deep copies, <a class="reference external" href="https://docs.python.org/3/library/copy.html">https://docs.python.org/3/library/copy.html</a>.</p>
+<p>Warning: If you have subclassed MultiiGraph to use dict-like
+objects in the data structure, those changes do not transfer
+to the MultiGraph created by this method.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">G</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">path_graph</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>  <span class="c1"># or MultiGraph, etc</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">H</span> <span class="o">=</span> <span class="n">G</span><span class="o">.</span><span class="n">to_directed</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">H</span><span class="o">.</span><span class="n">edges</span><span class="p">)</span>
+<span class="go">[(0, 1), (1, 0)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">G2</span> <span class="o">=</span> <span class="n">H</span><span class="o">.</span><span class="n">to_undirected</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">G2</span><span class="o">.</span><span class="n">edges</span><span class="p">)</span>
+<span class="go">[(0, 1)]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="relationship.AstGraph.to_undirected_class">
+<span class="sig-name descname"><span class="pre">to_undirected_class</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#relationship.AstGraph.to_undirected_class" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the class to use for empty undirected copies.</p>
+<p>If you subclass the base classes, use this to designate
+what directed class to use for <cite>to_directed()</cite> copies.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="relationship.AstGraph.update">
+<span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">edges</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nodes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#relationship.AstGraph.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update the graph using nodes/edges/graphs as input.</p>
+<p>Like dict.update, this method takes a graph as input, adding the
+graph’s nodes and edges to this graph. It can also take two inputs:
+edges and nodes. Finally it can take either edges or nodes.
+To specify only nodes the keyword <cite>nodes</cite> must be used.</p>
+<p>The collections of edges and nodes are treated similarly to
+the add_edges_from/add_nodes_from methods. When iterated, they
+should yield 2-tuples (u, v) or 3-tuples (u, v, datadict).</p>
+<dl class="simple">
+<dt>edges<span class="classifier">Graph object, collection of edges, or None</span></dt><dd><p>The first parameter can be a graph or some edges. If it has
+attributes <cite>nodes</cite> and <cite>edges</cite>, then it is taken to be a
+Graph-like object and those attributes are used as collections
+of nodes and edges to be added to the graph.
+If the first parameter does not have those attributes, it is
+treated as a collection of edges and added to the graph.
+If the first argument is None, no edges are added.</p>
+</dd>
+<dt>nodes<span class="classifier">collection of nodes, or None</span></dt><dd><p>The second parameter is treated as a collection of nodes
+to be added to the graph unless it is None.
+If <cite>edges is None</cite> and <cite>nodes is None</cite> an exception is raised.
+If the first parameter is a Graph, then <cite>nodes</cite> is ignored.</p>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">G</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">path_graph</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">G</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">nx</span><span class="o">.</span><span class="n">complete_graph</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">10</span><span class="p">)))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">combinations</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">edges</span> <span class="o">=</span> <span class="p">(</span>
+<span class="gp">... </span>    <span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;power&quot;</span><span class="p">:</span> <span class="n">u</span> <span class="o">*</span> <span class="n">v</span><span class="p">})</span>
+<span class="gp">... </span>    <span class="k">for</span> <span class="n">u</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">combinations</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">20</span><span class="p">),</span> <span class="mi">2</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="k">if</span> <span class="n">u</span> <span class="o">*</span> <span class="n">v</span> <span class="o">&lt;</span> <span class="mi">225</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">nodes</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1000</span><span class="p">]</span>  <span class="c1"># for singleton, use a container</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">G</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">edges</span><span class="p">,</span> <span class="n">nodes</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>It you want to update the graph using an adjacency structure
+it is straightforward to obtain the edges/nodes from adjacency.
+The following examples provide common cases, your adjacency may
+be slightly different and require tweaks of these examples.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># dict-of-set/list/tuple</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">adj</span> <span class="o">=</span> <span class="p">{</span><span class="mi">1</span><span class="p">:</span> <span class="p">{</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">},</span> <span class="mi">2</span><span class="p">:</span> <span class="p">{</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">},</span> <span class="mi">3</span><span class="p">:</span> <span class="p">{</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">}}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">e</span> <span class="o">=</span> <span class="p">[(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">u</span><span class="p">,</span> <span class="n">nbrs</span> <span class="ow">in</span> <span class="n">adj</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">nbrs</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">G</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">edges</span><span class="o">=</span><span class="n">e</span><span class="p">,</span> <span class="n">nodes</span><span class="o">=</span><span class="n">adj</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">DG</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">DiGraph</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># dict-of-dict-of-attribute</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">adj</span> <span class="o">=</span> <span class="p">{</span><span class="mi">1</span><span class="p">:</span> <span class="p">{</span><span class="mi">2</span><span class="p">:</span> <span class="mf">1.3</span><span class="p">,</span> <span class="mi">3</span><span class="p">:</span> <span class="mf">0.7</span><span class="p">},</span> <span class="mi">2</span><span class="p">:</span> <span class="p">{</span><span class="mi">1</span><span class="p">:</span> <span class="mf">1.4</span><span class="p">},</span> <span class="mi">3</span><span class="p">:</span> <span class="p">{</span><span class="mi">1</span><span class="p">:</span> <span class="mf">0.7</span><span class="p">}}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">e</span> <span class="o">=</span> <span class="p">[</span>
+<span class="gp">... </span>    <span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;weight&quot;</span><span class="p">:</span> <span class="n">d</span><span class="p">})</span>
+<span class="gp">... </span>    <span class="k">for</span> <span class="n">u</span><span class="p">,</span> <span class="n">nbrs</span> <span class="ow">in</span> <span class="n">adj</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+<span class="gp">... </span>    <span class="k">for</span> <span class="n">v</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">nbrs</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+<span class="gp">... </span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">DG</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">edges</span><span class="o">=</span><span class="n">e</span><span class="p">,</span> <span class="n">nodes</span><span class="o">=</span><span class="n">adj</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># dict-of-dict-of-dict</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">adj</span> <span class="o">=</span> <span class="p">{</span><span class="mi">1</span><span class="p">:</span> <span class="p">{</span><span class="mi">2</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;weight&quot;</span><span class="p">:</span> <span class="mf">1.3</span><span class="p">},</span> <span class="mi">3</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="mf">0.7</span><span class="p">,</span> <span class="s2">&quot;weight&quot;</span><span class="p">:</span> <span class="mf">1.2</span><span class="p">}}}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">e</span> <span class="o">=</span> <span class="p">[</span>
+<span class="gp">... </span>    <span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;weight&quot;</span><span class="p">:</span> <span class="n">d</span><span class="p">})</span>
+<span class="gp">... </span>    <span class="k">for</span> <span class="n">u</span><span class="p">,</span> <span class="n">nbrs</span> <span class="ow">in</span> <span class="n">adj</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+<span class="gp">... </span>    <span class="k">for</span> <span class="n">v</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">nbrs</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+<span class="gp">... </span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">DG</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">edges</span><span class="o">=</span><span class="n">e</span><span class="p">,</span> <span class="n">nodes</span><span class="o">=</span><span class="n">adj</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># predecessor adjacency (dict-of-set)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pred</span> <span class="o">=</span> <span class="p">{</span><span class="mi">1</span><span class="p">:</span> <span class="p">{</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">},</span> <span class="mi">2</span><span class="p">:</span> <span class="p">{</span><span class="mi">3</span><span class="p">},</span> <span class="mi">3</span><span class="p">:</span> <span class="p">{</span><span class="mi">3</span><span class="p">}}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">e</span> <span class="o">=</span> <span class="p">[(</span><span class="n">v</span><span class="p">,</span> <span class="n">u</span><span class="p">)</span> <span class="k">for</span> <span class="n">u</span><span class="p">,</span> <span class="n">nbrs</span> <span class="ow">in</span> <span class="n">pred</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">nbrs</span><span class="p">]</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># MultiGraph dict-of-dict-of-dict-of-attribute</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">MDG</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">MultiDiGraph</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">adj</span> <span class="o">=</span> <span class="p">{</span>
+<span class="gp">... </span>    <span class="mi">1</span><span class="p">:</span> <span class="p">{</span><span class="mi">2</span><span class="p">:</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;weight&quot;</span><span class="p">:</span> <span class="mf">1.3</span><span class="p">},</span> <span class="mi">1</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;weight&quot;</span><span class="p">:</span> <span class="mf">1.2</span><span class="p">}}},</span>
+<span class="gp">... </span>    <span class="mi">3</span><span class="p">:</span> <span class="p">{</span><span class="mi">2</span><span class="p">:</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;weight&quot;</span><span class="p">:</span> <span class="mf">0.7</span><span class="p">}}},</span>
+<span class="gp">... </span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">e</span> <span class="o">=</span> <span class="p">[</span>
+<span class="gp">... </span>    <span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">ekey</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="k">for</span> <span class="n">u</span><span class="p">,</span> <span class="n">nbrs</span> <span class="ow">in</span> <span class="n">adj</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+<span class="gp">... </span>    <span class="k">for</span> <span class="n">v</span><span class="p">,</span> <span class="n">keydict</span> <span class="ow">in</span> <span class="n">nbrs</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+<span class="gp">... </span>    <span class="k">for</span> <span class="n">ekey</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">keydict</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+<span class="gp">... </span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">MDG</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">edges</span><span class="o">=</span><span class="n">e</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>add_edges_from: add multiple edges to a graph
+add_nodes_from: add multiple nodes to a graph</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="relationship.CallLister">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">relationship.</span></span><span class="sig-name descname"><span class="pre">CallLister</span></span><a class="headerlink" href="#relationship.CallLister" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ast.NodeVisitor</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="relationship.CallLister.generic_visit">
+<span class="sig-name descname"><span class="pre">generic_visit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#relationship.CallLister.generic_visit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Called if no explicit visitor function exists for a node.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="relationship.CallLister.visit">
+<span class="sig-name descname"><span class="pre">visit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#relationship.CallLister.visit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Visit a node.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="relationship.CallLister.visit_Call">
+<span class="sig-name descname"><span class="pre">visit_Call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#relationship.CallLister.visit_Call" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="relationship.CallLister.visit_Constant">
+<span class="sig-name descname"><span class="pre">visit_Constant</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#relationship.CallLister.visit_Constant" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="relationship.FuncLister">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">relationship.</span></span><span class="sig-name descname"><span class="pre">FuncLister</span></span><a class="headerlink" href="#relationship.FuncLister" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ast.NodeVisitor</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="relationship.FuncLister.generic_visit">
+<span class="sig-name descname"><span class="pre">generic_visit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#relationship.FuncLister.generic_visit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Called if no explicit visitor function exists for a node.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="relationship.FuncLister.visit">
+<span class="sig-name descname"><span class="pre">visit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#relationship.FuncLister.visit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Visit a node.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="relationship.FuncLister.visit_Constant">
+<span class="sig-name descname"><span class="pre">visit_Constant</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#relationship.FuncLister.visit_Constant" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="relationship.FuncLister.visit_FunctionDef">
+<span class="sig-name descname"><span class="pre">visit_FunctionDef</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#relationship.FuncLister.visit_FunctionDef" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="relationship.ImportEdge">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">relationship.</span></span><span class="sig-name descname"><span class="pre">ImportEdge</span></span><a class="headerlink" href="#relationship.ImportEdge" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ast.NodeVisitor</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="relationship.ImportEdge.generic_visit">
+<span class="sig-name descname"><span class="pre">generic_visit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#relationship.ImportEdge.generic_visit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Called if no explicit visitor function exists for a node.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="relationship.ImportEdge.visit">
+<span class="sig-name descname"><span class="pre">visit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#relationship.ImportEdge.visit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Visit a node.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="relationship.ImportEdge.visit_Constant">
+<span class="sig-name descname"><span class="pre">visit_Constant</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#relationship.ImportEdge.visit_Constant" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="relationship.ImportEdge.visit_ImportFrom">
+<span class="sig-name descname"><span class="pre">visit_ImportFrom</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#relationship.ImportEdge.visit_ImportFrom" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="relationship.import_relationship">
+<span class="sig-prename descclassname"><span class="pre">relationship.</span></span><span class="sig-name descname"><span class="pre">import_relationship</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tree</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#relationship.import_relationship" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a directed edge for when a module imports another module from the
+target code repo.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>tree</strong> (<a class="reference internal" href="#Node.Node" title="Node.Node"><em>Node</em></a>) – the tree representing the target code repo</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="relationship.in_repo">
+<span class="sig-prename descclassname"><span class="pre">relationship.</span></span><span class="sig-name descname"><span class="pre">in_repo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tree</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">starting_node</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mod</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">level</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#relationship.in_repo" title="Permalink to this definition">¶</a></dt>
+<dd><p>= “the Python module named <cite>mod</cite> is in the repo represented by <cite>tree</cite>.”</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>tree</strong> – </p></li>
+<li><p><strong>starting_node</strong> – </p></li>
+<li><p><strong>mod</strong> – </p></li>
+<li><p><strong>level</strong> – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>bool</p>
 </dd>
 </dl>
 </dd></dl>
