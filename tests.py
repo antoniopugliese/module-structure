@@ -7,7 +7,19 @@ TODO: Testing plan and motivation
 import os
 from git import Repo, Git
 import ast
-import parsing
+import pickle
+import networkx as nx
+
+# Get the tree of the first commit for testing
+current_dir = os.path.dirname(os.path.abspath(__file__))
+data_path = os.path.join(current_dir, "module_data")
+with open(os.path.join(data_path, "snorkel"), "rb") as file:
+    ast_dict = pickle.load(file)
+first_graph = ast_dict[list(ast_dict.keys())[1]]
+
+# for n in first_graph.nodes:
+#     print(f"The children of {n}: {list(first_graph.successors(n))}")
+
 
 ### Node Testing ###
 # root = parsing.Node(parsing.repo_name, None, None)
