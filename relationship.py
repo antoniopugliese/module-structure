@@ -19,26 +19,46 @@ import networkx as nx
 
 repo_name = "snorkel"
 
-# lists the name of every function in the ast
-
-
 class FuncLister(ast.NodeVisitor):
+    """
+    This class will display all the functions within an AST. 
+    """
     def visit_FunctionDef(self, node):
+        """
+        Visits and prints all the function definitions in an AST.
+
+        :param node: a node within an AST.
+        :type node: AST Node   
+        """
         print(node.name)
         self.generic_visit(node)
 
 
 # prints the name of the function whenever it is called
 class CallLister(ast.NodeVisitor):
+    """
+    This class will display whenever a function is called within an AST.
+    """
     def visit_Call(self, node):
-      # print name of function called
+        """
+        Visits and prints all the function calls in an AST. 
+
+        :param node: a node within an AST.
+        :type node: AST Node   
+        """
         print(node.func.id)
         self.generic_visit(node)
 
 
 # walks through every import statement (and does nothing)
 class ImportEdge(ast.NodeVisitor):
+    """
+    This class will display all the import statements within an AST. 
+    """
     def __init__(self):
+        """
+        Class initializer. 
+        """
         super().__init__()
         self.imported_mods = []
 
@@ -48,6 +68,13 @@ class ImportEdge(ast.NodeVisitor):
     #     self.generic_visit(node)
 
     def visit_ImportFrom(self, node):
+        """
+        Visits and displays all the `from [module] import [package]` statements 
+        within an AST. 
+
+        :param node: a node within an AST.
+        :type node: AST Node   
+        """
         mod = node.module
         if mod == None or mod.startswith(repo_name):
             self.imported_mods.append(node.module)
@@ -55,6 +82,13 @@ class ImportEdge(ast.NodeVisitor):
 
 
 def import_relationship(tree):
+    """
+    This function displays all the imports for each file within a parsed tree. 
+
+    :param tree: represents the file structure and contains the ASTs of each 
+    relevant file.
+    :type tree: Node.FolderNode
+    """
     nodes = Node.traversal(tree)
     node_visitor = ImportEdge()
 
@@ -86,4 +120,19 @@ import_relationship(ast_dict[first])
 class AstGraph(nx.MultiGraph):
     """
     This class represents the graph that will be constructed.
+
+    By design, this class will extend the NetworkX MultiDiGraph in order to
+    represent the connections and dependencies between modules. The nodes of the 
+    graph will represent each file within the a repo directory. A directed edge 
+    from one node to another will represent the dependency that a node has. 
     """
+
+    def __init__(self, commit = None):
+        """
+        Initializes the graph object. 
+
+        :param commit: the current commit history of the repo
+        :type commit: str
+        """
+        super().__init__()
+        self.commit = None
