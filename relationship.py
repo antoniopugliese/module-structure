@@ -155,7 +155,7 @@ first_tree = ast_dict[list(ast_dict.keys())[1]]
 import_relationship(first_tree)
 
 
-class AstGraph(nx.MultiGraph):
+class AstGraph(nx.MultiDiGraph):
     """
     This class represents the graph that will be constructed.
 
