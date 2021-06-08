@@ -54,7 +54,8 @@ if __name__ == "__main__":
         with open(os.path.join(data_path, repo_name), "rb") as file:
             ast_dict = pickle.load(file)
         file.close()
-        ast_dict = parsing.update_ast_dict(ast_dict, commits, repo_path, repo_name, g)
+        ast_dict = parsing.update_ast_dict(
+            ast_dict, commits, repo_path, repo_name, g)
     except (FileNotFoundError):
         # Create dictionary
         print("Not Found.")
@@ -70,4 +71,4 @@ if __name__ == "__main__":
     # print file structure of the latest commit
     print("Printing the AST")
     first = list(ast_dict.keys())[1]
-    print(ast_dict[first].to_string())
+    parsing.print_graph(ast_dict[first])
