@@ -69,6 +69,6 @@ if __name__ == "__main__":
     print("Done.")
 
     # print file structure of the latest commit
-    print("Printing the AST")
+    print("Printing the directory:")
     first = list(ast_dict.keys())[1]
     parsing.print_graph(ast_dict[first])

@@ -215,7 +215,7 @@ def update_ast_dict(dict, commits, repo_path, repo_name, g):
 
 
 def print_graph(graph):
-    def edge_to_string(n1, n2, o):
-        return (n1.name, n2.name)
+    # def edge_to_string(n1, n2, o):
+    #     return (n1.name, n2.name)
     for n in list(graph.nodes):
         print("\t" + n)

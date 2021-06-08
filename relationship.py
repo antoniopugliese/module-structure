@@ -51,7 +51,7 @@ class CallLister(ast.NodeVisitor):
 
 
 # walks through every import statement
-class ImportEdge(ast.NodeVisitor):
+class ImportLister(ast.NodeVisitor):
     """
     This class will display all the import statements within an AST. 
     """
@@ -114,7 +114,7 @@ def import_relationship(tree):
     :type tree: Node
     """
     nodes = Node.traversal(tree)
-    node_visitor = ImportEdge()
+    node_visitor = ImportLister()
 
     for node in nodes:
         # get list of imports
@@ -174,3 +174,25 @@ class AstGraph(nx.MultiDiGraph):
         """
         super().__init__()
         self.commit = None
+
+    def add_node(self, node_for_adding, **attr):
+        """
+        Adds a node to the graph. 
+        TODO: properly tie the **attr to attributes for the graph
+        """
+        return super().add_node(node_for_adding, **attr)
+
+    def add_edge(self, u, v, key, **attr):
+        """
+        Adds a directed edge from `u` to `v`. 
+        TODO: properly tie the **attr to attributes for the graph
+        """
+        return super().add_edge(u, v, key=key, **attr)
+
+    def get_edge_data(self, u, v, key, default):
+        """
+        Gets the edge data from `u` to `v`. 
+        TODO: Display all the edges depending on the type of edge based on the
+        edge module
+        """
+        return super().get_edge_data(u, v, key=key, default=default)
