@@ -1,3 +1,7 @@
+"""
+Node module comment
+"""
+
 from abc import ABC, abstractmethod
 
 
@@ -78,6 +82,7 @@ class FolderNode(Node):
         >>> example.children
         [FolderNode('child_1', 'example'), FolderNode('child_2', 'example')]
         """
+        child.parent = self.name
         self.children.append(child)
 
     def to_string(self, level=0):

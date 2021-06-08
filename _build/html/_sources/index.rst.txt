@@ -28,3 +28,21 @@ Parsing
    :undoc-members:
    :inherited-members:
    :show-inheritance:
+
+Node
+=======
+
+.. automodule:: Node
+   :members:
+   :undoc-members:
+   :inherited-members:
+   :show-inheritance:
+
+Relationship
+=======
+
+.. automodule:: relationship
+   :members:
+   :undoc-members:
+   :inherited-members:
+   :show-inheritance:
