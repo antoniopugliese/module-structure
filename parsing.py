@@ -15,6 +15,7 @@ import ast
 import json
 import pickle
 import Node
+import edge
 from abc import ABC, abstractmethod
 
 

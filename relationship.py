@@ -13,6 +13,7 @@ import ast
 import os
 import pickle
 import Node
+import edge
 import networkx as nx
 
 
