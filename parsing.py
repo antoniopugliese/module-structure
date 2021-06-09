@@ -42,7 +42,7 @@ def find_dir(start, target):
             return os.path.join(path, target)
 
 
-def create_branch(graph, filepath, ast):
+def create_branch(graph: nx.Graph, filepath, ast):
     """
     Adds nodes to `graph` to represent the file structure of the Python file
     given by `filepath`. 
@@ -78,6 +78,8 @@ def create_branch(graph, filepath, ast):
     # add python file
     next_dir = os.path.join(base, filepath[i + 1])
     if (not graph.has_node(base)):
+        graph.add_node(base, node=Node.FolderNode(base, "p"))
+    if (not graph.has_node(next_dir)):
         graph.add_node(next_dir, node=Node.FileNode(next_dir, "p", ast))
     graph.add_edge(base, next_dir, object=edge.DirectoryEdge("dir"))
 
