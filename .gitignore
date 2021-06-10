@@ -1,5 +1,5 @@
 venv/
 module_data/
-.pytest_cache/
-__pycache__/
-tests.py
+**/.pytest_cache/
+**/__pycache__/
+**/tests.py
