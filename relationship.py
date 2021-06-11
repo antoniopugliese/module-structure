@@ -20,13 +20,9 @@ import networkx as nx
 repo_name = "snorkel"
 
 
-# TODO:
-# -add reset() method to each node visitor
-
-
 class FuncLister(ast.NodeVisitor):
     """
-    This class will display all the functions within an AST.
+    This class will gather all the functions defined within an AST.
     """
 
     def __init__(self):
@@ -73,6 +69,9 @@ class CallLister(ast.NodeVisitor):
         elif type(node.func) is ast.Attribute:
             self.calls.append(node.func.attr)
         self.generic_visit(node)
+
+    def reset(self):
+        self.calls = []
 
 
 class ClassLister(ast.NodeVisitor):
@@ -121,8 +120,15 @@ class ImportLister(ast.NodeVisitor):
         self.imported_funcs = {}
 
     # def visit_Import(self, node):
+    #     """
+    #     Gathers the imported modules and imported functions, or their alias if used.
+    #     """
+    #     # imports using this statement are from the same directory (level = 1)
     #     for alias in node.names:
-    #         self.imported_mods.append(alias.name)
+    #         if alias.asname != None:
+    #             self.imported_mods.append((alias.asname, 1))
+    #         else:
+    #             self.imported_mods.append((alias.name, 1))
     #     self.generic_visit(node)
 
     def visit_ImportFrom(self, node: ast.ImportFrom):
@@ -141,18 +147,25 @@ class ImportLister(ast.NodeVisitor):
 
         self.generic_visit(node)
 
+    def reset(self):
+        self.imported_mods = []
+
 
 class DefinitionLister(ast.NodeVisitor):
     """
-    This class will gathers all the import statements within an AST, as well as
-    the functions the statements import, if any.
+    This class will gather classes and functions defined within an AST, and add
+    Node object representations of them to an existing root.
     """
 
     def __init__(self, root):
         """
         The root to add the ClassNode and FuncNode.
+
+        :param root: the FileNode object corresponding to the Python file of the AST. 
+        :type root: Node
         """
         super().__init__()
+        # copy the graph to make sure original data is preserved
         self.graph = nx.Graph.copy(root)
         self.starting_node = None
 
@@ -161,11 +174,12 @@ class DefinitionLister(ast.NodeVisitor):
         Adds a ClassNode to the graph, as well as any functions defined in the class.
         """
         class_name = os.path.join(self.graph.name, node.name)
-        self.graph.add_edge(self.starting_node, ClassNode(class_name, node))
-        old_starting_node = self.starting_node
+        class_node = ClassNode(class_name, node)
+        self.graph.add_edge(self.starting_node, class_node)
 
         # Add FuncNodes as children of this ClassNode
-        self.starting_node = ClassNode(class_name, node)
+        old_starting_node = self.starting_node
+        self.starting_node = class_node
         self.generic_visit(node)
         self.starting_node = old_starting_node
 
@@ -244,7 +258,7 @@ def import_relationship(graph):
             for elem in imports:
                 print(f"\t{elem}")
 
-            node_visitor.imported_mods = []
+            node_visitor.reset()
 
 
 def imports_dict(graph):
@@ -271,7 +285,7 @@ def imports_dict(graph):
                     imports.append(node_visitor.imported_funcs[mod_name[0]])
             import_dict.update({node: imports})
 
-            node_visitor.imported_mods = []
+            node_visitor.reset()
 
     return import_dict
 
@@ -301,11 +315,16 @@ def function_call_relationship(graph):
             print(f"\tImported calls:{imported_calls}")
             # print(import_dict[node])  # list of lists
             # print(f"\tAll calls:{node_visitor.calls}")
-            node_visitor.calls = []
+            node_visitor.reset()
 
 
 def inheritance_relationships(graph):
     """
+    Creates a directed edge for whenever a class definition subclasses another class
+    from the target code repo.
+
+    :param graph: the graph representing the target code repo
+    :type graph: networkx.MultiDiGraph
     """
     node_visitor = ClassLister()
 
@@ -318,8 +337,7 @@ def inheritance_relationships(graph):
             print(f"\tthat extend the classes:")
             print(f"\t\t{node_visitor.extends}")
 
-            node_visitor.classes = []
-            node_visitor.extends = []
+            node_visitor.reset()
 
 
 def definition_nodes(graph):

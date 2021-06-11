@@ -1,8 +1,5 @@
 """
-File for testing parsing.py module.
-
-TODO: Testing plan and motivation
-- Test last 10 commits
+File for testing the ``parsing.py`` module.
 """
 import os
 import ast
@@ -62,7 +59,7 @@ def test_create_branch(g, path, ast, start_g):
     assert list(g.edges) == list(new_g.edges)
 
 
-# test create_ast_graph
+# test create_ast_graph()
 @pytest.mark.parametrize("g, files, repo_path, repo_name", [
     (graph3, ["b.py", "a/a.py"], os.path.join(
         current_dir, "test_repo"), "test_repo")
