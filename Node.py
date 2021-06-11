@@ -2,6 +2,7 @@
 Node module comment
 """
 
+import ast
 from abc import ABC, abstractmethod
 
 
@@ -18,7 +19,8 @@ class Node(ABC):
         return self.name == value.name
 
     def __hash__(self):
-        return id(self.name)
+        # id(self.name)
+        return self.name.__hash__()
 
     def __str__(self):
         return self.name
@@ -105,3 +107,15 @@ class FileNode(Node):
         :rtype: ast
         """
         return self.tree
+
+
+class ClassNode(Node):
+    def __init__(self, n, ast):
+        super().__init__(n)
+        self.tree = ast
+
+
+class FuncNode(Node):
+    def __init__(self, n, ast):
+        super().__init__(n)
+        self.tree = ast

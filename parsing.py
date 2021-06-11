@@ -66,7 +66,7 @@ def create_branch(graph: nx.Graph, filepath, ast):
     while i < len(filepath) - 2:  # add folders until Python file reached
         next_dir = os.path.join(base, filepath[i + 1])
         # only creates nodes if not already in the graph
-        if (not graph.has_edge(base, next_dir)):
+        if (not graph.has_edge(node.FolderNode(base), node.FolderNode(next_dir))):
             graph.add_edge(node.FolderNode(base), node.FolderNode(
                 next_dir), object=edge.DirectoryEdge("dir"))
         base = next_dir

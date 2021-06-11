@@ -12,7 +12,7 @@ NetworkX 2.5 or above
 import ast
 import os
 import pickle
-from node import FileNode
+from node import FileNode, FolderNode, ClassNode, FuncNode
 import edge
 import networkx as nx
 
@@ -20,20 +20,31 @@ import networkx as nx
 repo_name = "snorkel"
 
 
+# TODO:
+# -add reset() method to each node visitor
+
+
 class FuncLister(ast.NodeVisitor):
     """
-    This class will display all the functions within an AST. 
+    This class will display all the functions within an AST.
     """
+
+    def __init__(self):
+        super().__init__()
+        self.funcs = []
 
     def visit_FunctionDef(self, node):
         """
         Visits and prints all the function definitions in an AST.
 
         :param node: a node within an AST.
-        :type node: AST Node   
+        :type node: AST Node
         """
-        print(node.name)
+        self.funcs.append(node.name)
         self.generic_visit(node)
+
+    def reset(self):
+        self.funcs = []
 
 
 class CallLister(ast.NodeVisitor):
@@ -51,10 +62,10 @@ class CallLister(ast.NodeVisitor):
 
     def visit_Call(self, node):
         """
-        Gathers all called function's names. 
+        Gathers all called function's names.
 
         :param node: a node within an AST.
-        :type node: AST Node   
+        :type node: AST Node
         """
         if type(node.func) is ast.Name:
             self.calls.append(node.func.id)
@@ -72,7 +83,7 @@ class ClassLister(ast.NodeVisitor):
 
     def __init__(self):
         """
-        Object initializer. 
+        Object initializer.
         """
         super().__init__()
         self.classes = []
@@ -88,17 +99,22 @@ class ClassLister(ast.NodeVisitor):
                 self.extends.append(b.id)
             elif type(b) is ast.Attribute:
                 self.extends.append(b.value.id)
+        self.generic_visit(node)
+
+    def reset(self):
+        self.classes = []
+        self.extends = []
 
 
 class ImportLister(ast.NodeVisitor):
     """
     This class will gathers all the import statements within an AST, as well as
-    the functions the statements import, if any. 
+    the functions the statements import, if any.
     """
 
     def __init__(self):
         """
-        Object initializer. 
+        Object initializer.
         """
         super().__init__()
         self.imported_mods = []
@@ -123,6 +139,42 @@ class ImportLister(ast.NodeVisitor):
 
         self.imported_funcs.update({node.module: funcs})
 
+        self.generic_visit(node)
+
+
+class DefinitionLister(ast.NodeVisitor):
+    """
+    This class will gathers all the import statements within an AST, as well as
+    the functions the statements import, if any.
+    """
+
+    def __init__(self, root):
+        """
+        The root to add the ClassNode and FuncNode.
+        """
+        super().__init__()
+        self.graph = nx.Graph.copy(root)
+        self.starting_node = None
+
+    def visit_ClassDef(self, node):
+        """
+        Adds a ClassNode to the graph, as well as any functions defined in the class.
+        """
+        class_name = os.path.join(self.graph.name, node.name)
+        self.graph.add_edge(self.starting_node, ClassNode(class_name, node))
+        old_starting_node = self.starting_node
+
+        # Add FuncNodes as children of this ClassNode
+        self.starting_node = ClassNode(class_name, node)
+        self.generic_visit(node)
+        self.starting_node = old_starting_node
+
+    def visit_FunctionDef(self, node):
+        """
+        Adds a FuncNode to the graph.
+        """
+        func_name = os.path.join(self.graph.name, node.name)
+        self.graph.add_edge(self.starting_node, FuncNode(func_name, node))
         self.generic_visit(node)
 
 
@@ -197,12 +249,12 @@ def import_relationship(graph):
 
 def imports_dict(graph):
     """
-    Creates a dictionary of imported functions. 
+    Creates a dictionary of imported functions.
 
     :param graph: the tree representing the target code repo
     :type graph: networkx.MultiDiGraph
 
-    :returns: A dictionary mapping the name of a Python file to a list of all 
+    :returns: A dictionary mapping the name of a Python file to a list of all
     modules it imports from its own repo, which is represented by `graph`.
     :rtype: dict {str : str list}
     """
@@ -226,7 +278,7 @@ def imports_dict(graph):
 
 def function_call_relationship(graph):
     """
-    Creates a directed edge for when a module calls a function from another module 
+    Creates a directed edge for when a module calls a function from another module
     from the target code repo.
 
     :param graph: the graph representing the target code repo
@@ -248,7 +300,7 @@ def function_call_relationship(graph):
             print(f"The file '{node}' calls functions: ")
             print(f"\tImported calls:{imported_calls}")
             # print(import_dict[node])  # list of lists
-            #print(f"\tAll calls:{node_visitor.calls}")
+            # print(f"\tAll calls:{node_visitor.calls}")
             node_visitor.calls = []
 
 
@@ -270,6 +322,52 @@ def inheritance_relationships(graph):
             node_visitor.extends = []
 
 
+def definition_nodes(graph):
+    """
+    Adds ClassNode and FuncNode to the base `graph`.
+    """
+    node_visitor = DefinitionLister(graph)
+
+    node_list = graph.nodes
+
+    for node in node_list:
+        if type(node) is FileNode:  # if at Python file
+            node_visitor.starting_node = node
+            node_visitor.visit(node.get_ast())
+
+    return node_visitor.graph
+
+
+def graph_to_string(graph: nx.MultiDiGraph, starting_node, level=0):
+    """
+    String representation of `graph` for debugging purposes. 
+
+    A class name is wrapped in brackets []. A function name is wrapped in parens ().
+    For example, a graph 'g' representing Python module 'main.py' that defines
+    function func1 and classes A and B, with A defining functions func2, func3:
+    >>> graph_to_string(g, FileNode("main.py"))
+    'main.py'
+       '(func1)'
+       '[A] (func2) (func3)'
+       '[B]'
+    """
+    abrev_name = str(starting_node).split(os.sep)[-1]
+    if type(starting_node) is ClassNode:
+        abrev_name = "[" + abrev_name + "]"
+    elif type(starting_node) is FuncNode:
+        abrev_name = "(" + abrev_name + ")"
+    st = abrev_name
+    level += 1
+    for child in graph.successors(starting_node):
+        # if children nodes arent class functions
+        if not (type(child) is FuncNode and type(starting_node) is ClassNode):
+            st += "\n" + " "*3*level + graph_to_string(graph, child, level)
+        else:
+            st += " " + graph_to_string(graph, child, level)
+
+    return st
+
+
 # Get the tree of the first commit for testing
 current_dir = os.path.dirname(os.path.abspath(__file__))
 data_path = os.path.join(current_dir, "module_data")
@@ -277,9 +375,11 @@ with open(os.path.join(data_path, repo_name), "rb") as file:
     ast_dict = pickle.load(file)
 first_tree = ast_dict[list(ast_dict.keys())[0]]
 
-import_relationship(first_tree)
+# import_relationship(first_tree)
 # function_call_relationship(first_tree)
 # inheritance_relationships(first_tree)
+new_graph = definition_nodes(first_tree)  # check snorkel/analysis/scorer.py
+print(graph_to_string(new_graph, FolderNode("snorkel")))
 
 
 class AstGraph(nx.MultiDiGraph):
@@ -287,14 +387,14 @@ class AstGraph(nx.MultiDiGraph):
     This class represents the graph that will be constructed.
 
     By design, this class will extend the NetworkX MultiDiGraph in order to
-    represent the connections and dependencies between modules. The nodes of the 
-    graph will represent each file within the a repo directory. A directed edge 
-    from one node to another will represent the dependency that a node has. 
+    represent the connections and dependencies between modules. The nodes of the
+    graph will represent each file within the a repo directory. A directed edge
+    from one node to another will represent the dependency that a node has.
     """
 
     def __init__(self, commit=None):
         """
-        Initializes the graph object. 
+        Initializes the graph object.
 
         :param commit: the current commit history of the repo
         :type commit: str
@@ -304,21 +404,21 @@ class AstGraph(nx.MultiDiGraph):
 
     def add_node(self, node_for_adding, **attr):
         """
-        Adds a node to the graph. 
+        Adds a node to the graph.
         TODO: properly tie the **attr to attributes for the graph
         """
         return super().add_node(node_for_adding, **attr)
 
     def add_edge(self, u, v, key, **attr):
         """
-        Adds a directed edge from `u` to `v`. 
+        Adds a directed edge from `u` to `v`.
         TODO: properly tie the **attr to attributes for the graph
         """
         return super().add_edge(u, v, key=key, **attr)
 
     def get_edge_data(self, u, v, key, default):
         """
-        Gets the edge data from `u` to `v`. 
+        Gets the edge data from `u` to `v`.
         TODO: Display all the edges depending on the type of edge based on the
         edge module
         """
