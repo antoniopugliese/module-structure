@@ -30,7 +30,7 @@ Parsing
    :show-inheritance:
 
 Node
-=======
+====
 
 .. automodule:: Node
    :members:
@@ -39,7 +39,7 @@ Node
    :show-inheritance:
 
 Relationship
-=======
+============
 
 .. automodule:: relationship
    :members:
