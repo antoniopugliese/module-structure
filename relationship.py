@@ -12,7 +12,7 @@ NetworkX 2.5 or above
 import ast
 import os
 import pickle
-import Node
+from node import FileNode
 import edge
 import networkx as nx
 
@@ -152,16 +152,16 @@ def in_repo(graph: nx.MultiDiGraph, starting_node, mod, level):
             target_node = list(graph.predecessors(target_node))[0]
             level -= 1
         for node in nx.bfs_successors(graph, target_node):
-            if node[0].endswith(target_node):
+            if node[0].get_name().endswith(target_node.get_name()):
                 return True
         return False
     else:
         # for absolute imports, search to see if module in graph
         # dir_list = mod.split('.')
         # target_node = os.path.join(*dir_list)
-        target_node = mod.replace('.', os.sep)
+        target_node_name = mod.replace('.', os.sep)
         for node in graph.nodes:
-            if target_node in node:
+            if target_node_name in node.get_name():
                 return True
         return False
 
@@ -177,10 +177,8 @@ def import_relationship(graph):
     node_visitor = ImportLister()
 
     for node in graph.nodes:
-        # get the 'node' attribute of the graph node named node (confusing)
-        curr_node = graph.nodes[node]["node"]
-        if type(curr_node) is Node.FileNode:  # if at Python file
-            node_visitor.visit(curr_node.get_ast())
+        if type(node) is FileNode:  # if at Python file
+            node_visitor.visit(node.get_ast())
 
             imports = []
             for mod_name in node_visitor.imported_mods:
@@ -212,10 +210,8 @@ def imports_dict(graph):
     node_visitor = ImportLister()
 
     for node in graph.nodes:
-        # get the 'node' attribute of the graph node named node (confusing)
-        curr_node = graph.nodes[node]["node"]
-        if type(curr_node) is Node.FileNode:  # if at Python file
-            node_visitor.visit(curr_node.get_ast())
+        if type(node) is FileNode:  # if at Python file
+            node_visitor.visit(node.get_ast())
 
             imports = []
             for mod_name in node_visitor.imported_mods:
@@ -240,10 +236,8 @@ def function_call_relationship(graph):
     node_visitor = CallLister()
 
     for node in graph.nodes:
-        # get the 'node' attribute of the graph node named node (confusing)
-        curr_node = graph.nodes[node]["node"]
-        if type(curr_node) is Node.FileNode:  # if at Python file
-            node_visitor.visit(curr_node.get_ast())
+        if type(node) is FileNode:  # if at Python file
+            node_visitor.visit(node.get_ast())
 
             imported_calls = []
             for func in node_visitor.calls:
@@ -264,10 +258,8 @@ def inheritance_relationships(graph):
     node_visitor = ClassLister()
 
     for node in graph.nodes:
-        # get the 'node' attribute of the graph node named node (confusing)
-        curr_node = graph.nodes[node]["node"]
-        if type(curr_node) is Node.FileNode:  # if at Python file
-            node_visitor.visit(curr_node.get_ast())
+        if type(node) is FileNode:  # if at Python file
+            node_visitor.visit(node.get_ast())
 
             print(f"The file '{node}' defines classes: ")
             print(f"\t{node_visitor.classes}")
@@ -285,8 +277,8 @@ with open(os.path.join(data_path, repo_name), "rb") as file:
     ast_dict = pickle.load(file)
 first_tree = ast_dict[list(ast_dict.keys())[0]]
 
-# import_relationship(first_tree)
-function_call_relationship(first_tree)
+import_relationship(first_tree)
+# function_call_relationship(first_tree)
 # inheritance_relationships(first_tree)
 
 

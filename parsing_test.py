@@ -6,7 +6,7 @@ TODO: Testing plan and motivation
 """
 import os
 import ast
-import Node
+import node
 import edge
 import parsing
 import networkx as nx
@@ -30,25 +30,20 @@ with open(os.path.join(current_dir, "test_repo", "b.py")) as f:
 # |____[a]
 #      |_____a.py
 
-repo_fold_node = ("test_repo", Node.FolderNode("test_repo", "p"))
-b_file_node = ("test_repo\\b.py", Node.FileNode("b.py", "p", b_ast))
-a_fold_node = ("test_repo\\a", Node.FolderNode("a", "p"))
-a_file_node = ("test_repo\\a\\a.py", Node.FileNode("a.py", "p", a_ast))
+repo_fold_node = node.FolderNode("test_repo")
+b_file_node = node.FileNode("test_repo\\b.py", b_ast)
+a_fold_node = node.FolderNode("test_repo\\a")
+a_file_node = node.FileNode("test_repo\\a\\a.py", a_ast)
 
 # Construct test graphs
 graph1 = nx.MultiDiGraph()
-graph1.add_node(repo_fold_node[0], node=repo_fold_node[1])
-graph1.add_node(b_file_node[0], node=b_file_node[1])
-graph1.add_edge("test_repo", "test_repo\\b.py",
+graph1.add_edge(repo_fold_node, b_file_node,
                 object=edge.DirectoryEdge("dir"))
 
 graph2 = nx.MultiDiGraph()
-graph2.add_node(repo_fold_node[0], node=repo_fold_node[1])
-graph2.add_node(a_fold_node[0], node=a_fold_node[1])
-graph2.add_node(a_file_node[0], node=a_file_node[1])
-graph2.add_edge("test_repo", "test_repo\\a",
+graph2.add_edge(repo_fold_node, a_fold_node,
                 object=edge.DirectoryEdge("dir"))
-graph2.add_edge("test_repo\\a", "test_repo\\a\\a.py",
+graph2.add_edge(a_fold_node, a_file_node,
                 object=edge.DirectoryEdge("dir"))
 
 graph3 = nx.MultiDiGraph()
