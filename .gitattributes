@@ -1,1 +1,3 @@
 _build/* linguist-vendored
+*.py
+*.pyi
