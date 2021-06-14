@@ -12,7 +12,7 @@ Requires Python 3.8.3 or above.
 import os
 from git import Repo, Git
 import ast
-import Node
+import node
 import edge
 import networkx as nx
 
@@ -65,23 +65,17 @@ def create_branch(graph: nx.Graph, filepath, ast):
     base = filepath[0]
     while i < len(filepath) - 2:  # add folders until Python file reached
         next_dir = os.path.join(base, filepath[i + 1])
-        # only create nodes if not already in the graph
-        if (not graph.has_node(base)):
-            graph.add_node(base, node=Node.FolderNode(base, "p"))
-        if (not graph.has_node(next_dir)):
-            graph.add_node(next_dir, node=Node.FolderNode(next_dir, "p"))
-        if (not graph.has_edge(base, next_dir)):
-            graph.add_edge(base, next_dir, object=edge.DirectoryEdge("dir"))
+        # only creates nodes if not already in the graph
+        if (not graph.has_edge(node.FolderNode(base), node.FolderNode(next_dir))):
+            graph.add_edge(node.FolderNode(base), node.FolderNode(
+                next_dir), object=edge.DirectoryEdge("dir"))
         base = next_dir
         i += 1
 
     # add python file
     next_dir = os.path.join(base, filepath[i + 1])
-    if (not graph.has_node(base)):
-        graph.add_node(base, node=Node.FolderNode(base, "p"))
-    if (not graph.has_node(next_dir)):
-        graph.add_node(next_dir, node=Node.FileNode(next_dir, "p", ast))
-    graph.add_edge(base, next_dir, object=edge.DirectoryEdge("dir"))
+    graph.add_edge(node.FolderNode(base), node.FileNode(
+        next_dir, ast), object=edge.DirectoryEdge("dir"))
 
     return graph
 
@@ -106,7 +100,7 @@ def create_ast_graph(files, repo_path, repo_name):
     graph = nx.MultiDiGraph()
 
     # create root node
-    graph.add_node(repo_name, node=Node.FolderNode(repo_name, None))
+    graph.add_node(node.FolderNode(repo_name))
 
     for file in files:
         if file.endswith('.py'):
@@ -129,7 +123,7 @@ def create_ast_graph(files, repo_path, repo_name):
 
 def create_ast_dict(commits, repo_path, repo_name, g):
     """
-    Creates a dictionary mapping the SHA1 of each version in `commits` to a Node
+    Creates a dictionary mapping the SHA1 of each version in `commits` to a node
     object that contains the abstract syntax trees of all the Python code in that
     version.
 
@@ -145,8 +139,8 @@ def create_ast_dict(commits, repo_path, repo_name, g):
     :param g: the git module to analyze
     :type g: Git
 
-    :return: a dictionary mapping the SHA1 of each commit to a Node object.
-    :rtype: dictionary {str : Node}
+    :return: a dictionary mapping the SHA1 of each commit to a node object.
+    :rtype: dictionary {str : node}
     """
 
     # Side effect for testing
@@ -175,8 +169,8 @@ def update_ast_dict(dict, commits, repo_path, repo_name, g):
     """
     Updates the dictionary to add any new commits in a repo.
 
-    :param dict: dictionary that maps SHA1 to a Node object
-    :type dict: dictionary {str : Node}
+    :param dict: dictionary that maps SHA1 to a node object
+    :type dict: dictionary {str : node}
 
     :param commits: the list of commits in a repo
     :type commits: Git.Commit list
@@ -191,7 +185,7 @@ def update_ast_dict(dict, commits, repo_path, repo_name, g):
     :type g: Git
 
     :return: An updated dictionary with any new commits.
-    :rtype: dictionary {str : Node}
+    :rtype: dictionary {str : node}
     """
 
     # loop through commits
@@ -217,4 +211,4 @@ def print_graph(graph):
     # def edge_to_string(n1, n2, o):
     #     return (n1.name, n2.name)
     for n in list(graph.nodes):
-        print(n)
+        print(n.get_name())

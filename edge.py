@@ -1,7 +1,6 @@
 """
 This module contains all the edge classes used by the generated graph. 
 """
-import Node
 import networkx as nx
 
 
@@ -9,6 +8,7 @@ class Edge():
     """
     Object that represents an edge in a graph. 
     """
+
     def __init__(self, name):
         """
         Object initializer.
@@ -17,7 +17,7 @@ class Edge():
         :type name: str
         """
         self.name = name
-    
+
     def get_name(self):
         """
         Getter method for the name of the edge 
@@ -27,11 +27,13 @@ class Edge():
         """
         return self.name
 
+
 class DirectoryEdge(Edge):
     """
     This class represents an edge between two nodes, where one node is the parent
     directory of the other node. 
     """
+
     def __init__(self, name):
         """
         Object initializer.
@@ -41,11 +43,13 @@ class DirectoryEdge(Edge):
         """
         super().__init__(name)
 
+
 class ImportEdge(Edge):
     """
     This class represents an edge between two nodes if one node imports a module
     from the other node. 
     """
+
     def __init__(self, name):
         """
         Object initializer.
