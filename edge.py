@@ -58,3 +58,48 @@ class ImportEdge(Edge):
         :type name: str
         """
         super().__init__(name)
+
+class FunctionCallEdge(Edge):
+    """
+    This class represets an edge betwee two nodes if one node represents a function
+    call from another node.
+    """
+
+    def __init__(self, name):
+        """
+        Object initializer
+
+        :param name: name of edge
+        :type name: str
+        """
+        super().__init__(name)
+
+class InheritanceEdge(Edge):
+    """
+    This class represents an edge between two nodes if one node inherits from 
+    another node.
+    """
+
+    def __init__(self, name):
+        """
+        Object initializer
+
+        :param name: name of edge
+        :type name: str
+        """
+        super().__init__(name)
+
+class DefinitionEdge(Edge):
+    """
+    This class represents an edge between two nodes if one node contains a
+    definition that is contained within another node. 
+    """
+
+    def __init__(self, name):
+        """
+        Object initializer
+
+        :param name: name of edge
+        :type name: str
+        """
+        super().__init__(name)

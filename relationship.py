@@ -10,7 +10,6 @@ Python 3.8.3 or above.
 
 import ast
 import os
-import pickle
 from node import FileNode, FolderNode, ClassNode, FuncNode
 import edge
 import networkx as nx
@@ -44,6 +43,9 @@ class CallLister(ast.NodeVisitor):
         self.generic_visit(node)
 
     def reset(self):
+        """
+        Clears the list of visited nodes.
+        """
         self.calls = []
 
 
@@ -64,6 +66,10 @@ class ClassLister(ast.NodeVisitor):
     def visit_ClassDef(self, node: ast.ClassDef):
         """
         Gathers the name of every defined class, as well as the classes they extend.
+
+        :param node: the starting node (represents a class)
+        :type node: ast.ClassDef
+
         """
         self.classes.append(node.name)
         for b in node.bases:
@@ -74,6 +80,9 @@ class ClassLister(ast.NodeVisitor):
         self.generic_visit(node)
 
     def reset(self):
+        """
+        Clears the list of class definitions and class extensions.
+        """
         self.classes = []
         self.extends = []
 
@@ -107,6 +116,9 @@ class ImportLister(ast.NodeVisitor):
     def visit_ImportFrom(self, node: ast.ImportFrom):
         """
         Gathers the imported modules and imported functions, or their alias if used.
+
+        :param node: the node that represents an import
+        :type node: ast.ImportFrom
         """
         self.imported_mods.append((node.module, node.level))
         funcs = []
@@ -121,6 +133,9 @@ class ImportLister(ast.NodeVisitor):
         self.generic_visit(node)
 
     def reset(self):
+        """
+        Clears the list of imported modules. 
+        """
         self.imported_mods = []
 
 
@@ -145,6 +160,9 @@ class DefinitionLister(ast.NodeVisitor):
     def visit_ClassDef(self, node):
         """
         Adds a ClassNode to the graph, as well as any functions defined in the class.
+
+        :param node: a node that represents a class definition
+        :type node: ast.ClassDef
         """
         class_name = os.path.join(self.graph.name, node.name)
         class_node = ClassNode(class_name, node)
@@ -159,9 +177,12 @@ class DefinitionLister(ast.NodeVisitor):
     def visit_FunctionDef(self, node):
         """
         Adds a FuncNode to the graph.
+
+        :param node: a node representing the function definition.
+        :type node: ast.FunctionDef
         """
         func_name = os.path.join(self.graph.name, node.name)
-        self.graph.add_edge(self.starting_node, FuncNode(func_name, node))
+        self.graph.add_edge(self.starting_node, FuncNode(func_name, node), edge.DefinitionEdge(""))
         self.generic_visit(node)
 
 
@@ -223,8 +244,8 @@ def import_relationship(graph):
             for mod_name in node_visitor.imported_mods:
                 if in_repo(graph, node, mod_name[0], mod_name[1]):
                     imports.append(mod_name[0])
+                    graph.add_edge(mod_name[0], node, edge= edge.ImportEdge(""))
 
-            # <insert creating edges using imports list>
 
             # print imports for testing
             print(f"The file '{node}' has the imports: ")
@@ -283,6 +304,7 @@ def function_call_relationship(graph):
                 for imported_func in import_dict[node]:
                     if func in imported_func:
                         imported_calls.append(func)
+                        graph.add_edge(func, node, edge=edge.FunctionCallEdge(""))
 
             print(f"The file '{node}' calls functions: ")
             print(f"\tImported calls:{imported_calls}")
@@ -309,6 +331,9 @@ def inheritance_relationships(graph):
             print(f"\t{node_visitor.classes}")
             print(f"\tthat extend the classes:")
             print(f"\t\t{node_visitor.extends}")
+
+            for exteded_node in node_visitor.extends:
+                graph.add_edge(node, exteded_node, edge=edge.InheritanceEdge(""))
 
             node_visitor.reset()
 
