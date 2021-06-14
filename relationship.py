@@ -1,6 +1,6 @@
 """
 This module will construct a graph representing the dependencies between files
-in a repo. It will take in tree that represents the file structure and parse the
+in a repo. It will take in the tree that represents the file structure and parse the
 abstract syntax trees (AST) of each of the relevant files in order to construct
 the final graph.
 
@@ -20,27 +20,27 @@ import networkx as nx
 repo_name = "snorkel"
 
 
-class FuncLister(ast.NodeVisitor):
-    """
-    This class will gather all the functions defined within an AST.
-    """
+# class FuncLister(ast.NodeVisitor):
+#     """
+#     This class will gather all the functions defined within an AST.
+#     """
 
-    def __init__(self):
-        super().__init__()
-        self.funcs = []
+#     def __init__(self):
+#         super().__init__()
+#         self.funcs = []
 
-    def visit_FunctionDef(self, node):
-        """
-        Visits and prints all the function definitions in an AST.
+#     def visit_FunctionDef(self, node):
+#         """
+#         Visits and prints all the function definitions in an AST.
 
-        :param node: a node within an AST.
-        :type node: AST Node
-        """
-        self.funcs.append(node.name)
-        self.generic_visit(node)
+#         :param node: a node within an AST.
+#         :type node: AST Node
+#         """
+#         self.funcs.append(node.name)
+#         self.generic_visit(node)
 
-    def reset(self):
-        self.funcs = []
+#     def reset(self):
+#         self.funcs = []
 
 
 class CallLister(ast.NodeVisitor):

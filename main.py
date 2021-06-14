@@ -4,6 +4,10 @@ import json
 import pickle
 from git import Repo, Git
 
+def main():
+    pass
+
+
 if __name__ == "__main__":
     home = os.path.expanduser("~")
     # Find absolute current directory path
