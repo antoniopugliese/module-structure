@@ -6,7 +6,6 @@ the final graph.
 
 Requires:
 Python 3.8.3 or above.
-NetworkX 2.5 or above
 """
 
 import ast
@@ -15,32 +14,6 @@ import pickle
 from node import FileNode, FolderNode, ClassNode, FuncNode
 import edge
 import networkx as nx
-
-
-repo_name = "snorkel"
-
-
-# class FuncLister(ast.NodeVisitor):
-#     """
-#     This class will gather all the functions defined within an AST.
-#     """
-
-#     def __init__(self):
-#         super().__init__()
-#         self.funcs = []
-
-#     def visit_FunctionDef(self, node):
-#         """
-#         Visits and prints all the function definitions in an AST.
-
-#         :param node: a node within an AST.
-#         :type node: AST Node
-#         """
-#         self.funcs.append(node.name)
-#         self.generic_visit(node)
-
-#     def reset(self):
-#         self.funcs = []
 
 
 class CallLister(ast.NodeVisitor):
@@ -384,20 +357,6 @@ def graph_to_string(graph: nx.MultiDiGraph, starting_node, level=0):
             st += " " + graph_to_string(graph, child, level)
 
     return st
-
-
-# Get the tree of the first commit for testing
-current_dir = os.path.dirname(os.path.abspath(__file__))
-data_path = os.path.join(current_dir, "module_data")
-with open(os.path.join(data_path, repo_name), "rb") as file:
-    ast_dict = pickle.load(file)
-first_tree = ast_dict[list(ast_dict.keys())[0]]
-
-# import_relationship(first_tree)
-# function_call_relationship(first_tree)
-# inheritance_relationships(first_tree)
-new_graph = definition_nodes(first_tree)  # check snorkel/analysis/scorer.py
-print(graph_to_string(new_graph, FolderNode("snorkel")))
 
 
 class AstGraph(nx.MultiDiGraph):

@@ -2,13 +2,12 @@ import os
 import parsing
 import json
 import pickle
+import node
+import relationship as rel
 from git import Repo, Git
 
+
 def main():
-    pass
-
-
-if __name__ == "__main__":
     home = os.path.expanduser("~")
     # Find absolute current directory path
     current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -73,6 +72,19 @@ if __name__ == "__main__":
     print("Done.")
 
     # print file structure of the latest commit
-    print("Printing the directory:")
-    first = list(ast_dict.keys())[1]
-    parsing.print_graph(ast_dict[first])
+    # print("Printing the directory:")
+    first = list(ast_dict.keys())[0]
+    first_graph = ast_dict[first]
+
+    # create relationships
+    print("Creating relationships...", end="", flush=True)
+    # import_relationship(first_tree)
+    # function_call_relationship(first_tree)
+    # inheritance_relationships(first_tree)
+    print("Done.")
+    new_graph = rel.definition_nodes(first_graph)
+    print(rel.graph_to_string(new_graph, node.FolderNode("snorkel")))
+
+
+if __name__ == "__main__":
+    main()
