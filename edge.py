@@ -1,5 +1,7 @@
 """
-This module contains all the edge classes used by the generated graph. 
+This module contains all the edge classes used by the generated graph.
+
+TODO: examples for each
 """
 import networkx as nx
 
