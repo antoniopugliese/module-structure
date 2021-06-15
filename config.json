@@ -1,12 +1,14 @@
 {
-    "repo_name": "snorkel",
-    "branch": "master",
-    "max_count": 10,
-    "edges" : [
-      "Directory",
-      "File",
-      "Class",
-      "Import",
-      "Function"
-    ]
-  }
+  "repo_name": "snorkel",
+  "branch": "master",
+  "max_count": 10,
+  "nodes": [
+    "File"
+  ],
+  "edges": [
+    "Directory",
+    "Class",
+    "Import",
+    "Function"
+  ]
+}
