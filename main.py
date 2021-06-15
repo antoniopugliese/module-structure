@@ -89,19 +89,11 @@ def main():
 
     sub = subgraph.subgraph(new_graph)
 
-    for n in sub.nodes:
-        print(n)
+    # for n in sub.nodes:
+    #     print(n)
 
-    # uncomment if statements to examine different edges in the tree
-    # for u, v, d in new_graph.edges.data():
-    #     # if type(d['edge']) is edge.DirectoryEdge:
-    #     #     print(f"{u} is parent dir of {v}")
-    #     # if type(d['edge']) is edge.ImportEdge:
-    #     #     print(f"{u} imports {v}")
-    #     # if type(d['edge']) is edge.FunctionCallEdge:
-    #     #     print(f"{u} calls {v}")
-    #     if type(d['edge']) is edge.InheritanceEdge:
-    #         print(f"{u} extends {v}")
+    # for u, v, d in sub.edges:
+    #     print(f"from {u} to {v}")
 
 
 if __name__ == "__main__":

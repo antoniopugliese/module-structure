@@ -3,11 +3,10 @@
   "branch": "master",
   "max_count": 10,
   "nodes": [
-    "File"
+    "File",
+    "Folder"
   ],
   "edges": [
-    "Directory",
-    "Import",
-    "Function"
+    "Directory"
   ]
 }

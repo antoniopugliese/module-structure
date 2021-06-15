@@ -56,7 +56,7 @@ file to alter what commits are analyzed.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="parsing.create_ast_dict">
 <span class="sig-prename descclassname"><span class="pre">parsing.</span></span><span class="sig-name descname"><span class="pre">create_ast_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">commits</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repo_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repo_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">g</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#parsing.create_ast_dict" title="Permalink to this definition">¶</a></dt>
-<dd><p>Creates a dictionary mapping the SHA1 of each version in <cite>commits</cite> to a Node
+<dd><p>Creates a dictionary mapping the SHA1 of each version in <cite>commits</cite> to a node
 object that contains the abstract syntax trees of all the Python code in that
 version.</p>
 <dl class="field-list simple">
@@ -69,10 +69,10 @@ version.</p>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>a dictionary mapping the SHA1 of each commit to a Node object.</p>
+<dd class="field-even"><p>a dictionary mapping the SHA1 of each commit to a node object.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>dictionary {str : Node}</p>
+<dd class="field-odd"><p>dictionary {str : node}</p>
 </dd>
 </dl>
 </dd></dl>
@@ -159,7 +159,7 @@ Assumes a top-down approach will be taken.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>dict</strong> (<em>dictionary {str : Node}</em>) – dictionary that maps SHA1 to a Node object</p></li>
+<li><p><strong>dict</strong> (<em>dictionary {str : node}</em>) – dictionary that maps SHA1 to a node object</p></li>
 <li><p><strong>commits</strong> (<em>Git.Commit list</em>) – the list of commits in a repo</p></li>
 <li><p><strong>repo_path</strong> (<em>str</em>) – the path to the directory that contains the target repo</p></li>
 <li><p><strong>repo_name</strong> (<em>str</em>) – the name of the target repo</p></li>
@@ -170,25 +170,50 @@ Assumes a top-down approach will be taken.</p>
 <dd class="field-even"><p>An updated dictionary with any new commits.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>dictionary {str : Node}</p>
+<dd class="field-odd"><p>dictionary {str : node}</p>
 </dd>
 </dl>
 </dd></dl>
 
 </section>
-<section id="module-Node">
-<span id="node"></span><h1>Node<a class="headerlink" href="#module-Node" title="Permalink to this headline">¶</a></h1>
-<p>Node module comment</p>
+<section id="module-node">
+<span id="node"></span><h1>Node<a class="headerlink" href="#module-node" title="Permalink to this headline">¶</a></h1>
+<p>This module defines node objects to be used in constructing a graph representing
+the file structure of a code repo, and the structure of its Python code files.</p>
 <dl class="py class">
-<dt class="sig sig-object py" id="Node.FileNode">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">Node.</span></span><span class="sig-name descname"><span class="pre">FileNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ast</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Node.FileNode" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#Node.Node" title="Node.Node"><code class="xref py py-class docutils literal notranslate"><span class="pre">Node.Node</span></code></a></p>
+<dt class="sig sig-object py" id="node.ClassNode">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">node.</span></span><span class="sig-name descname"><span class="pre">ClassNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ast</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#node.ClassNode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#node.Node" title="node.Node"><code class="xref py py-class docutils literal notranslate"><span class="pre">node.Node</span></code></a></p>
+<p>The Node subclass that represents a class defined within a Python file. 
+A ClassNode object must be a child node of a FileNode object, and can only
+have ClassNode or FuncNode objects as children nodes.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="node.ClassNode.get_name">
+<span class="sig-name descname"><span class="pre">get_name</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#node.ClassNode.get_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Getter method to return the name of the Node.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>name of Node</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="node.FileNode">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">node.</span></span><span class="sig-name descname"><span class="pre">FileNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ast</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#node.FileNode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#node.Node" title="node.Node"><code class="xref py py-class docutils literal notranslate"><span class="pre">node.Node</span></code></a></p>
 <p>The Node subclass that represents a Python file. It contains a <code class="docutils literal notranslate"><span class="pre">tree</span></code>
 attribute that stores the abstract syntax tree (AST) of the Python file it
-represents. A FileNode cannot have any children Nodes (it must be a leaf).</p>
+represents. A FileNode cannot have any FolderNode or FileNode children nodes,
+but may have ClassNode or FuncNode children nodes.</p>
 <dl class="py method">
-<dt class="sig sig-object py" id="Node.FileNode.get_ast">
-<span class="sig-name descname"><span class="pre">get_ast</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Node.FileNode.get_ast" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="node.FileNode.get_ast">
+<span class="sig-name descname"><span class="pre">get_ast</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#node.FileNode.get_ast" title="Permalink to this definition">¶</a></dt>
 <dd><p>Getter method to return the abstract syntax tree of the file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -201,8 +226,8 @@ represents. A FileNode cannot have any children Nodes (it must be a leaf).</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="Node.FileNode.get_name">
-<span class="sig-name descname"><span class="pre">get_name</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Node.FileNode.get_name" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="node.FileNode.get_name">
+<span class="sig-name descname"><span class="pre">get_name</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#node.FileNode.get_name" title="Permalink to this definition">¶</a></dt>
 <dd><p>Getter method to return the name of the Node.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -214,76 +239,17 @@ represents. A FileNode cannot have any children Nodes (it must be a leaf).</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="Node.FileNode.to_string">
-<span class="sig-name descname"><span class="pre">to_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Node.FileNode.to_string" title="Permalink to this definition">¶</a></dt>
-<dd><p>The string representation of the FileNode. Mainly intended for debugging purposes.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>level</strong> (<em>int</em>) – the current depth of the Node, defaults to 0.</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>the name of the Python file.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>str</p>
-</dd>
-</dl>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">FileNode</span><span class="p">(</span><span class="s2">&quot;code.py&quot;</span><span class="p">,</span><span class="s2">&quot;root&quot;</span><span class="p">,</span><span class="s2">&quot;ast&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">to_string</span><span class="p">()</span>
-<span class="go">&#39;code.py&#39;</span>
-</pre></div>
-</div>
-</dd></dl>
-
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="Node.FolderNode">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">Node.</span></span><span class="sig-name descname"><span class="pre">FolderNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Node.FolderNode" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#Node.Node" title="Node.Node"><code class="xref py py-class docutils literal notranslate"><span class="pre">Node.Node</span></code></a></p>
-<p>The Node subclass that represents a directory. It contains a <code class="docutils literal notranslate"><span class="pre">children</span></code>
-attribute that stores its child Nodes, which may be files or other directories.</p>
+<dt class="sig sig-object py" id="node.FolderNode">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">node.</span></span><span class="sig-name descname"><span class="pre">FolderNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#node.FolderNode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#node.Node" title="node.Node"><code class="xref py py-class docutils literal notranslate"><span class="pre">node.Node</span></code></a></p>
+<p>The Node subclass that represents a directory. In a graph, this Node will have
+children nodes, and at most one parent Node.</p>
 <dl class="py method">
-<dt class="sig sig-object py" id="Node.FolderNode.add_child">
-<span class="sig-name descname"><span class="pre">add_child</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">child</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Node.FolderNode.add_child" title="Permalink to this definition">¶</a></dt>
-<dd><p>Adds a child to the FolderNode object.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>child</strong> (<a class="reference internal" href="#Node.Node" title="Node.Node"><em>Node</em></a>) – Node object to add to the FolderNode.</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>FolderNode object with child added to its list of children.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference internal" href="#Node.FolderNode" title="Node.FolderNode">FolderNode</a></p>
-</dd>
-</dl>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">example</span> <span class="o">=</span> <span class="n">FolderNode</span><span class="p">(</span><span class="s1">&#39;example&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">example</span><span class="o">.</span><span class="n">add_child</span><span class="p">(</span><span class="n">FolderNode</span><span class="p">(</span><span class="s1">&#39;child_1&#39;</span><span class="p">,</span> <span class="s1">&#39;example&#39;</span><span class="p">))</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">example</span><span class="o">.</span><span class="n">add_child</span><span class="p">(</span><span class="n">FolderNode</span><span class="p">(</span><span class="s1">&#39;child_2&#39;</span><span class="p">,</span> <span class="s1">&#39;example&#39;</span><span class="p">))</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">example</span><span class="o">.</span><span class="n">children</span>
-<span class="go">[FolderNode(&#39;child_1&#39;, &#39;example&#39;), FolderNode(&#39;child_2&#39;, &#39;example&#39;)]</span>
-</pre></div>
-</div>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="Node.FolderNode.get_children">
-<span class="sig-name descname"><span class="pre">get_children</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Node.FolderNode.get_children" title="Permalink to this definition">¶</a></dt>
-<dd><p>Getter method for the children of the Node</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>the list of children from the Node</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>Node list</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="Node.FolderNode.get_name">
-<span class="sig-name descname"><span class="pre">get_name</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Node.FolderNode.get_name" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="node.FolderNode.get_name">
+<span class="sig-name descname"><span class="pre">get_name</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#node.FolderNode.get_name" title="Permalink to this definition">¶</a></dt>
 <dd><p>Getter method to return the name of the Node.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -295,48 +261,40 @@ attribute that stores its child Nodes, which may be files or other directories.<
 </dl>
 </dd></dl>
 
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="node.FuncNode">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">node.</span></span><span class="sig-name descname"><span class="pre">FuncNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ast</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#node.FuncNode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#node.Node" title="node.Node"><code class="xref py py-class docutils literal notranslate"><span class="pre">node.Node</span></code></a></p>
+<p>The Node subclass that represents a function defined within a Python file or
+a Python class.</p>
 <dl class="py method">
-<dt class="sig sig-object py" id="Node.FolderNode.to_string">
-<span class="sig-name descname"><span class="pre">to_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Node.FolderNode.to_string" title="Permalink to this definition">¶</a></dt>
-<dd><p>The string representation of the FolderNode and all of its children Nodes.
-Mainly intended for debugging purposes.</p>
+<dt class="sig sig-object py" id="node.FuncNode.get_name">
+<span class="sig-name descname"><span class="pre">get_name</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#node.FuncNode.get_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Getter method to return the name of the Node.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>level</strong> (<em>int</em>) – the current depth of the Node, defaults to 0.</p>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>name of Node</p>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A string representing the FolderNode and all its children.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>str</p>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>str</p>
 </dd>
 </dl>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">example</span> <span class="o">=</span> <span class="n">FolderNode</span><span class="p">(</span><span class="s1">&#39;src&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">example</span><span class="o">.</span><span class="n">to_string</span><span class="p">()</span>
-<span class="go">&#39;src&#39;</span>
-</pre></div>
-</div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">example</span><span class="o">.</span><span class="n">add_child</span><span class="p">(</span><span class="n">FolderNode</span><span class="p">(</span><span class="s1">&#39;child&#39;</span><span class="p">,</span> <span class="s1">&#39;src&#39;</span><span class="p">))</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">example</span><span class="o">.</span><span class="n">add_child</span><span class="p">(</span><span class="n">FileNode</span><span class="p">(</span><span class="s1">&#39;code.py&#39;</span><span class="p">,</span> <span class="s1">&#39;src&#39;</span><span class="p">,</span> <span class="s1">&#39;ast&#39;</span><span class="p">))</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">example</span><span class="o">.</span><span class="n">to_string</span><span class="p">()</span>
-<span class="go">&#39;src&#39;</span>
-<span class="go">    &#39;child&#39;</span>
-<span class="go">    &#39;code.py&#39;</span>
-</pre></div>
-</div>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="Node.Node">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">Node.</span></span><span class="sig-name descname"><span class="pre">Node</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Node.Node" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="node.Node">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">node.</span></span><span class="sig-name descname"><span class="pre">Node</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#node.Node" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></p>
 <p>This abstract Node class is extended to build a tree that represents a software 
-module. The Node subclasses represent either a folder or Python file.</p>
+module. The Node subclasses represent a folder, Python file, Python class, or
+Python function.</p>
 <dl class="py method">
-<dt class="sig sig-object py" id="Node.Node.get_name">
-<span class="sig-name descname"><span class="pre">get_name</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Node.Node.get_name" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="node.Node.get_name">
+<span class="sig-name descname"><span class="pre">get_name</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#node.Node.get_name" title="Permalink to this definition">¶</a></dt>
 <dd><p>Getter method to return the name of the Node.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -348,94 +306,30 @@ module. The Node subclasses represent either a folder or Python file.</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="Node.Node.to_string">
-<em class="property"><span class="pre">abstract</span> </em><span class="sig-name descname"><span class="pre">to_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Node.Node.to_string" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="Node.find_ast">
-<span class="sig-prename descclassname"><span class="pre">Node.</span></span><span class="sig-name descname"><span class="pre">find_ast</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Node.find_ast" title="Permalink to this definition">¶</a></dt>
-<dd><p>Finds the abstract syntax tree of file with name <cite>n</cite> in a tree starting at 
-root. If the file cannot be found, return None.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>root</strong> (<a class="reference internal" href="#Node.Node" title="Node.Node"><em>Node</em></a>) – the root of the tree</p></li>
-<li><p><strong>n</strong> (<em>str</em>) – the name of the file</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>the ast of file n</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>ast.Module</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="Node.find_name">
-<span class="sig-prename descclassname"><span class="pre">Node.</span></span><span class="sig-name descname"><span class="pre">find_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Node.find_name" title="Permalink to this definition">¶</a></dt>
-<dd><p>Finds a Node with name n in a tree starting at the root.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>root</strong> (<a class="reference internal" href="#Node.Node" title="Node.Node"><em>Node</em></a>) – the root of the tree</p></li>
-<li><p><strong>n</strong> (<em>str</em>) – the name of the Node</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>the Node with name n, None if not found</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference internal" href="#Node.Node" title="Node.Node">Node</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="Node.traversal">
-<span class="sig-prename descclassname"><span class="pre">Node.</span></span><span class="sig-name descname"><span class="pre">traversal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Node.traversal" title="Permalink to this definition">¶</a></dt>
-<dd><p>Traverses the tree using a breadth-first-search approach.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>root</strong> (<a class="reference internal" href="#Node.Node" title="Node.Node"><em>Node</em></a>) – the root of the tree</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>list of all the Nodes in the tree</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Node list</p>
-</dd>
-</dl>
 </dd></dl>
 
 </section>
 <section id="module-relationship">
 <span id="relationship"></span><h1>Relationship<a class="headerlink" href="#module-relationship" title="Permalink to this headline">¶</a></h1>
 <p>This module will construct a graph representing the dependencies between files
-in a repo. It will take in tree that represents the file structure and parse the
+in a repo. It will take in the tree that represents the file structure and parse the
 abstract syntax trees (AST) of each of the relevant files in order to construct
 the final graph.</p>
 <p>Requires:
-Python 3.8.3 or above.
-NetworkX 2.5 or above</p>
+Python 3.8.3 or above.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="relationship.AstGraph">
 <em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">relationship.</span></span><span class="sig-name descname"><span class="pre">AstGraph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">commit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#relationship.AstGraph" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">networkx.classes.multidigraph.MultiDiGraph</span></code></p>
 <p>This class represents the graph that will be constructed.</p>
 <p>By design, this class will extend the NetworkX MultiDiGraph in order to
-represent the connections and dependencies between modules. The nodes of the 
-graph will represent each file within the a repo directory. A directed edge 
+represent the connections and dependencies between modules. The nodes of the
+graph will represent each file within the a repo directory. A directed edge
 from one node to another will represent the dependency that a node has.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="relationship.AstGraph.add_edge">
 <span class="sig-name descname"><span class="pre">add_edge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">attr</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#relationship.AstGraph.add_edge" title="Permalink to this definition">¶</a></dt>
-<dd><p>Adds a directed edge from <cite>u</cite> to <cite>v</cite>. 
+<dd><p>Adds a directed edge from <cite>u</cite> to <cite>v</cite>.
 TODO: properly tie the <a href="#id1"><span class="problematic" id="id2">**</span></a>attr to attributes for the graph</p>
 </dd></dl>
 
@@ -485,7 +379,7 @@ providing a custom <code class="docutils literal notranslate"><span class="pre">
 <dl class="py method">
 <dt class="sig sig-object py" id="relationship.AstGraph.add_node">
 <span class="sig-name descname"><span class="pre">add_node</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node_for_adding</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">attr</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#relationship.AstGraph.add_node" title="Permalink to this definition">¶</a></dt>
-<dd><p>Adds a node to the graph. 
+<dd><p>Adds a node to the graph.
 TODO: properly tie the <a href="#id3"><span class="problematic" id="id4">**</span></a>attr to attributes for the graph</p>
 </dd></dl>
 
@@ -839,7 +733,7 @@ For directed graphs this returns the out-edges.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="relationship.AstGraph.get_edge_data">
 <span class="sig-name descname"><span class="pre">get_edge_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#relationship.AstGraph.get_edge_data" title="Permalink to this definition">¶</a></dt>
-<dd><p>Gets the edge data from <cite>u</cite> to <cite>v</cite>. 
+<dd><p>Gets the edge data from <cite>u</cite> to <cite>v</cite>.
 TODO: Display all the edges depending on the type of edge based on the
 edge module</p>
 </dd></dl>
@@ -1830,6 +1724,12 @@ add_nodes_from: add multiple nodes to a graph</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="relationship.CallLister.reset">
+<span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#relationship.CallLister.reset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clears the list of visited nodes.</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="relationship.CallLister.visit">
 <span class="sig-name descname"><span class="pre">visit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#relationship.CallLister.visit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Visit a node.</p>
@@ -1866,6 +1766,12 @@ used.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="relationship.ClassLister.reset">
+<span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#relationship.ClassLister.reset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clears the list of class definitions and class extensions.</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="relationship.ClassLister.visit">
 <span class="sig-name descname"><span class="pre">visit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#relationship.ClassLister.visit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Visit a node.</p>
@@ -1875,6 +1781,11 @@ used.</p>
 <dt class="sig sig-object py" id="relationship.ClassLister.visit_ClassDef">
 <span class="sig-name descname"><span class="pre">visit_ClassDef</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">ast.ClassDef</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#relationship.ClassLister.visit_ClassDef" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gathers the name of every defined class, as well as the classes they extend.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>node</strong> (<em>ast.ClassDef</em>) – the starting node (represents a class)</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -1885,34 +1796,46 @@ used.</p>
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="relationship.FuncLister">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">relationship.</span></span><span class="sig-name descname"><span class="pre">FuncLister</span></span><a class="headerlink" href="#relationship.FuncLister" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="relationship.DefinitionLister">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">relationship.</span></span><span class="sig-name descname"><span class="pre">DefinitionLister</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#relationship.DefinitionLister" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ast.NodeVisitor</span></code></p>
-<p>This class will display all the functions within an AST.</p>
+<p>This class will gather classes and functions defined within an AST, and add
+Node object representations of them to an existing root.</p>
 <dl class="py method">
-<dt class="sig sig-object py" id="relationship.FuncLister.generic_visit">
-<span class="sig-name descname"><span class="pre">generic_visit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#relationship.FuncLister.generic_visit" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="relationship.DefinitionLister.generic_visit">
+<span class="sig-name descname"><span class="pre">generic_visit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#relationship.DefinitionLister.generic_visit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Called if no explicit visitor function exists for a node.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="relationship.FuncLister.visit">
-<span class="sig-name descname"><span class="pre">visit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#relationship.FuncLister.visit" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="relationship.DefinitionLister.visit">
+<span class="sig-name descname"><span class="pre">visit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#relationship.DefinitionLister.visit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Visit a node.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="relationship.FuncLister.visit_Constant">
-<span class="sig-name descname"><span class="pre">visit_Constant</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#relationship.FuncLister.visit_Constant" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="relationship.DefinitionLister.visit_ClassDef">
+<span class="sig-name descname"><span class="pre">visit_ClassDef</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#relationship.DefinitionLister.visit_ClassDef" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds a ClassNode to the graph, as well as any functions defined in the class.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>node</strong> (<em>ast.ClassDef</em>) – a node that represents a class definition</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="relationship.DefinitionLister.visit_Constant">
+<span class="sig-name descname"><span class="pre">visit_Constant</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#relationship.DefinitionLister.visit_Constant" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="relationship.FuncLister.visit_FunctionDef">
-<span class="sig-name descname"><span class="pre">visit_FunctionDef</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#relationship.FuncLister.visit_FunctionDef" title="Permalink to this definition">¶</a></dt>
-<dd><p>Visits and prints all the function definitions in an AST.</p>
+<dt class="sig sig-object py" id="relationship.DefinitionLister.visit_FunctionDef">
+<span class="sig-name descname"><span class="pre">visit_FunctionDef</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#relationship.DefinitionLister.visit_FunctionDef" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds a FuncNode to the graph.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>node</strong> (<em>AST Node</em>) – a node within an AST.</p>
+<dd class="field-odd"><p><strong>node</strong> (<em>ast.FunctionDef</em>) – a node representing the function definition.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1932,6 +1855,12 @@ the functions the statements import, if any.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="relationship.ImportLister.reset">
+<span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#relationship.ImportLister.reset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clears the list of imported modules.</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="relationship.ImportLister.visit">
 <span class="sig-name descname"><span class="pre">visit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#relationship.ImportLister.visit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Visit a node.</p>
@@ -1946,14 +1875,25 @@ the functions the statements import, if any.</p>
 <dt class="sig sig-object py" id="relationship.ImportLister.visit_ImportFrom">
 <span class="sig-name descname"><span class="pre">visit_ImportFrom</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">ast.ImportFrom</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#relationship.ImportLister.visit_ImportFrom" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gathers the imported modules and imported functions, or their alias if used.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>node</strong> (<em>ast.ImportFrom</em>) – the node that represents an import</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="relationship.definition_nodes">
+<span class="sig-prename descclassname"><span class="pre">relationship.</span></span><span class="sig-name descname"><span class="pre">definition_nodes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#relationship.definition_nodes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds ClassNode and FuncNode to the base <cite>graph</cite>.</p>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="relationship.function_call_relationship">
-<span class="sig-prename descclassname"><span class="pre">relationship.</span></span><span class="sig-name descname"><span class="pre">function_call_relationship</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#relationship.function_call_relationship" title="Permalink to this definition">¶</a></dt>
-<dd><p>Creates a directed edge for when a module calls a function from another module 
+<span class="sig-prename descclassname"><span class="pre">relationship.</span></span><span class="sig-name descname"><span class="pre">function_call_relationship</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">networkx.classes.multidigraph.MultiDiGraph</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#relationship.function_call_relationship" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a directed edge for when a module calls a function from another module
 from the target code repo.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1963,8 +1903,64 @@ from the target code repo.</p>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="relationship.get_func_nodes">
+<span class="sig-prename descclassname"><span class="pre">relationship.</span></span><span class="sig-name descname"><span class="pre">get_func_nodes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent_node</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_list</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#relationship.get_func_nodes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gives the list of Node objects corresponding to the names in <code class="docutils literal notranslate"><span class="pre">n_list</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>graph</strong> (<em>networkx.MultiDiGraph</em>) – the graph to search for the nodes in</p></li>
+<li><p><strong>parent_node</strong> (<a class="reference internal" href="#node.Node" title="node.Node"><em>Node</em></a>) – the Node object in the graph to begin the search from</p></li>
+<li><p><strong>n_list</strong> (<em>str list</em>) – the list of names of the nodes</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the list of Node objects</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Node list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="relationship.get_repo_node">
+<span class="sig-prename descclassname"><span class="pre">relationship.</span></span><span class="sig-name descname"><span class="pre">get_repo_node</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">networkx.classes.multidigraph.MultiDiGraph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">starting_node</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mod</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">level</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#relationship.get_repo_node" title="Permalink to this definition">¶</a></dt>
+<dd><p>Finds the FileNode object associated with the module name <code class="docutils literal notranslate"><span class="pre">mod</span></code>, if any.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>graph</strong> (<em>networkx.MultiDiGraph</em>) – the graph representing the target repo</p></li>
+<li><p><strong>starting_node</strong> (<em>str</em>) – the name of the node to start the search from</p></li>
+<li><p><strong>mod</strong> (<em>str</em>) – the name of the target Python module</p></li>
+<li><p><strong>level</strong> (<em>int</em>) – the level of the relative import (level=0 means an absolute import)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#node.FileNode" title="node.FileNode">FileNode</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="relationship.graph_to_string">
+<span class="sig-prename descclassname"><span class="pre">relationship.</span></span><span class="sig-name descname"><span class="pre">graph_to_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">networkx.classes.multidigraph.MultiDiGraph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">starting_node</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#relationship.graph_to_string" title="Permalink to this definition">¶</a></dt>
+<dd><p>String representation of <cite>graph</cite> for debugging purposes.</p>
+<p>A class name is wrapped in brackets []. A function name is wrapped in parens ().
+For example, a graph ‘g’ representing Python module ‘main.py’ that defines
+function func1 and classes A and B, with A defining functions func2, func3:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">graph_to_string</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">FileNode</span><span class="p">(</span><span class="s2">&quot;main.py&quot;</span><span class="p">))</span>
+<span class="go">&#39;main.py&#39;</span>
+<span class="go">&#39;   (func1)&#39;</span>
+<span class="go">&#39;   [A] (func2) (func3)&#39;</span>
+<span class="go">&#39;   [B]&#39;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="relationship.import_relationship">
-<span class="sig-prename descclassname"><span class="pre">relationship.</span></span><span class="sig-name descname"><span class="pre">import_relationship</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#relationship.import_relationship" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">relationship.</span></span><span class="sig-name descname"><span class="pre">import_relationship</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">networkx.classes.multidigraph.MultiDiGraph</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#relationship.import_relationship" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates a directed edge for when a module imports another module from the
 target code repo.</p>
 <dl class="field-list simple">
@@ -1983,36 +1979,126 @@ target code repo.</p>
 <dd class="field-odd"><p><strong>graph</strong> (<em>networkx.MultiDiGraph</em>) – the tree representing the target code repo</p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A dictionary mapping the name of a Python file to a list of all</p>
+<dd class="field-even"><p>A dictionary mapping the name of a Python file to a list of all modules it imports from its own repo, which is represented by <cite>graph</cite>.</p>
 </dd>
-</dl>
-<p>modules it imports from its own repo, which is represented by <cite>graph</cite>.
-:rtype: dict {str : str list}</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="relationship.in_repo">
-<span class="sig-prename descclassname"><span class="pre">relationship.</span></span><span class="sig-name descname"><span class="pre">in_repo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">networkx.classes.multidigraph.MultiDiGraph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">starting_node</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mod</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">level</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#relationship.in_repo" title="Permalink to this definition">¶</a></dt>
-<dd><p>= “the Python module named <cite>mod</cite> is in the repo represented by <cite>graph</cite>.”</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>graph</strong> (<em>networkx.MultiDiGraph</em>) – the graph representing the target repo</p></li>
-<li><p><strong>starting_node</strong> (<em>str</em>) – the name of the node to start the search from</p></li>
-<li><p><strong>mod</strong> (<em>str</em>) – the name of the target Python module (with the extension ‘.py’)</p></li>
-<li><p><strong>level</strong> (<em>int</em>) – the level of the relative import (level=0 means an absolute import)</p></li>
-</ul>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>bool</p>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict {str : str list}</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="relationship.inheritance_relationships">
-<span class="sig-prename descclassname"><span class="pre">relationship.</span></span><span class="sig-name descname"><span class="pre">inheritance_relationships</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#relationship.inheritance_relationships" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<span class="sig-prename descclassname"><span class="pre">relationship.</span></span><span class="sig-name descname"><span class="pre">inheritance_relationships</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">networkx.classes.multidigraph.MultiDiGraph</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#relationship.inheritance_relationships" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a directed edge for whenever a class definition subclasses another class
+from the target code repo.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>graph</strong> (<em>networkx.MultiDiGraph</em>) – the graph representing the target code repo</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-subgraph">
+<span id="subgraph"></span><h1>Subgraph<a class="headerlink" href="#module-subgraph" title="Permalink to this headline">¶</a></h1>
+<p>This module constructs a networkx subgraph according to a user’s selection of node and
+edge types.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">subgraph</span> <span class="k">as</span> <span class="nn">sg</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">g</span><span class="o">.</span><span class="n">nodes</span>
+<span class="go">    [FolderNode(&#39;root&#39;), FileNode(&#39;main.py&#39;), FolderNode(&#39;src&#39;)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;nodes&quot;</span><span class="p">]</span>
+<span class="go">    [&quot;Folder&quot;]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">h</span> <span class="o">=</span> <span class="n">sg</span><span class="o">.</span><span class="n">subgraph</span><span class="p">(</span><span class="n">g</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">h</span><span class="o">.</span><span class="n">nodes</span>
+<span class="go">    [FolderNode(&#39;root&#39;), FolderNode(&#39;src&#39;)]</span>
+</pre></div>
+</div>
+<dl class="py function">
+<dt class="sig sig-object py" id="subgraph.get_preferences">
+<span class="sig-prename descclassname"><span class="pre">subgraph.</span></span><span class="sig-name descname"><span class="pre">get_preferences</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#subgraph.get_preferences" title="Permalink to this definition">¶</a></dt>
+<dd><p>Finds and retrieves preferences from the <code class="docutils literal notranslate"><span class="pre">config</span></code> file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>a tuple of lists: the first is the list of Nodes to include, and the second is the list of Edges to include.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>(str list, str list)</p>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">get_preferences</span><span class="p">()</span>
+<span class="go">([&#39;Folder&#39;, &#39;File&#39;], [&#39;Directory&#39;])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="subgraph.str_to_edge">
+<span class="sig-prename descclassname"><span class="pre">subgraph.</span></span><span class="sig-name descname"><span class="pre">str_to_edge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#subgraph.str_to_edge" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts a string to type edge.Edge</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>str</strong> (<em>str</em>) – a string representing an edge in edge.py</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a edge.Edge object</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>edge.Edge</p>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">str_to_edge</span><span class="p">(</span><span class="s2">&quot;Directory&quot;</span><span class="p">)</span>
+<span class="go">edge.DirectoryEdge</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="subgraph.str_to_node">
+<span class="sig-prename descclassname"><span class="pre">subgraph.</span></span><span class="sig-name descname"><span class="pre">str_to_node</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#subgraph.str_to_node" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts a string to type node.Node.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>str</strong> (<em>str</em>) – a string representing a node in node.py</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a node.Node object</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#node.Node" title="node.Node">node.Node</a></p>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">str_to_node</span><span class="p">(</span><span class="s2">&quot;Folder&quot;</span><span class="p">)</span>
+<span class="go">node.FolderNode</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="subgraph.subgraph">
+<span class="sig-prename descclassname"><span class="pre">subgraph.</span></span><span class="sig-name descname"><span class="pre">subgraph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">networkx.classes.multidigraph.MultiDiGraph</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#subgraph.subgraph" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a subgraph of the given graph based on user preferences in the <code class="docutils literal notranslate"><span class="pre">config</span></code> file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>graph</strong> (<em>networkx.MultiDiGraph</em>) – the graph to make the subgraph</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the subgraph of <code class="docutils literal notranslate"><span class="pre">graph</span></code> with the chosen edge and node types included</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>nx.MultiDiGraph</p>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">g</span><span class="o">.</span><span class="n">nodes</span>
+<span class="go">[FolderNode(&#39;root&#39;), FileNode(&#39;main.py&#39;), FolderNode(&#39;src&#39;)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;nodes&quot;</span><span class="p">]</span>
+<span class="go">[&quot;Folder&quot;]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">h</span> <span class="o">=</span> <span class="n">subgraph</span><span class="p">(</span><span class="n">g</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">h</span><span class="o">.</span><span class="n">nodes</span>
+<span class="go">[FolderNode(&#39;root&#39;), FolderNode(&#39;src&#39;)]</span>
+</pre></div>
+</div>
+</dd></dl>
 
 </section>
 

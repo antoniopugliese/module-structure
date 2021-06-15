@@ -32,7 +32,7 @@ Parsing
 Node
 ====
 
-.. automodule:: Node
+.. automodule:: node
    :members:
    :undoc-members:
    :inherited-members:
@@ -42,6 +42,15 @@ Relationship
 ============
 
 .. automodule:: relationship
+   :members:
+   :undoc-members:
+   :inherited-members:
+   :show-inheritance:
+
+Subgraph
+========
+
+.. automodule:: subgraph
    :members:
    :undoc-members:
    :inherited-members:

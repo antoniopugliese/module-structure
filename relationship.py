@@ -298,9 +298,9 @@ def imports_dict(graph):
     :param graph: the tree representing the target code repo
     :type graph: networkx.MultiDiGraph
 
-    :returns: A dictionary mapping the name of a Python file to a list of all
-    modules it imports from its own repo, which is represented by `graph`.
+    :returns: A dictionary mapping the name of a Python file to a list of all modules it imports from its own repo, which is represented by `graph`.
     :rtype: dict {str : str list}
+
     """
     import_dict = {}
     node_visitor = ImportLister()
@@ -390,7 +390,7 @@ def inheritance_relationships(graph: nx.MultiDiGraph):
                         n3 = c2.get_name().split(os.sep)[-1]
                         if len(extends) == 1 and extends[0] == n3:
                             inherit_edges.append((c, c2,
-                                                {'edge': edge.InheritanceEdge("")}))
+                                                  {'edge': edge.InheritanceEdge("")}))
 
             node_visitor.reset()
 
@@ -422,11 +422,12 @@ def graph_to_string(graph: nx.MultiDiGraph, starting_node, level=0):
     A class name is wrapped in brackets []. A function name is wrapped in parens ().
     For example, a graph 'g' representing Python module 'main.py' that defines
     function func1 and classes A and B, with A defining functions func2, func3:
+
     >>> graph_to_string(g, FileNode("main.py"))
     'main.py'
-       '(func1)'
-       '[A] (func2) (func3)'
-       '[B]'
+    '   (func1)'
+    '   [A] (func2) (func3)'
+    '   [B]'
     """
     abrev_name = str(starting_node).split(os.sep)[-1]
     if type(starting_node) is ClassNode:
