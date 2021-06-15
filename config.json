@@ -1,5 +1,12 @@
 {
     "repo_name": "snorkel",
     "branch": "master",
-    "max_count": 10
+    "max_count": 10,
+    "edges" : [
+      "Directory",
+      "File",
+      "Class",
+      "Import",
+      "Function"
+    ]
   }
