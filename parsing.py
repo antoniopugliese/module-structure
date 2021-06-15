@@ -68,14 +68,14 @@ def create_branch(graph: nx.Graph, filepath, ast):
         # only creates nodes if not already in the graph
         if (not graph.has_edge(node.FolderNode(base), node.FolderNode(next_dir))):
             graph.add_edge(node.FolderNode(base), node.FolderNode(
-                next_dir), object=edge.DirectoryEdge("dir"))
+                next_dir), edge=edge.DirectoryEdge("dir"))
         base = next_dir
         i += 1
 
     # add python file
     next_dir = os.path.join(base, filepath[i + 1])
     graph.add_edge(node.FolderNode(base), node.FileNode(
-        next_dir, ast), object=edge.DirectoryEdge("dir"))
+        next_dir, ast), edge=edge.DirectoryEdge("dir"))
 
     return graph
 

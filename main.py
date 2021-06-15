@@ -3,6 +3,7 @@ import parsing
 import json
 import pickle
 import node
+import edge
 import relationship as rel
 from git import Repo, Git
 
@@ -78,12 +79,23 @@ def main():
 
     # create relationships
     print("Creating relationships...", end="", flush=True)
-    # import_relationship(first_tree)
-    # function_call_relationship(first_tree)
-    # inheritance_relationships(first_tree)
-    print("Done.")
     new_graph = rel.definition_nodes(first_graph)
-    print(rel.graph_to_string(new_graph, node.FolderNode("snorkel")))
+    rel.import_relationship(new_graph)
+    rel.function_call_relationship(new_graph)
+    rel.inheritance_relationships(new_graph)
+    print("Done.")
+    #print(rel.graph_to_string(new_graph, node.FolderNode("snorkel")))
+
+    # uncomment if statements to examine different edges in the tree
+    for u, v, d in new_graph.edges.data():
+        # if type(d['edge']) is edge.DirectoryEdge:
+        #     print(f"{u} is parent dir of {v}")
+        if type(d['edge']) is edge.ImportEdge:
+            print(f"{u} imports {v}")
+        # if type(d['edge']) is edge.FunctionCallEdge:
+        #     print(f"{u} calls {v}")
+        # if type(d['edge']) is edge.InheritanceEdge:
+        #     print(f"{u} extends {v}")
 
 
 if __name__ == "__main__":

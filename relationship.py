@@ -61,7 +61,7 @@ class ClassLister(ast.NodeVisitor):
         """
         super().__init__()
         self.classes = []
-        self.extends = []
+        self.extends = {}
 
     def visit_ClassDef(self, node: ast.ClassDef):
         """
@@ -72,11 +72,13 @@ class ClassLister(ast.NodeVisitor):
 
         """
         self.classes.append(node.name)
+        bases = []
         for b in node.bases:
             if type(b) is ast.Name:
-                self.extends.append(b.id)
+                bases.append(b.id)
             elif type(b) is ast.Attribute:
-                self.extends.append(b.value.id)
+                bases.append(b.value.id)
+        self.extends.update({node.name: bases})
         self.generic_visit(node)
 
     def reset(self):
@@ -84,7 +86,7 @@ class ClassLister(ast.NodeVisitor):
         Clears the list of class definitions and class extensions.
         """
         self.classes = []
-        self.extends = []
+        self.extends = {}
 
 
 class ImportLister(ast.NodeVisitor):
@@ -130,13 +132,12 @@ class ImportLister(ast.NodeVisitor):
 
         self.imported_funcs.update({node.module: funcs})
 
-        self.generic_visit(node)
-
     def reset(self):
         """
-        Clears the list of imported modules. 
+        Clears the list of imported modules.
         """
         self.imported_mods = []
+        self.imported_funcs = {}
 
 
 class DefinitionLister(ast.NodeVisitor):
@@ -149,12 +150,13 @@ class DefinitionLister(ast.NodeVisitor):
         """
         The root to add the ClassNode and FuncNode.
 
-        :param root: the FileNode object corresponding to the Python file of the AST. 
+        :param root: the FileNode object corresponding to the Python file of the AST.
         :type root: Node
         """
         super().__init__()
         # copy the graph to make sure original data is preserved
-        self.graph = nx.Graph.copy(root)
+        self.graph = nx.MultiDiGraph()
+        self.graph.add_edges_from(root.edges.data())
         self.starting_node = None
 
     def visit_ClassDef(self, node):
@@ -164,9 +166,10 @@ class DefinitionLister(ast.NodeVisitor):
         :param node: a node that represents a class definition
         :type node: ast.ClassDef
         """
-        class_name = os.path.join(self.graph.name, node.name)
+        class_name = os.path.join(self.starting_node.name, node.name)
         class_node = ClassNode(class_name, node)
-        self.graph.add_edge(self.starting_node, class_node)
+        self.graph.add_edge(self.starting_node, class_node,
+                            edge=edge.DefinitionEdge(""))
 
         # Add FuncNodes as children of this ClassNode
         old_starting_node = self.starting_node
@@ -181,14 +184,15 @@ class DefinitionLister(ast.NodeVisitor):
         :param node: a node representing the function definition.
         :type node: ast.FunctionDef
         """
-        func_name = os.path.join(self.graph.name, node.name)
-        self.graph.add_edge(self.starting_node, FuncNode(func_name, node), edge.DefinitionEdge(""))
+        func_name = os.path.join(self.starting_node.name, node.name)
+        self.graph.add_edge(self.starting_node, FuncNode(
+            func_name, node), edge=edge.DefinitionEdge(""))
         self.generic_visit(node)
 
 
-def in_repo(graph: nx.MultiDiGraph, starting_node, mod, level):
+def get_repo_node(graph: nx.MultiDiGraph, starting_node, mod, level):
     """
-    = "the Python module named `mod` is in the repo represented by `graph`."
+    Finds the FileNode object associated with the module name ``mod``, if any.
 
     :param graph: the graph representing the target repo
     :type graph: networkx.MultiDiGraph
@@ -196,37 +200,39 @@ def in_repo(graph: nx.MultiDiGraph, starting_node, mod, level):
     :param starting_node: the name of the node to start the search from
     :type starting_node: str
 
-    :param mod: the name of the target Python module (with the extension '.py')
+    :param mod: the name of the target Python module
     :type mod: str
 
     :param level: the level of the relative import (level=0 means an absolute import)
     :type level: int
 
-    :rtype: bool
+    :rtype: FileNode
     """
     if (level != 0):
+        # print(f"relative for {mod}")
         # for relative imports, go up in directories according to level
         target_node = starting_node
         while (level != 0):
             # each node only has one direct predeccesor
             target_node = list(graph.predecessors(target_node))[0]
             level -= 1
-        for node in nx.bfs_successors(graph, target_node):
-            if node[0].get_name().endswith(target_node.get_name()):
-                return True
-        return False
+        # after reaching top directory, search successors recursively for target
+        for node in graph.successors(target_node):
+            n = node.get_name()
+            if n.endswith(mod) or n.endswith(mod + ".py"):
+                return node
+        return None
     else:
         # for absolute imports, search to see if module in graph
-        # dir_list = mod.split('.')
-        # target_node = os.path.join(*dir_list)
         target_node_name = mod.replace('.', os.sep)
         for node in graph.nodes:
-            if target_node_name in node.get_name():
-                return True
-        return False
+            n = node.get_name()
+            if n.endswith(target_node_name) or n.endswith(target_node_name + ".py"):
+                return node
+        return None
 
 
-def import_relationship(graph):
+def import_relationship(graph: nx.MultiDiGraph):
     """
     Creates a directed edge for when a module imports another module from the
     target code repo.
@@ -235,24 +241,54 @@ def import_relationship(graph):
     :type graph: networkx.MultiDiGraph
     """
     node_visitor = ImportLister()
+    imports = []
 
+    # collect all edges to be added
     for node in graph.nodes:
         if type(node) is FileNode:  # if at Python file
             node_visitor.visit(node.get_ast())
 
-            imports = []
-            for mod_name in node_visitor.imported_mods:
-                if in_repo(graph, node, mod_name[0], mod_name[1]):
-                    imports.append(mod_name[0])
-                    graph.add_edge(mod_name[0], node, edge= edge.ImportEdge(""))
-
-
-            # print imports for testing
-            print(f"The file '{node}' has the imports: ")
-            for elem in imports:
-                print(f"\t{elem}")
+            # add every import that is from within the repo
+            for (name, level) in node_visitor.imported_mods:
+                imported_node = get_repo_node(graph, node, name, level)
+                if imported_node is not None:  # if exists
+                    imports.append((node, imported_node, {
+                                   'edge': edge.ImportEdge("")}))
 
             node_visitor.reset()
+
+    # add collected edges
+    graph.add_edges_from(imports)
+
+
+# return a list of nodes corresponding to functions in a module
+def get_func_nodes(graph, parent_node, n_list):
+    """
+    Gives the list of Node objects corresponding to the names in ``n_list``.
+
+    :param graph: the graph to search for the nodes in
+    :type graph: networkx.MultiDiGraph
+
+    :param parent_node: the Node object in the graph to begin the search from
+    :type parent_node: Node
+
+    :param n_list: the list of names of the nodes
+    :type n_list: str list
+
+    :return: the list of Node objects
+    :rtype: Node list
+    """
+    nodes = []
+    if type(parent_node) is FileNode:
+        for node in graph.successors(parent_node):
+            for target_name in n_list:
+                n_name = node.get_name()
+                if n_name.endswith(target_name):
+                    nodes.append(node)
+    elif type(parent_node) is FolderNode:
+        for node in graph.successors(parent_node):
+            nodes += get_func_nodes(graph, node, n_list)
+    return nodes
 
 
 def imports_dict(graph):
@@ -274,9 +310,11 @@ def imports_dict(graph):
             node_visitor.visit(node.get_ast())
 
             imports = []
-            for mod_name in node_visitor.imported_mods:
-                if in_repo(graph, node, mod_name[0], mod_name[1]):
-                    imports.append(node_visitor.imported_funcs[mod_name[0]])
+            for (name, level) in node_visitor.imported_mods:
+                imported_node = get_repo_node(graph, node, name, level)
+                if imported_node is not None:
+                    funcs = node_visitor.imported_funcs[name]
+                    imports += get_func_nodes(graph, imported_node, funcs)
             import_dict.update({node: imports})
 
             node_visitor.reset()
@@ -284,7 +322,7 @@ def imports_dict(graph):
     return import_dict
 
 
-def function_call_relationship(graph):
+def function_call_relationship(graph: nx.MultiDiGraph):
     """
     Creates a directed edge for when a module calls a function from another module
     from the target code repo.
@@ -294,26 +332,27 @@ def function_call_relationship(graph):
     """
     import_dict = imports_dict(graph)
     node_visitor = CallLister()
+    func_edges = []
 
     for node in graph.nodes:
-        if type(node) is FileNode:  # if at Python file
+        if type(node) is FileNode:
             node_visitor.visit(node.get_ast())
 
-            imported_calls = []
             for func in node_visitor.calls:
                 for imported_func in import_dict[node]:
-                    if func in imported_func:
-                        imported_calls.append(func)
-                        graph.add_edge(func, node, edge=edge.FunctionCallEdge(""))
+                    # get full function name as it would be called in code
+                    n = imported_func.get_name().split(os.sep)[-1]
+                    if n == func:
+                        func_edges.append(
+                            (node, imported_func, {'edge': edge.FunctionCallEdge("")}))
 
-            print(f"The file '{node}' calls functions: ")
-            print(f"\tImported calls:{imported_calls}")
-            # print(import_dict[node])  # list of lists
-            # print(f"\tAll calls:{node_visitor.calls}")
             node_visitor.reset()
 
+    # add collected edges
+    graph.add_edges_from(func_edges)
 
-def inheritance_relationships(graph):
+
+def inheritance_relationships(graph: nx.MultiDiGraph):
     """
     Creates a directed edge for whenever a class definition subclasses another class
     from the target code repo.
@@ -321,21 +360,37 @@ def inheritance_relationships(graph):
     :param graph: the graph representing the target code repo
     :type graph: networkx.MultiDiGraph
     """
+    import_dict = imports_dict(graph)
     node_visitor = ClassLister()
+    inherit_edges = []
 
     for node in graph.nodes:
         if type(node) is FileNode:  # if at Python file
             node_visitor.visit(node.get_ast())
 
-            print(f"The file '{node}' defines classes: ")
-            print(f"\t{node_visitor.classes}")
-            print(f"\tthat extend the classes:")
-            print(f"\t\t{node_visitor.extends}")
+            # get list of ClassNode objects corresponding to the class names
+            classes = []
+            for c in graph.successors(node):
+                n = c.get_name().split(os.sep)[-1]
+                if n in node_visitor.classes:
+                    classes.append(c)
 
-            for exteded_node in node_visitor.extends:
-                graph.add_edge(node, exteded_node, edge=edge.InheritanceEdge(""))
+            for c in classes:
+                # n1 is class name as it would appear in code
+                n1 = c.get_name().split(os.sep)[-1]
+                for imported_class in import_dict[node]:
+                    # n2 is class name as it would appear in code
+                    n2 = imported_class.get_name().split(os.sep)[-1]
+                    # handle multiple inheritance later
+                    extends = node_visitor.extends[n1]
+                    if len(extends) == 1 and extends[0] == n2:
+                        inherit_edges.append((c, imported_class,
+                                              {'edge': edge.InheritanceEdge("")}))
 
             node_visitor.reset()
+
+    # add collected edges
+    graph.add_edges_from(inherit_edges)
 
 
 def definition_nodes(graph):
@@ -350,13 +405,14 @@ def definition_nodes(graph):
         if type(node) is FileNode:  # if at Python file
             node_visitor.starting_node = node
             node_visitor.visit(node.get_ast())
+            # definitionLister already adds the edges
 
     return node_visitor.graph
 
 
 def graph_to_string(graph: nx.MultiDiGraph, starting_node, level=0):
     """
-    String representation of `graph` for debugging purposes. 
+    String representation of `graph` for debugging purposes.
 
     A class name is wrapped in brackets []. A function name is wrapped in parens ().
     For example, a graph 'g' representing Python module 'main.py' that defines
