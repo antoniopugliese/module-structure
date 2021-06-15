@@ -7,7 +7,6 @@
   ],
   "edges": [
     "Directory",
-    "Class",
     "Import",
     "Function"
   ]

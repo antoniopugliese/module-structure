@@ -386,11 +386,11 @@ def inheritance_relationships(graph: nx.MultiDiGraph):
                     if len(extends) == 1 and extends[0] == n2:
                         inherit_edges.append((c, imported_class,
                                               {'edge': edge.InheritanceEdge("")}))
-                for c2 in classes:
-                    n3 = c2.get_name().split(os.sep)[-1]
-                    if len(extends) == 1 and extends[0] == n3:
-                        inherit_edges.append((c, c2,
-                                              {'edge': edge.InheritanceEdge("")}))
+                    for c2 in classes:
+                        n3 = c2.get_name().split(os.sep)[-1]
+                        if len(extends) == 1 and extends[0] == n3:
+                            inherit_edges.append((c, c2,
+                                                {'edge': edge.InheritanceEdge("")}))
 
             node_visitor.reset()
 

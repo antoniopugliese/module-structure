@@ -45,7 +45,6 @@ class DirectoryEdge(Edge):
         """
         super().__init__(name)
 
-
 class ImportEdge(Edge):
     """
     This class represents an edge between two nodes if one node imports a module
