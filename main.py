@@ -6,6 +6,7 @@ import node
 import edge
 import relationship as rel
 import subgraph
+import visual
 from git import Repo, Git
 
 
@@ -88,6 +89,7 @@ def main():
     #print(rel.graph_to_string(new_graph, node.FolderNode("snorkel")))
 
     sub = subgraph.subgraph(new_graph)
+    visual.display(sub)
 
     # for n in sub.nodes:
     #     print(n)
