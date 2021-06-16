@@ -1,3 +1,4 @@
 GitPython==3.1.17
 pytest==6.2.4
 networkx==2.5.1
+dash==1.20.0
