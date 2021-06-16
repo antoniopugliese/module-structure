@@ -2012,9 +2012,7 @@ edge types.</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">subgraph</span> <span class="k">as</span> <span class="nn">sg</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">g</span><span class="o">.</span><span class="n">nodes</span>
 <span class="go">    [FolderNode(&#39;root&#39;), FileNode(&#39;main.py&#39;), FolderNode(&#39;src&#39;)]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;nodes&quot;</span><span class="p">]</span>
-<span class="go">    [&quot;Folder&quot;]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">h</span> <span class="o">=</span> <span class="n">sg</span><span class="o">.</span><span class="n">subgraph</span><span class="p">(</span><span class="n">g</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">h</span> <span class="o">=</span> <span class="n">sg</span><span class="o">.</span><span class="n">subgraph</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;Folder&quot;</span><span class="p">],</span> <span class="p">[])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">h</span><span class="o">.</span><span class="n">nodes</span>
 <span class="go">    [FolderNode(&#39;root&#39;), FolderNode(&#39;src&#39;)]</span>
 </pre></div>
@@ -2040,7 +2038,7 @@ edge types.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="subgraph.str_to_edge">
 <span class="sig-prename descclassname"><span class="pre">subgraph.</span></span><span class="sig-name descname"><span class="pre">str_to_edge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#subgraph.str_to_edge" title="Permalink to this definition">¶</a></dt>
-<dd><p>Converts a string to type edge.Edge</p>
+<dd><p>Converts a string to type edge.Edge.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>str</strong> (<em>str</em>) – a string representing an edge in edge.py</p>
@@ -2081,11 +2079,15 @@ edge types.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="subgraph.subgraph">
-<span class="sig-prename descclassname"><span class="pre">subgraph.</span></span><span class="sig-name descname"><span class="pre">subgraph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">networkx.classes.multidigraph.MultiDiGraph</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#subgraph.subgraph" title="Permalink to this definition">¶</a></dt>
-<dd><p>Creates a subgraph of the given graph based on user preferences in the <code class="docutils literal notranslate"><span class="pre">config</span></code> file.</p>
+<span class="sig-prename descclassname"><span class="pre">subgraph.</span></span><span class="sig-name descname"><span class="pre">subgraph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">networkx.classes.multidigraph.MultiDiGraph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nodes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edges</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#subgraph.subgraph" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a subgraph of the given graph based on user preferences.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>graph</strong> (<em>networkx.MultiDiGraph</em>) – the graph to make the subgraph</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>graph</strong> (<em>networkx.MultiDiGraph</em>) – the graph used to make the subgraph</p></li>
+<li><p><strong>nodes</strong> (<em>str list</em>) – the list of node types to include</p></li>
+<li><p><strong>edges</strong> (<em>str list</em>) – the list of edge types to include</p></li>
+</ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>the subgraph of <code class="docutils literal notranslate"><span class="pre">graph</span></code> with the chosen edge and node types included</p>
@@ -2096,13 +2098,40 @@ edge types.</p>
 </dl>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">g</span><span class="o">.</span><span class="n">nodes</span>
 <span class="go">[FolderNode(&#39;root&#39;), FileNode(&#39;main.py&#39;), FolderNode(&#39;src&#39;)]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;nodes&quot;</span><span class="p">]</span>
-<span class="go">[&quot;Folder&quot;]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">h</span> <span class="o">=</span> <span class="n">subgraph</span><span class="p">(</span><span class="n">g</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">h</span> <span class="o">=</span> <span class="n">subgraph</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;Folder&quot;</span><span class="p">],</span> <span class="p">[])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">h</span><span class="o">.</span><span class="n">nodes</span>
 <span class="go">[FolderNode(&#39;root&#39;), FolderNode(&#39;src&#39;)]</span>
 </pre></div>
 </div>
+</dd></dl>
+
+</section>
+<section id="module-visual">
+<span id="visual"></span><h1>Visual<a class="headerlink" href="#module-visual" title="Permalink to this headline">¶</a></h1>
+<p>This module is used to display the module structure network.</p>
+<p>The display function is heavily adapted from this user: <a class="reference external" href="https://github.com/xhlulu">https://github.com/xhlulu</a>.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="visual.display">
+<span class="sig-prename descclassname"><span class="pre">visual.</span></span><span class="sig-name descname"><span class="pre">display</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#visual.display" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates the Dash app and runs the development server.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>graph</strong> (<em>networkx.MultiDiGraph</em>) – the graph to display</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="visual.get_data">
+<span class="sig-prename descclassname"><span class="pre">visual.</span></span><span class="sig-name descname"><span class="pre">get_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">networkx.classes.multidigraph.MultiDiGraph</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#visual.get_data" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div><p>Transforms the node and edge data to a format that can be displayed.</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>graph</strong> (<em>networkx.MultiDiGraph</em>) – the graph of the data</p>
+</dd>
+</dl>
 </dd></dl>
 
 </section>

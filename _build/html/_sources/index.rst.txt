@@ -55,3 +55,13 @@ Subgraph
    :undoc-members:
    :inherited-members:
    :show-inheritance:
+
+Visual
+======
+
+.. automodule:: visual
+   :members:
+   :undoc-members:
+   :inherited-members:
+   :show-inheritance:
+
