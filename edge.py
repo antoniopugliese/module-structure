@@ -1,14 +1,22 @@
 """
-This module contains all the edge classes used by the generated graph.
+This module contains all the edge classes used by the generated graph. It should
+be an edge attribute in the networkx module. 
 
-TODO: examples for each
+>>> import networkx as nx
+>>> import edge
+>>> G = nx.Graph()
+>>> G.add_edge("parent", "child", edge=DirectoryEdge("example"))
+>>> G.add_edge("file", "import networkx", edge=ImportEdge("example"))
+>>> G.add_edge("file", "funcion()", edge=FunctionCallEdge("example"))
+>>> G.add_edge("classA", "classB", edge=InheritanceEdge("example"))
+>>> G.add_edge("classA", "functionA", edge=DefinitionEdge("example"))
 """
 import networkx as nx
 
 
 class Edge():
     """
-    Object that represents an edge in a graph. 
+    Object that represents an edge in a graph. This is an abstract class.
     """
 
     def __init__(self, name):
@@ -33,7 +41,7 @@ class Edge():
 class DirectoryEdge(Edge):
     """
     This class represents an edge between two nodes, where one node is the parent
-    directory of the other node. 
+    directory of the other node (which is another directory or file).
     """
 
     def __init__(self, name):
@@ -48,7 +56,10 @@ class DirectoryEdge(Edge):
 class ImportEdge(Edge):
     """
     This class represents an edge between two nodes if one node imports a module
-    from the other node. 
+    from the other node.
+
+    If a file contains an import statement, the node representing this import 
+    will have an edge to the node representing the module. 
     """
 
     def __init__(self, name):
@@ -64,6 +75,9 @@ class FunctionCallEdge(Edge):
     """
     This class represets an edge betwee two nodes if one node represents a function
     call from another node.
+
+    If a function is called within a file, the node that represents this in the 
+    graph has an edge to the module containing the function.
     """
 
     def __init__(self, name):
@@ -79,6 +93,9 @@ class InheritanceEdge(Edge):
     """
     This class represents an edge between two nodes if one node inherits from 
     another node.
+
+    If there is a class that inherits from another class, the node representing
+    the subclass will have an edge to the super class. 
     """
 
     def __init__(self, name):
@@ -94,6 +111,9 @@ class DefinitionEdge(Edge):
     """
     This class represents an edge between two nodes if one node contains a
     definition that is contained within another node. 
+
+    If a method is defined within a class, the node representing this method has
+    an edge to the class where the method was defined. 
     """
 
     def __init__(self, name):

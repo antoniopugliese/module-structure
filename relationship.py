@@ -300,7 +300,6 @@ def imports_dict(graph):
 
     :returns: A dictionary mapping the name of a Python file to a list of all modules it imports from its own repo, which is represented by `graph`.
     :rtype: dict {str : str list}
-
     """
     import_dict = {}
     node_visitor = ImportLister()
@@ -401,6 +400,9 @@ def inheritance_relationships(graph: nx.MultiDiGraph):
 def definition_nodes(graph):
     """
     Adds ClassNode and FuncNode to the base `graph`.
+
+    :param graph: the graph representing the target code repo
+    :type graph: networkx.MultiDiGraph
     """
     node_visitor = DefinitionLister(graph)
 
