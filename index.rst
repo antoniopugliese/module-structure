@@ -10,8 +10,6 @@ Welcome to module-structure's documentation!
    :maxdepth: 2
    :caption: Contents:
 
-
-
 Indices and tables
 ==================
 
@@ -26,7 +24,6 @@ Parsing
 .. automodule:: parsing
    :members:
    :undoc-members:
-   :inherited-members:
    :show-inheritance:
 
 Node
@@ -35,7 +32,6 @@ Node
 .. automodule:: node
    :members:
    :undoc-members:
-   :inherited-members:
    :show-inheritance:
 
 Relationship
@@ -44,7 +40,6 @@ Relationship
 .. automodule:: relationship
    :members:
    :undoc-members:
-   :inherited-members:
    :show-inheritance:
 
 Subgraph
@@ -53,5 +48,4 @@ Subgraph
 .. automodule:: subgraph
    :members:
    :undoc-members:
-   :inherited-members:
    :show-inheritance:
