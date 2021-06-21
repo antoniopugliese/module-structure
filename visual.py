@@ -6,7 +6,7 @@ The display function is heavily adapted from this user: https://github.com/xhlul
 
 import dash
 import dash_cytoscape as cyto
-from dash.dependencies import Input, Output
+from dash.dependencies import Input, Output, State
 import dash_html_components as html
 import dash_core_components as dcc
 import dash_reusable_components as drc
@@ -16,6 +16,20 @@ import networkx as nx
 import os
 
 import subgraph
+
+# for development purposes only. If True, the web browser refreshes whenever
+# chanegs are made to this file
+DEBUG_MODE = False
+
+# Graph presets. 'name' : ( [included_nodes], [included_edges], layout, show_nodes )
+PRESETS = {
+    'file directory': (['Folder', 'File'], ['Directory'], 'breadthfirst', 'Yes'),
+    'class inheritance': (["Class"], ["Inheritance"], 'cose', 'No'),
+    'function dependency': (["File", "Class", "Function"], ["Function Call"], 'circle', 'No'),
+    'import dependency': (["File"], ["Import"], 'concentric', 'No'),
+    'definitions': (["File", "Folder", "Class", "Function"], ["Definition"], 'cose', 'No',),
+    'custom': ([], [], 'concentric', 'Yes')
+}
 
 
 def get_data(graph: nx.MultiDiGraph):
@@ -77,7 +91,7 @@ def display(graph):
                         'font-size': 16
                         }, children=[
                      cyto.Cytoscape(
-                         id='subgraph',
+                         id='graph',
                          layout={'name': 'concentric'},
                          style={'width': '100%', 'height': '750px'},
                          elements=[],
@@ -90,6 +104,20 @@ def display(graph):
                         'float': 'left'}, children=[
                      dcc.Tabs(id='tabs', children=[
                          dcc.Tab(label='Control Panel', children=[
+                             drc.NamedDropdown(
+                                 name='Presets',
+                                 id='dropdown-presets',
+                                 options=drc.DropdownOptionsList(
+                                     'file directory',
+                                     'class inheritance',
+                                     'import dependency',
+                                     'function dependency',
+                                     'definitions',
+                                     'custom'
+                                 ),
+                                 value='file directory',
+                                 clearable=False
+                             ),
                              drc.NamedDropdown(
                                  name='Layout',
                                  id='dropdown-layout',
@@ -147,12 +175,43 @@ def display(graph):
                  ])
     ])
 
-    @app.callback(Output('subgraph', 'layout'),
+    @app.callback(Output('graph', 'layout'),
                   [Input('dropdown-layout', 'value')])
     def update_graph_layout(layout):
         return {'name': layout}
 
-    @app.callback(Output('subgraph', 'elements'),
+    # might be a way to combine these into one function
+    @app.callback([Output('dropdown-node-preferences', 'value'),
+                   Output('dropdown-edge-preferences', 'value'),
+                   Output('dropdown-layout', 'value'),
+                   Output('dropdown-show-empty', 'value')],
+                  [Input('dropdown-presets', 'value')])
+    def preset_graph(preset):
+        nodes, edges, layout, show_empty = PRESETS.get(
+            preset, 'invalid preset')
+        return (nodes, edges, layout, show_empty)
+
+    # @app.callback(Output('dropdown-node-preferences', 'value'),
+    #               [Input('dropdown-presets', 'value')])
+    # def preset_nodes(preset):
+    #     return PRESETS.get(preset)[0]
+
+    # @app.callback(Output('dropdown-edge-preferences', 'value'),
+    #               [Input('dropdown-presets', 'value')])
+    # def preset_edges(preset):
+    #     return PRESETS.get(preset)[1]
+
+    # @app.callback(Output('dropdown-layout', 'value'),
+    #               [Input('dropdown-presets', 'value')])
+    # def preset_layout(preset):
+    #     return PRESETS.get(preset)[2]
+
+    # @app.callback(Output('dropdown-show-empty', 'value'),
+    #               [Input('dropdown-presets', 'value')])
+    # def preset_show_nodes(preset):
+    #     return PRESETS.get(preset)[3]
+
+    @app.callback(Output('graph', 'elements'),
                   [Input('dropdown-node-preferences', 'value'),
                   Input('dropdown-edge-preferences', 'value'),
                   Input('dropdown-show-empty', 'value')])
@@ -166,11 +225,10 @@ def display(graph):
             new_graph.remove_nodes_from(removes)
         return get_data(new_graph)
 
-    @app.callback(Output('subgraph', 'stylesheet'),
-                  [Input('subgraph', 'tapNode'),
+    @app.callback(Output('graph', 'stylesheet'),
+                  [Input('graph', 'tapNode'),
                    Input('input-follower-color', 'value'),
-                   Input('input-following-color', 'value'),
-                   ])
+                   Input('input-following-color', 'value')])
     def generate_stylesheet(node, follower_color, following_color):
         if not node:
             return default_stylesheet
@@ -250,4 +308,7 @@ def display(graph):
 
     # this url might not be universal
     web.open("http://127.0.0.1:8050/")
-    app.run_server(debug=True, use_reloader=False)
+    if DEBUG_MODE:
+        app.run_server(debug=True)
+    else:
+        app.run_server(debug=True, use_reloader=False)
