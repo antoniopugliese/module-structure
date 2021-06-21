@@ -5,9 +5,7 @@ edge types.
 >>> import subgraph as sg
 >>> g.nodes
     [FolderNode('root'), FileNode('main.py'), FolderNode('src')]
->>> config["nodes"]
-    ["Folder"]
->>> h = sg.subgraph(g)
+>>> h = sg.subgraph(g, ["Folder"], [])
 >>> h.nodes
     [FolderNode('root'), FolderNode('src')]
 """
@@ -16,6 +14,23 @@ import os
 import node
 import edge
 import json
+
+# possible nodes
+NODES = {
+    "Folder": node.FolderNode,
+    "File": node.FileNode,
+    "Class": node.ClassNode,
+    "Function": node.FuncNode
+}
+
+# possible edges
+EDGES = {
+    "Directory": edge.DirectoryEdge,
+    "Import": edge.ImportEdge,
+    "Function Call": edge.FunctionCallEdge,
+    "Inheritance": edge.InheritanceEdge,
+    "Definition": edge.DefinitionEdge
+}
 
 
 def get_preferences():
@@ -49,18 +64,12 @@ def str_to_node(str):
     >>> str_to_node("Folder")
     node.FolderNode
     """
-    nodes = {
-        "Folder": node.FolderNode,
-        "File": node.FileNode,
-        "Class": node.ClassNode,
-        "Function": node.FuncNode
-    }
-    return nodes.get(str, "Invalid node in config")
+    return NODES.get(str, "Invalid node in config")
 
 
 def str_to_edge(str):
     """
-    Converts a string to type edge.Edge
+    Converts a string to type edge.Edge.
 
     :param str: a string representing an edge in edge.py
     :type str: str
@@ -71,43 +80,35 @@ def str_to_edge(str):
     >>> str_to_edge("Directory")
     edge.DirectoryEdge
     """
-    edges = {
-        "Directory": edge.DirectoryEdge,
-        "Import": edge.ImportEdge,
-        "Function_call": edge.ImportEdge,
-        "Inheritance": edge.InheritanceEdge,
-        "Definition": edge.DefinitionEdge
-    }
-    return edges.get(str, "Invalid edge in config")
+    return EDGES.get(str, "Invalid edge in config")
 
 
-def subgraph(graph: nx.MultiDiGraph):
+def subgraph(graph: nx.MultiDiGraph, nodes, edges):
     """
-    Creates a subgraph of the given graph based on user preferences in the ``config`` file.
+    Creates a subgraph of the given graph based on user preferences.
 
-    :param graph: the graph to make the subgraph
+    :param graph: the graph used to make the subgraph
     :type graph: networkx.MultiDiGraph
+
+    :param nodes: the list of node types to include
+    :type nodes: str list
+
+    :param edges: the list of edge types to include
+    :type edges: str list
 
     :return: the subgraph of ``graph`` with the chosen edge and node types included
     :rtype: nx.MultiDiGraph
 
     >>> g.nodes
     [FolderNode('root'), FileNode('main.py'), FolderNode('src')]
-    >>> config["nodes"]
-    ["Folder"]
-    >>> h = subgraph(g)
+    >>> h = subgraph(g, ["Folder"], [])
     >>> h.nodes
     [FolderNode('root'), FolderNode('src')]
     """
-    nodes, edges = get_preferences()
     subgraph = nx.MultiDiGraph()
 
     node_list = list(map(str_to_node, nodes))
     edge_list = list(map(str_to_edge, edges))
-
-    # for n, d in graph.nodes.data():
-    #     if type(n) in node_list:
-    #         subgraph.add_node(n, *d)
 
     sub_nodes = [(n, d)
                  for n, d in graph.nodes(data=True) if type(n) in node_list]

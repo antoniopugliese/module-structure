@@ -86,16 +86,8 @@ def main():
     rel.function_call_relationship(new_graph)
     rel.inheritance_relationships(new_graph)
     print("Done.")
-    #print(rel.graph_to_string(new_graph, node.FolderNode("snorkel")))
 
-    sub = subgraph.subgraph(new_graph)
-    visual.display(sub)
-
-    # for n in sub.nodes:
-    #     print(n)
-
-    # for u, v, d in sub.edges:
-    #     print(f"from {u} to {v}")
+    visual.display(new_graph)
 
 
 if __name__ == "__main__":
