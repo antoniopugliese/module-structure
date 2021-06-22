@@ -6,7 +6,8 @@ The display function is heavily adapted from this user: https://github.com/xhlul
 
 import dash
 import dash_cytoscape as cyto
-from dash.dependencies import Input, Output, State
+from dash.dependencies import Input, Output
+from dash.exceptions import PreventUpdate
 import dash_html_components as html
 import dash_core_components as dcc
 import dash_reusable_components as drc
@@ -58,7 +59,7 @@ def display(graph):
     """
     Creates the Dash app and runs the development server.
 
-    :param graph: the graph to display 
+    :param graph: the graph to display
     :type graph: networkx.MultiDiGraph
     """
     styles = {
@@ -97,7 +98,8 @@ def display(graph):
                          elements=[],
                      )
                  ]),
-
+        html.Div(hidden=True, children=[
+                 dcc.Store(id='prev-node', data=None)]),
         html.Div(className='four columns',
                  style={'width': '30%',
                         'position': 'relative',
@@ -132,24 +134,25 @@ def display(graph):
                                  value='breadthfirst',
                                  clearable=False
                              ),
-                             drc.NamedDropdown(
-                                 name='Node Preferences',
-                                 id='dropdown-node-preferences',
-                                 options=drc.DropdownOptionsList(
-                                     *subgraph.NODES),
-                                 value=['Folder', 'File'],
-                                 clearable=False,
-                                 multi=True
-                             ),
-                             drc.NamedDropdown(
-                                 name='Edge Preferences',
-                                 id='dropdown-edge-preferences',
-                                 options=drc.DropdownOptionsList(
-                                     *subgraph.EDGES),
-                                 value=['Directory'],
-                                 clearable=False,
-                                 multi=True
-                             ),
+                             html.Div(id='preferences-container', hidden=True, children=[
+                                 drc.NamedDropdown(
+                                     name='Node Preferences',
+                                     id='dropdown-node-preferences',
+                                     options=drc.DropdownOptionsList(
+                                         *subgraph.NODES),
+                                     value=[],
+                                     clearable=False,
+                                     multi=True
+                                 ),
+                                 drc.NamedDropdown(
+                                     name='Edge Preferences',
+                                     id='dropdown-edge-preferences',
+                                     options=drc.DropdownOptionsList(
+                                         *subgraph.EDGES),
+                                     value=[],
+                                     clearable=False,
+                                     multi=True
+                                 ), ]),
                              drc.NamedInput(
                                  name='Followers Color',
                                  id='input-follower-color',
@@ -161,6 +164,12 @@ def display(graph):
                                  id='input-following-color',
                                  type='text',
                                  value='#FF4136',
+                             ),
+                             drc.NamedInput(
+                                 name='Root Color',
+                                 id='input-root-color',
+                                 type='text',
+                                 value='#000000',
                              ),
                              drc.NamedDropdown(
                                  name='Show 0 Degree Nodes',
@@ -187,51 +196,56 @@ def display(graph):
                    Output('dropdown-show-empty', 'value')],
                   [Input('dropdown-presets', 'value')])
     def preset_graph(preset):
+        if preset == 'custom':
+            raise PreventUpdate
         nodes, edges, layout, show_empty = PRESETS.get(
             preset, 'invalid preset')
         return (nodes, edges, layout, show_empty)
 
-    # @app.callback(Output('dropdown-node-preferences', 'value'),
-    #               [Input('dropdown-presets', 'value')])
-    # def preset_nodes(preset):
-    #     return PRESETS.get(preset)[0]
-
-    # @app.callback(Output('dropdown-edge-preferences', 'value'),
-    #               [Input('dropdown-presets', 'value')])
-    # def preset_edges(preset):
-    #     return PRESETS.get(preset)[1]
-
-    # @app.callback(Output('dropdown-layout', 'value'),
-    #               [Input('dropdown-presets', 'value')])
-    # def preset_layout(preset):
-    #     return PRESETS.get(preset)[2]
-
-    # @app.callback(Output('dropdown-show-empty', 'value'),
-    #               [Input('dropdown-presets', 'value')])
-    # def preset_show_nodes(preset):
-    #     return PRESETS.get(preset)[3]
+    @app.callback(Output('preferences-container', 'hidden'),
+                  [Input('dropdown-presets', 'value')])
+    def unhide_preferences(preset):
+        if preset == "custom":
+            return False
+        else:
+            return True
 
     @app.callback(Output('graph', 'elements'),
                   [Input('dropdown-node-preferences', 'value'),
                   Input('dropdown-edge-preferences', 'value'),
-                  Input('dropdown-show-empty', 'value')])
-    def update_graph_data(node_list, edge_list, show_empty):
+                  Input('dropdown-show-empty', 'value'),
+                  Input('input-root-color', 'value')])
+    def update_graph_data(node_list, edge_list, show_empty, root_color):
+        stylesheet = default_stylesheet
         new_graph = subgraph.subgraph(graph, node_list, edge_list)
-        if show_empty == "No":
-            removes = []
-            for n in new_graph.nodes:
-                if new_graph.degree(n) == 0:
-                    removes.append(n)
-            new_graph.remove_nodes_from(removes)
+
+        # iterates through all nodes and colors root nodes and removes nodes
+        # according to user preference
+        removes = []
+        for n in new_graph.nodes:
+            if show_empty == "No" and new_graph.degree(n) == 0:
+                removes.append(n)
+            if new_graph.in_degree(n) == 0 and new_graph.out_degree != 0:
+                stylesheet.append({
+                    "selector": 'node[id = "{}"]'.format(n.get_name()),
+                    "style": {
+                        'background-color': root_color,
+                        'opacity': 0.9,
+                        "label": "data(label)",
+                    }
+                })
+
+        new_graph.remove_nodes_from(removes)
         return get_data(new_graph)
 
-    @app.callback(Output('graph', 'stylesheet'),
+    @app.callback([Output('graph', 'stylesheet'), Output('prev-node', 'data')],
                   [Input('graph', 'tapNode'),
+                   Input('prev-node', 'data'),
                    Input('input-follower-color', 'value'),
                    Input('input-following-color', 'value')])
-    def generate_stylesheet(node, follower_color, following_color):
-        if not node:
-            return default_stylesheet
+    def generate_stylesheet(node, prev_node_data, follower_color, following_color):
+        if node is None or node['data']['id'] == prev_node_data['prev_node']:
+            return (default_stylesheet, {'prev_node': None})
 
         stylesheet = [{
             "selector": 'node',
@@ -304,7 +318,7 @@ def display(graph):
                     }
                 })
 
-        return stylesheet
+        return (stylesheet, {'prev_node': node['data']['id']})
 
     # this url might not be universal
     web.open("http://127.0.0.1:8050/")
