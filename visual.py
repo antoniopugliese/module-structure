@@ -20,16 +20,22 @@ import subgraph
 
 # for development purposes only. If True, the web browser refreshes whenever
 # chanegs are made to this file
-DEBUG_MODE = False
+DEBUG_MODE = True
 
-# Graph presets. 'name' : ( [included_nodes], [included_edges], layout, show_nodes )
+# Graph presets. 'name' : ( [included_nodes], [included_edges], layout, show_nodes, description )
+### possibly move into a json file ###
 PRESETS = {
-    'file directory': (['Folder', 'File'], ['Directory'], 'breadthfirst', 'Yes'),
-    'class inheritance': (["Class"], ["Inheritance"], 'cose', 'No'),
-    'function dependency': (["File", "Class", "Function"], ["Function Call"], 'circle', 'No'),
-    'import dependency': (["File"], ["Import"], 'concentric', 'No'),
-    'definitions': (["File", "Folder", "Class", "Function"], ["Definition"], 'cose', 'No',),
-    'custom': ([], [], 'concentric', 'Yes')
+    'file directory': (['Folder', 'File'], ['Directory'], 'breadthfirst', 'Yes',
+                       "The file organization of the repo. Nodes are either folders or Python files. A directed edge from **u** to **v** represents '**u** is the parent folder of **v**.'"),
+    'class inheritance': (["Class"], ["Inheritance"], 'cose', 'No',
+                          "The classes that inherit from another class defined within the repo. Nodes are Python classes. A directed edge from **u** to **v** represents '**u** is a parent class for **v**.'"),
+    'function dependency': (["File", "Class", "Function"], ["Function Call"], 'circle', 'No',
+                            "The function calls within the repo. Nodes represent a Python file, function, or class. A directed edge from **u** to **v**  represents '**u** is called by function **v**.'"),
+    'import dependency': (["File", "Folder"], ["Import"], 'concentric', 'No',
+                          "The imports of each Python file. Nodes are Python files or folders (as Python packages). A directed edge from **u** to **v**  represents '**u** is imported by **v**.'"),
+    'definitions': (["File", "Class", "Function"], ["Definition"], 'cose', 'No',
+                    "The organization of Python class and function definitions. Nodes are files, functions, or classes. A directed edge from **u** to **v**  represents '**u** defines **v**.'"),
+    'custom': ([], [], 'concentric', 'Yes', "Choose the Node and Edge types to include. ")
 }
 
 
@@ -180,6 +186,9 @@ def display(graph):
                                  value="Yes",
                                  clearable=False,
                              ),
+                             drc.Card(title='Preset Description',
+                                      id='description-card',
+                                      children=[])
                          ]),
                      ]),
                  ])
@@ -196,14 +205,15 @@ def display(graph):
     @app.callback([Output('dropdown-node-preferences', 'value'),
                    Output('dropdown-edge-preferences', 'value'),
                    Output('dropdown-layout', 'value'),
-                   Output('dropdown-show-empty', 'value')],
+                   Output('dropdown-show-empty', 'value'),
+                   Output('description-card', 'children')],
                   [Input('dropdown-presets', 'value')])
     def preset_graph(preset):
         if preset == 'custom':
             raise PreventUpdate
-        nodes, edges, layout, show_empty = PRESETS.get(
+        nodes, edges, layout, show_empty, description = PRESETS.get(
             preset, 'invalid preset')
-        return (nodes, edges, layout, show_empty)
+        return (nodes, edges, layout, show_empty, [dcc.Markdown(description)])
 
     @app.callback(Output('preferences-container', 'hidden'),
                   [Input('dropdown-presets', 'value')])

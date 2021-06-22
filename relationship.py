@@ -156,6 +156,7 @@ class DefinitionLister(ast.NodeVisitor):
         """
         class_name = os.path.join(self.starting_node.name, node.name)
         class_node = ClassNode(class_name, node)
+        # edge (u,v): "u defines v"
         self.graph.add_edge(self.starting_node, class_node,
                             edge=edge.DefinitionEdge(""))
 
@@ -173,6 +174,7 @@ class DefinitionLister(ast.NodeVisitor):
         :type node: ast.FunctionDef
         """
         func_name = os.path.join(self.starting_node.name, node.name)
+        # edge (u,v): "u defines v"
         self.graph.add_edge(self.starting_node, FuncNode(
             func_name, node), edge=edge.DefinitionEdge(""))
         self.generic_visit(node)
@@ -240,7 +242,8 @@ def import_relationship(graph: nx.MultiDiGraph):
             for (name, level) in node_visitor.imported_mods:
                 imported_node = get_repo_node(graph, node, name, level)
                 if imported_node is not None:  # if exists
-                    imports.append((node, imported_node, {
+                    # edge (u,v): "u is imported by v"
+                    imports.append((imported_node, node, {
                                    'edge': edge.ImportEdge("")}))
 
             node_visitor.reset()
@@ -330,8 +333,9 @@ def function_call_relationship(graph: nx.MultiDiGraph):
                     # get full function name as it would be called in code
                     n = imported_func.get_name().split(os.sep)[-1]
                     if n == func:
+                        # edge (u,v): "u is called by v"
                         func_edges.append(
-                            (node, imported_func, {'edge': edge.FunctionCallEdge("")}))
+                            (imported_func, node, {'edge': edge.FunctionCallEdge("")}))
 
             node_visitor.reset()
 
@@ -371,12 +375,14 @@ def inheritance_relationships(graph: nx.MultiDiGraph):
                     # handle multiple inheritance later
                     extends = node_visitor.extends[n1]
                     if len(extends) == 1 and extends[0] == n2:
-                        inherit_edges.append((c, imported_class,
+                        # edge (u,v): "u is a parent class of v"
+                        inherit_edges.append((imported_class, c,
                                               {'edge': edge.InheritanceEdge("")}))
                     for c2 in classes:
                         n3 = c2.get_name().split(os.sep)[-1]
                         if len(extends) == 1 and extends[0] == n3:
-                            inherit_edges.append((c, c2,
+                            # edge (u,v): "u is a parent class of v"
+                            inherit_edges.append((c2, c,
                                                   {'edge': edge.InheritanceEdge("")}))
 
             node_visitor.reset()
