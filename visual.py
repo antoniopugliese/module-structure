@@ -96,6 +96,7 @@ def display(graph):
                          layout={'name': 'concentric'},
                          style={'width': '100%', 'height': '750px'},
                          elements=[],
+                         stylesheet=default_stylesheet
                      )
                  ]),
         html.Div(hidden=True, children=[
@@ -187,6 +188,8 @@ def display(graph):
     @app.callback(Output('graph', 'layout'),
                   [Input('dropdown-layout', 'value')])
     def update_graph_layout(layout):
+        if layout == 'cose':
+            return {'name': layout, 'animate': False, "numIter": 500}
         return {'name': layout}
 
     # might be a way to combine these into one function
@@ -213,19 +216,40 @@ def display(graph):
     @app.callback(Output('graph', 'elements'),
                   [Input('dropdown-node-preferences', 'value'),
                   Input('dropdown-edge-preferences', 'value'),
-                  Input('dropdown-show-empty', 'value'),
-                  Input('input-root-color', 'value')])
-    def update_graph_data(node_list, edge_list, show_empty, root_color):
-        stylesheet = default_stylesheet
+                  Input('dropdown-show-empty', 'value')])
+    def update_graph_data(node_list, edge_list, show_empty):
         new_graph = subgraph.subgraph(graph, node_list, edge_list)
 
-        # iterates through all nodes and colors root nodes and removes nodes
-        # according to user preference
         removes = []
         for n in new_graph.nodes:
             if show_empty == "No" and new_graph.degree(n) == 0:
                 removes.append(n)
-            if new_graph.in_degree(n) == 0 and new_graph.out_degree != 0:
+
+        new_graph.remove_nodes_from(removes)
+        return get_data(new_graph)
+
+    @app.callback([Output('graph', 'stylesheet'), Output('prev-node', 'data')],
+                  [Input('graph', 'tapNode'),
+                   Input('prev-node', 'data'),
+                   Input('dropdown-node-preferences', 'value'),
+                   Input('dropdown-edge-preferences', 'value'),
+                   Input('input-follower-color', 'value'),
+                   Input('input-following-color', 'value'),
+                   Input('input-root-color', 'value')])
+    def generate_stylesheet(node, prev_node_data, node_list, edge_list, follower_color, following_color, root_color):
+        # always color the roots
+        stylesheet = [
+            {
+                "selector": 'edge',
+                'style': {
+                    "curve-style": "bezier",
+                    "opacity": 0.65
+                }
+            },
+        ]
+        new_graph = subgraph.subgraph(graph, node_list, edge_list)
+        for n in new_graph.nodes:
+            if new_graph.in_degree(n) == 0 and new_graph.degree(n) != 0:
                 stylesheet.append({
                     "selector": 'node[id = "{}"]'.format(n.get_name()),
                     "style": {
@@ -234,19 +258,10 @@ def display(graph):
                         "label": "data(label)",
                     }
                 })
-
-        new_graph.remove_nodes_from(removes)
-        return get_data(new_graph)
-
-    @app.callback([Output('graph', 'stylesheet'), Output('prev-node', 'data')],
-                  [Input('graph', 'tapNode'),
-                   Input('prev-node', 'data'),
-                   Input('input-follower-color', 'value'),
-                   Input('input-following-color', 'value')])
-    def generate_stylesheet(node, prev_node_data, follower_color, following_color):
         if node is None or node['data']['id'] == prev_node_data['prev_node']:
-            return (default_stylesheet, {'prev_node': None})
+            return (stylesheet, {'prev_node': None})
 
+        # if node selected, color the graph to highlight this
         stylesheet = [{
             "selector": 'node',
             'style': {
@@ -319,6 +334,11 @@ def display(graph):
                 })
 
         return (stylesheet, {'prev_node': node['data']['id']})
+
+    @app.callback(Output('graph', 'tapNode'),
+                  Input('dropdown-presets', 'value'))
+    def reset_selection(preset):
+        return None
 
     # this url might not be universal
     web.open("http://127.0.0.1:8050/")
