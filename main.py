@@ -4,6 +4,7 @@ import json
 import pickle
 import relationship as rel
 import visual
+import matrix as mat
 from git import Repo, Git
 
 
@@ -72,20 +73,24 @@ def main():
         pickle.dump(ast_dict, file, protocol=pickle.HIGHEST_PROTOCOL)
     print("Done.")
 
-    # print file structure of the latest commit
-    # print("Printing the directory:")
-    first = list(ast_dict.keys())[0]
-    first_graph = ast_dict[first]
 
-    # create relationships
     print("Creating relationships...", end="", flush=True)
-    new_graph = rel.definition_nodes(first_graph)
-    rel.import_relationship(new_graph)
-    rel.function_call_relationship(new_graph)
-    rel.inheritance_relationships(new_graph)
+    commit_list = list(ast_dict.keys())
+    graph_dict = {}
+
+    for commit in commit_list:
+        new_graph = ast_dict[commit]
+        rel.import_relationship(new_graph)
+        rel.function_call_relationship(new_graph)
+        rel.inheritance_relationships(new_graph)
+        matrix = mat.graph_to_matrix(new_graph)
+        graph_dict.update({commit : (new_graph, matrix)})
+    
     print("Done.")
 
-    visual.display(new_graph)
+    first = commit_list[0]
+    tup = graph_dict.get(first)
+    visual.display(tup[0])
 
 
 if __name__ == "__main__":

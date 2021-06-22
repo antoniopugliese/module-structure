@@ -20,7 +20,7 @@ import subgraph
 
 # for development purposes only. If True, the web browser refreshes whenever
 # chanegs are made to this file
-DEBUG_MODE = True
+DEBUG_MODE = False
 
 # Graph presets. 'name' : ( [included_nodes], [included_edges], layout, show_nodes, description )
 ### possibly move into a json file ###
