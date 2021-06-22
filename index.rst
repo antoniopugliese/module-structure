@@ -59,3 +59,21 @@ Visual
    :inherited-members:
    :show-inheritance:
 
+Matrix
+======
+
+.. automodule:: matrix
+   :members:
+   :undoc-members:
+   :inherited-members:
+   :show-inheritance:
+
+Metrics
+=======
+
+.. automodule:: metrics
+   :members:
+   :undoc-members:
+   :inherited-members:
+   :show-inheritance:
+

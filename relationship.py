@@ -343,7 +343,7 @@ def function_call_relationship(graph: nx.MultiDiGraph):
     graph.add_edges_from(func_edges)
 
 
-def inheritance_relationships(graph: nx.MultiDiGraph):
+def inheritance_relationship(graph: nx.MultiDiGraph):
     """
     Creates a directed edge for whenever a class definition subclasses another class
     from the target code repo.
@@ -409,6 +409,24 @@ def definition_nodes(graph):
             # definitionLister already adds the edges
 
     return node_visitor.graph
+
+
+def create_all_relationships(graph):
+    """
+    Adds all available relationship edges and nodes to ``graph``.
+
+    :param graph: the graph to add the relationships to.
+    :type graph: networkx.MultiDiGraph
+
+    :return: the graph with all relationships added
+    :rtype: networkx.MultiDiGraph
+    """
+    new_graph = definition_nodes(graph)
+    import_relationship(new_graph)
+    function_call_relationship(new_graph)
+    inheritance_relationship(new_graph)
+
+    return new_graph
 
 
 def graph_to_string(graph: nx.MultiDiGraph, starting_node, level=0):

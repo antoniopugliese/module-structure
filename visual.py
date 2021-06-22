@@ -26,15 +26,20 @@ DEBUG_MODE = False
 ### possibly move into a json file ###
 PRESETS = {
     'file directory': (['Folder', 'File'], ['Directory'], 'breadthfirst', 'Yes',
-                       "The file organization of the repo. Nodes are either folders or Python files. A directed edge from **u** to **v** represents '**u** is the parent folder of **v**.'"),
+                       "The file organization of the repo. Nodes are either folders or Python files. " +
+                       "A directed edge from **u** to **v** represents '**u** is the parent folder of **v**.'"),
     'class inheritance': (["Class"], ["Inheritance"], 'cose', 'No',
-                          "The classes that inherit from another class defined within the repo. Nodes are Python classes. A directed edge from **u** to **v** represents '**u** is a parent class for **v**.'"),
+                          "The classes that inherit from another class defined within the repo. Nodes are Python classes. " +
+                          "A directed edge from **u** to **v** represents '**u** is a parent class for **v**.'"),
     'function dependency': (["File", "Class", "Function"], ["Function Call"], 'circle', 'No',
-                            "The function calls within the repo. Nodes represent a Python file, function, or class. A directed edge from **u** to **v**  represents '**u** is called by function **v**.'"),
+                            "The function calls within the repo. Nodes represent a Python file, function, or class. " +
+                            "A directed edge from **u** to **v**  represents '**u** is called by **v**.'"),
     'import dependency': (["File", "Folder"], ["Import"], 'concentric', 'No',
-                          "The imports of each Python file. Nodes are Python files or folders (as Python packages). A directed edge from **u** to **v**  represents '**u** is imported by **v**.'"),
+                          "The imports of each Python file. Nodes are Python files or folders (as Python packages). " +
+                          "A directed edge from **u** to **v**  represents '**u** is imported by **v**.'"),
     'definitions': (["File", "Class", "Function"], ["Definition"], 'cose', 'No',
-                    "The organization of Python class and function definitions. Nodes are files, functions, or classes. A directed edge from **u** to **v**  represents '**u** defines **v**.'"),
+                    "The organization of Python class and function definitions. Nodes are files, functions, or classes. " +
+                    "A directed edge from **u** to **v**  represents '**u** defines **v**.'"),
     'custom': ([], [], 'concentric', 'Yes', "Choose the Node and Edge types to include. ")
 }
 
