@@ -103,18 +103,6 @@ class ImportLister(ast.NodeVisitor):
         self.imported_mods = []
         self.imported_funcs = {}
 
-    # def visit_Import(self, node):
-    #     """
-    #     Gathers the imported modules and imported functions, or their alias if used.
-    #     """
-    #     # imports using this statement are from the same directory (level = 1)
-    #     for alias in node.names:
-    #         if alias.asname != None:
-    #             self.imported_mods.append((alias.asname, 1))
-    #         else:
-    #             self.imported_mods.append((alias.name, 1))
-    #     self.generic_visit(node)
-
     def visit_ImportFrom(self, node: ast.ImportFrom):
         """
         Gathers the imported modules and imported functions, or their alias if used.

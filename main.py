@@ -31,7 +31,7 @@ def main():
     except (FileNotFoundError):
         print("Scanning start directory...", end="", flush=True)
         repo_path = parsing.find_dir(home, repo_name)
-        print("Done.")
+        print("Done")
         if not os.path.isdir(data_path):
             os.mkdir(data_path)
         with open(os.path.join(data_path, repo_name + "_path"), "wb") as file:
