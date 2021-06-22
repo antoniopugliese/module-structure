@@ -2,10 +2,7 @@ import os
 import parsing
 import json
 import pickle
-import node
-import edge
 import relationship as rel
-import subgraph
 import visual
 from git import Repo, Git
 
@@ -51,7 +48,8 @@ def main():
     g = Git(repo_path)
     g.checkout(config["branch"])
     # limited to 10 for testing
-    commits = list(repo.iter_commits('master', max_count=config["max_count"]))
+    commits = list(repo.iter_commits(
+        config["branch"], max_count=config["max_count"]))
 
     try:
         print("Checking if file has been pickled...", end="", flush=True)
