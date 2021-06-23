@@ -79,10 +79,7 @@ def main():
     graph_dict = {}
 
     for commit in commit_list:
-        new_graph = rel.definition_nodes(ast_dict[commit])
-        rel.import_relationship(new_graph)
-        rel.function_call_relationship(new_graph)
-        rel.inheritance_relationship(new_graph)
+        new_graph = rel.create_all_relationships(ast_dict[commit])
         matrix = mat.graph_to_matrix(new_graph)
         graph_dict.update({commit: (new_graph, matrix)})
 

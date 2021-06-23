@@ -6,7 +6,7 @@ import networkx as nx
 import scipy as sp
 import numpy as np
 
-def graph_to_matrix(graph, order = None, weight = None):
+def graph_to_matrix(graph, order = None, weight = None, matrix = "adj"):
 	"""
 	Converts a NetworkX graph into an adjacency matrix. 
 
@@ -19,10 +19,20 @@ def graph_to_matrix(graph, order = None, weight = None):
 	:param weight: represents which weight will be represented in the matrix
 	:type weight: int
 
+	:param matrix: the type of matrix wanted (adj, lap, nlap)
+	:type matrix: str
+	
 	:return: a sparse matrix representation of the graph
 	:rtype: scipy.sparse
 	"""
-	return nx.adjacency_matrix(graph, order, weight)
+	if matrix == "adj":
+		return nx.adjacency_matrix(graph, order, weight)
+	elif matrix == "lap":
+		return nx.laplacian_matrix(graph, order, weight)
+	elif matrix == "nlap":
+		return nx.normalized_laplacian_matrix(graph, order, weight)
+		
+
 
 def calculate_svd(matrix):
 	"""
