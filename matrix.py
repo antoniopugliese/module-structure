@@ -6,7 +6,7 @@ import networkx as nx
 import scipy as sp
 import numpy as np
 
-def graph_to_matrix(graph, order = None, weight = None, matrix = "adj"):
+def graph_to_matrix(graph, order = None, weight = None, matrix = "adjacency"):
 	"""
 	Converts a NetworkX graph into an adjacency matrix. 
 
@@ -19,20 +19,22 @@ def graph_to_matrix(graph, order = None, weight = None, matrix = "adj"):
 	:param weight: represents which weight will be represented in the matrix
 	:type weight: int
 
-	:param matrix: the type of matrix wanted (adj, lap, nlap)
+	:param matrix: the type of matrix wanted
 	:type matrix: str
 	
 	:return: a sparse matrix representation of the graph
 	:rtype: scipy.sparse
 	"""
-	if matrix == "adj":
+	if matrix == "adjacency":
 		return nx.adjacency_matrix(graph, order, weight)
-	elif matrix == "lap":
+	elif matrix == "laplacian":
 		return nx.laplacian_matrix(graph, order, weight)
-	elif matrix == "nlap":
+	elif matrix == "normalized":
 		return nx.normalized_laplacian_matrix(graph, order, weight)
-		
-
+	elif matrix == "directed":
+		return nx.directed_laplacian_matrix(graph, order, weight)
+	elif matrix == "combinatorial":
+		return nx.directed_combinatorial_laplacian_matrix(graph, order, weight)	
 
 def calculate_svd(matrix):
 	"""
@@ -45,3 +47,24 @@ def calculate_svd(matrix):
 	:rtype: ndarray
 	"""
 	return sp.linalg.svd(matrix)
+
+def calculate_eig(graph, spectrum = "adjacency"):
+	"""
+	Calculates the eigenvalues from the matrix.
+
+	:param graph: a NetworkX graph
+	:type graph: NetworkX graphh
+
+	:return: the eigenvalues of the matrix
+	:rtype: Numpy array
+	"""
+	if spectrum == "adjacency":
+		return nx.adjacency_spectrum(graph)
+	elif spectrum == "laplacian":
+		return nx.laplacian_spectrum(graph)
+	elif spectrum == "bethe":
+		return nx.bethe_hessian_spectrum(graph)
+	elif spectrum == "normalized":
+		return nx.normalized_laplacian_spectrum(graph)
+	elif spectrum == "modularity":
+		return nx.modularity_spectrum(graph)

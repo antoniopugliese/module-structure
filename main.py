@@ -81,7 +81,8 @@ def main():
     for commit in commit_list:
         new_graph = rel.create_all_relationships(ast_dict[commit])
         matrix = mat.graph_to_matrix(new_graph)
-        graph_dict.update({commit: (new_graph, matrix)})
+        eigenvalues = mat.calculate_eig(new_graph)
+        graph_dict.update({commit: (new_graph, matrix, eigenvalues)})
 
     print("Done.")
 
