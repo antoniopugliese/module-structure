@@ -1,7 +1,7 @@
 {
   "repo_name": "snorkel",
   "branch": "master",
-  "max_count": 10,
+  "max_count": 25,
   "nodes": [
     "File",
     "Folder"

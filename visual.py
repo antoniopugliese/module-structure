@@ -11,12 +11,17 @@ from dash.exceptions import PreventUpdate
 import dash_html_components as html
 import dash_core_components as dcc
 import dash_reusable_components as drc
+import plotly.express as px
+import pandas as pd
+from git.objects.commit import Commit
+from networkx import MultiDiGraph
 
 import webbrowser as web
 import networkx as nx
 import os
 
 import subgraph
+import metrics
 
 # for development purposes only. If True, the web browser refreshes whenever
 # chanegs are made to this file
@@ -40,11 +45,13 @@ PRESETS = {
     'definitions': (["File", "Class", "Function"], ["Definition"], 'cose', 'No',
                     "The organization of Python class and function definitions. Nodes are files, functions, or classes. " +
                     "A directed edge from **u** to **v**  represents '**u** defines **v**.'"),
+    'all': (["File", "Folder", "Class", "Function"], ["Inheritance", "Directory", "Function Call", "Import", "Definition"], 'concentric', 'No',
+            "Every type of node and edge displayed at once."),
     'custom': ([], [], 'concentric', 'Yes', "Choose the Node and Edge types to include. ")
 }
 
 
-def get_data(graph: nx.MultiDiGraph):
+def get_graph_data(graph: nx.MultiDiGraph):
     """
     Transforms the node and edge data to a format that can be displayed.
 
@@ -66,7 +73,46 @@ def get_data(graph: nx.MultiDiGraph):
     return n_list + e_list
 
 
-def display(graph):
+def get_commit_data(commits, commit_dict, preset='all', function=None):
+    """
+    Computes data from the provided commits that can be graphed.
+
+    :param commits: the commit objects to analyze
+    :type commits: git.objects.commit.Commit list
+
+    :param commit_dict: the sha1-graph dictionary for the repo
+    :type commit_dict: {str : networkx.MultiDiGraph}
+
+    :param preset: the subgraph preset to analyze the commit graphs with. Defaults to 'all'.
+    :type preset: str
+
+    :return: the data to plot on a x-axis and y-axis, respectively.
+    :rtype: tuple
+    """
+    subgraphs = metrics.unique_subgraphs(commit_dict, preset)
+    commit_times = metrics.get_dates(commits)
+
+    x = []
+    y = []
+
+    for graph, sha1_list in subgraphs:
+
+        # do graph analysis here
+        # function as a parameter
+        calculation = len(graph.nodes)
+
+        # create data points
+        for sha1 in sha1_list:
+            date = commit_times[sha1]
+
+            x.append(date)
+            y.append(calculation)
+
+    return (x, y)
+
+
+# need to change so that graph is taken from commit_dict instead of passed directly
+def display(graph, commits, commit_dict):
     """
     Creates the Dash app and runs the development server.
 
@@ -100,15 +146,20 @@ def display(graph):
                  style={'width': '70%',
                         'position': 'relative',
                         'float': 'left',
-                        'font-size': 16
+                        'font-size': 16,
                         }, children=[
-                     cyto.Cytoscape(
-                         id='graph',
-                         layout={'name': 'concentric'},
-                         style={'width': '100%', 'height': '750px'},
-                         elements=[],
-                         stylesheet=default_stylesheet
-                     )
+                     drc.Card(id='graph-container', style={'padding': 5, 'margin': 5},
+                              children=[cyto.Cytoscape(
+                                  id='graph',
+                                  layout={'name': 'concentric'},
+                                  style={'width': '100%', 'height': '500px'},
+                                  elements=[],
+                                  stylesheet=default_stylesheet),
+                     ]),
+                     drc.Card(style={'padding': 5, 'margin': 5},
+                              id='commit-chart-container', hidden=True,
+                              children=[dcc.Graph(id="commit-chart", figure={}, style={'height': '250px'})
+                                        ]),
                  ]),
         html.Div(hidden=True, children=[
                  dcc.Store(id='prev-node', data=None)]),
@@ -191,9 +242,13 @@ def display(graph):
                                  value="Yes",
                                  clearable=False,
                              ),
+                             dcc.Checklist(
+                                 id='show-commits', options=[{'label': 'Show commit history', 'value': 'show'}]),
                              drc.Card(title='Preset Description',
                                       id='description-card',
-                                      children=[])
+                                      children=[],
+                                      style={'padding': 5,
+                                             'margin': 5, })
                          ]),
                      ]),
                  ])
@@ -241,7 +296,7 @@ def display(graph):
                 removes.append(n)
 
         new_graph.remove_nodes_from(removes)
-        return get_data(new_graph)
+        return get_graph_data(new_graph)
 
     @app.callback([Output('graph', 'stylesheet'), Output('prev-node', 'data')],
                   [Input('graph', 'tapNode'),
@@ -354,6 +409,25 @@ def display(graph):
                   Input('dropdown-presets', 'value'))
     def reset_selection(preset):
         return None
+
+    @app.callback([Output("commit-chart", "figure"), Output("commit-chart-container", "hidden")],
+                  [Input("show-commits", "value"), Input("commit-chart", "figure"), Input('dropdown-presets', 'value')])
+    def update_line_chart(show_commits, current_fig, preset):
+        if not show_commits:
+            return (current_fig, True)
+
+        else:
+            x, y = get_commit_data(commits, commit_dict, preset)
+            df = pd.DataFrame(
+                {'Commit Date': x, 'Number of Nodes': y})
+
+            fig = px.scatter(df, x="Commit Date",
+                             y="Number of Nodes",)
+
+            # fig = px.line(df, x="Commit Date",
+            #                y="Number of Nodes", line_shape='hv')
+
+            return (fig, False)
 
     # this url might not be universal
     web.open("http://127.0.0.1:8050/")

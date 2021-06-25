@@ -74,33 +74,51 @@ def main():
         pickle.dump(ast_dict, file, protocol=pickle.HIGHEST_PROTOCOL)
     print("Done.")
 
-    print("Creating relationships...", end="", flush=True)
-    commit_list = list(ast_dict.keys())
-    graph_dict = {}
+    #commit_list = list(ast_dict.keys())
+    # graph_dict = {}
 
-    for commit in commit_list:
-        new_graph = rel.create_all_relationships(ast_dict[commit])
-        matrix = mat.graph_to_matrix(new_graph)
-        eigenvalues = mat.calculate_eig(new_graph)
-        graph_dict.update({commit: (new_graph, matrix, eigenvalues)})
+    # for commit in commit_list:
+    #     new_graph = rel.create_all_relationships(ast_dict[commit])
+    #     matrix = mat.graph_to_matrix(new_graph)
+    #     eigenvalues = mat.calculate_eig(new_graph)
+    #     graph_dict.update({commit: (new_graph, matrix, eigenvalues)})
 
-    print("Done.")
+    # print("Done.")
 
-    first = commit_list[0]
-    tup = graph_dict.get(first)
-    visual.display(tup[0])
+    # first = commit_list[0]
+    # tup = graph_dict.get(first)
+    # visual.display(tup[0])
 
     # commit_dict = dict(map(lambda key:
     #                        (key, rel.create_all_relationships(ast_dict[key])), ast_dict))
 
     # first = commit_list[0]
-    # visual.display(commit_dict.get(first))
+    # tup = graph_dict.get(first)
+    # visual.display(tup[0])
 
-    # commit with sha1='b6823ffbe00ee1730101582390e50eeba0361f27' was the latest
-    # commit to add a file: snorkel/types/hashing.py
-    # remember to add relationships to graphs in ast_dict, and change max commits
-    # to 25 in config.json
-    # metrics.unique_subgraphs(commit_dict, "file directory")
+    # just for testing since it takes a while for 25 commits
+    try:
+        print("Checking if relationships have been formed...", end="", flush=True)
+        if os.path.exists(os.path.join(data_path, repo_name + "_analysis")):
+            print("Found a file.")
+        with open(os.path.join(data_path, repo_name + "_analysis"), "rb") as file:
+            commit_dict = pickle.load(file)
+        # need to add updating feature
+        file.close()
+    except (FileNotFoundError):
+        # Create dictionary
+        print("Not Found.")
+        commit_dict = dict(map(lambda key:
+                           (key, rel.create_all_relationships(ast_dict[key])), ast_dict))
+        print("Storing relationships...", end="", flush=True)
+        with open(os.path.join(data_path, repo_name + "_analysis"), "wb") as file:
+            pickle.dump(commit_dict, file, protocol=pickle.HIGHEST_PROTOCOL)
+        print("Done.")
+    file.close()
+    print("Done.\n")
+
+    first = list(ast_dict.keys())[0]
+    visual.display(commit_dict.get(first), commits, commit_dict)
 
 
 if __name__ == "__main__":

@@ -2,7 +2,9 @@
 This module analyzes the commit-graph dictionary created by the main module.
 """
 import subgraph
-from visual import PRESETS
+import visual
+from git import Repo, Git
+from git.objects.commit import Commit
 
 
 def unique_subgraphs(commit_dict, preset):
@@ -29,7 +31,7 @@ def unique_subgraphs(commit_dict, preset):
 
     for sha1 in commit_dict:
         graph = commit_dict[sha1]
-        new_graph = subgraph.subgraph(graph, *PRESETS[preset][0:2])
+        new_graph = subgraph.subgraph(graph, *visual.PRESETS[preset][0:2])
         i = 0
         graph_found = False
         while (i < len(graph_commit_pairs) and not graph_found):
@@ -51,3 +53,25 @@ def unique_subgraphs(commit_dict, preset):
     #     print(
     #         f"Graph with {len(g.nodes)} nodes and {len(g.edges)} edges associated with commits: \n\t{cs}")
     return graph_commit_pairs
+
+
+def get_dates(commits: list[Commit]):
+    """
+    Gathers the dates of when ``commits`` were made.
+
+    :param commits: the list of commits to analyze.
+    :type commits: list[Commit]
+
+    :returns:a dictionary mapping the sha1 of a commit to its commit datetime.
+    :rtype: {str : datetime}
+
+    For two commits published one day apart:
+    >>> get_dates([commit1, commit2])
+    {'d6944b9491b294c02fd0c0d9aff3ae56fa069644': datetime(2021, 5, 24, 22, 48, 38), 'b3b0669f716a7b3ed6cd573b57f3f8e12bcd495a': datetime(2021, 5, 25, 15, 3, 14}
+    """
+    commit_times = {}
+
+    for commit in commits:
+        commit_times.update({commit.hexsha: commit.committed_datetime})
+
+    return commit_times
