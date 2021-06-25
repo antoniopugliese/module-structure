@@ -36,35 +36,20 @@ def graph_to_matrix(graph, order = None, weight = None, matrix = "adjacency"):
 	elif matrix == "combinatorial":
 		return nx.directed_combinatorial_laplacian_matrix(graph, order, weight)	
 
-def calculate_svd(matrix):
+def analyze_matrix(matrix, type = "eig"):
 	"""
-	Calculates the singular value decomposition from a matrix.
+	Calculates the singular values or eigenvalues from a matrix.
 
 	:param matrix: a sparse matrix representing a NetworkX graph
 	:type matrix: scipy.sparse
 
+	:param type: either singular values or eigenvalues
+	:type type: str
+
 	:return: a unitary matrix
 	:rtype: ndarray
 	"""
-	return sp.linalg.svd(matrix)
-
-def calculate_eig(graph, spectrum = "adjacency"):
-	"""
-	Calculates the eigenvalues from the matrix.
-
-	:param graph: a NetworkX graph
-	:type graph: NetworkX graphh
-
-	:return: the eigenvalues of the matrix
-	:rtype: Numpy array
-	"""
-	if spectrum == "adjacency":
-		return nx.adjacency_spectrum(graph)
-	elif spectrum == "laplacian":
-		return nx.laplacian_spectrum(graph)
-	elif spectrum == "bethe":
-		return nx.bethe_hessian_spectrum(graph)
-	elif spectrum == "normalized":
-		return nx.normalized_laplacian_spectrum(graph)
-	elif spectrum == "modularity":
-		return nx.modularity_spectrum(graph)
+	if type == "eig":
+		return sp.linalg.svd(matrix)
+	elif type == "svd":
+		return sp.linalg.eig(matrix)
