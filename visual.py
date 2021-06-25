@@ -19,13 +19,14 @@ from networkx import MultiDiGraph
 import webbrowser as web
 import networkx as nx
 import os
+from datetime import datetime
 
 import subgraph
 import metrics
 
 # for development purposes only. If True, the web browser refreshes whenever
 # chanegs are made to this file
-DEBUG_MODE = False
+DEBUG_MODE = True
 
 # Graph presets. 'name' : ( [included_nodes], [included_edges], layout, show_nodes, description )
 ### possibly move into a json file ###
@@ -103,12 +104,111 @@ def get_commit_data(commits, commit_dict, preset='all', function=None):
 
         # create data points
         for sha1 in sha1_list:
-            date = commit_times[sha1]
-
-            x.append(date)
-            y.append(calculation)
+            try:
+                date = commit_times[sha1]
+                x.append(date)
+                y.append(calculation)
+            except KeyError:
+                pass
 
     return (x, y)
+
+
+def ControlTab():
+    """
+    The component that changes the settings and layout of the graph.
+    """
+    return dcc.Tab(label='Control Panel', children=[
+        drc.NamedDropdown(
+            name='Presets',
+            id='dropdown-presets',
+            options=drc.DropdownOptionsList(
+                *PRESETS
+            ),
+            value='file directory',
+            clearable=False
+        ),
+        drc.NamedDropdown(
+            name='Layout',
+            id='dropdown-layout',
+            options=drc.DropdownOptionsList(
+                'grid',
+                'random',
+                'circle',
+                'concentric',
+                'breadthfirst',
+                'cose'
+            ),
+            value='breadthfirst',
+            clearable=False
+        ),
+        html.Div(id='preferences-container', hidden=True, children=[
+            drc.NamedDropdown(
+                name='Node Preferences',
+                id='dropdown-node-preferences',
+                options=drc.DropdownOptionsList(
+                    *subgraph.NODES),
+                value=[],
+                clearable=False,
+                multi=True
+            ),
+            drc.NamedDropdown(
+                name='Edge Preferences',
+                id='dropdown-edge-preferences',
+                options=drc.DropdownOptionsList(
+                    *subgraph.EDGES),
+                value=[],
+                clearable=False,
+                multi=True
+            ), ]),
+        drc.NamedInput(
+            name='Followers Color',
+            id='input-follower-color',
+            type='text',
+            value='#0074D9',
+        ),
+        drc.NamedInput(
+            name='Following Color',
+            id='input-following-color',
+            type='text',
+            value='#FF4136',
+        ),
+        drc.NamedInput(
+            name='Root Color',
+            id='input-root-color',
+            type='text',
+            value='#000000',
+        ),
+        drc.NamedDropdown(
+            name='Show 0 Degree Nodes',
+            id='dropdown-show-empty',
+            options=drc.DropdownOptionsList(
+                "Yes", "No"),
+            value="Yes",
+            clearable=False,
+        ),
+        drc.Card(title='Preset Description',
+                 id='description-card',
+                 children=[],
+                 style={'padding': 5,
+                        'margin': 5, })
+    ])
+
+
+def AnalysisTab(dates: list[datetime]):
+    """
+    The component that allows for many commits to be analyzed.
+    """
+    return dcc.Tab(label='Analysis', children=[
+        dcc.Checklist(
+            id='show-commits', options=[{'label': 'Show commit history', 'value': 'show'}]),
+        html.Div(id='commit-chart-options', hidden=True, children=[
+            drc.NamedRangeSlider(name='Pick Date Range', id='slider-date-picker',
+                                 min=0, max=len(dates) - 1, step=1, value=[0, len(dates) - 1],
+                                 allowCross=False
+                                 ),
+            html.Div(id='date-picked', children=[])]),
+    ])
 
 
 # need to change so that graph is taken from commit_dict instead of passed directly
@@ -168,88 +268,9 @@ def display(graph, commits, commit_dict):
                         'position': 'relative',
                         'float': 'left'}, children=[
                      dcc.Tabs(id='tabs', children=[
-                         dcc.Tab(label='Control Panel', children=[
-                             drc.NamedDropdown(
-                                 name='Presets',
-                                 id='dropdown-presets',
-                                 options=drc.DropdownOptionsList(
-                                     'file directory',
-                                     'class inheritance',
-                                     'import dependency',
-                                     'function dependency',
-                                     'definitions',
-                                     'custom'
-                                 ),
-                                 value='file directory',
-                                 clearable=False
-                             ),
-                             drc.NamedDropdown(
-                                 name='Layout',
-                                 id='dropdown-layout',
-                                 options=drc.DropdownOptionsList(
-                                     'grid',
-                                     'random',
-                                     'circle',
-                                     'concentric',
-                                     'breadthfirst',
-                                     'cose'
-                                 ),
-                                 value='breadthfirst',
-                                 clearable=False
-                             ),
-                             html.Div(id='preferences-container', hidden=True, children=[
-                                 drc.NamedDropdown(
-                                     name='Node Preferences',
-                                     id='dropdown-node-preferences',
-                                     options=drc.DropdownOptionsList(
-                                         *subgraph.NODES),
-                                     value=[],
-                                     clearable=False,
-                                     multi=True
-                                 ),
-                                 drc.NamedDropdown(
-                                     name='Edge Preferences',
-                                     id='dropdown-edge-preferences',
-                                     options=drc.DropdownOptionsList(
-                                         *subgraph.EDGES),
-                                     value=[],
-                                     clearable=False,
-                                     multi=True
-                                 ), ]),
-                             drc.NamedInput(
-                                 name='Followers Color',
-                                 id='input-follower-color',
-                                 type='text',
-                                 value='#0074D9',
-                             ),
-                             drc.NamedInput(
-                                 name='Following Color',
-                                 id='input-following-color',
-                                 type='text',
-                                 value='#FF4136',
-                             ),
-                             drc.NamedInput(
-                                 name='Root Color',
-                                 id='input-root-color',
-                                 type='text',
-                                 value='#000000',
-                             ),
-                             drc.NamedDropdown(
-                                 name='Show 0 Degree Nodes',
-                                 id='dropdown-show-empty',
-                                 options=drc.DropdownOptionsList(
-                                     "Yes", "No"),
-                                 value="Yes",
-                                 clearable=False,
-                             ),
-                             dcc.Checklist(
-                                 id='show-commits', options=[{'label': 'Show commit history', 'value': 'show'}]),
-                             drc.Card(title='Preset Description',
-                                      id='description-card',
-                                      children=[],
-                                      style={'padding': 5,
-                                             'margin': 5, })
-                         ]),
+                         ControlTab(),
+                         AnalysisTab(
+                             list(metrics.get_dates(commits).values())),
                      ]),
                  ])
     ])
@@ -261,7 +282,6 @@ def display(graph, commits, commit_dict):
             return {'name': layout, 'animate': False, "numIter": 500}
         return {'name': layout}
 
-    # might be a way to combine these into one function
     @app.callback([Output('dropdown-node-preferences', 'value'),
                    Output('dropdown-edge-preferences', 'value'),
                    Output('dropdown-layout', 'value'),
@@ -410,14 +430,34 @@ def display(graph, commits, commit_dict):
     def reset_selection(preset):
         return None
 
-    @app.callback([Output("commit-chart", "figure"), Output("commit-chart-container", "hidden")],
-                  [Input("show-commits", "value"), Input("commit-chart", "figure"), Input('dropdown-presets', 'value')])
-    def update_line_chart(show_commits, current_fig, preset):
+    @app.callback([Output("commit-chart", "figure"),
+                   Output("commit-chart-container", "hidden"),
+                   Output('date-picked', 'children'),
+                   Output('commit-chart-options', 'hidden')],
+                  [Input("show-commits", "value"),
+                   Input('commit-chart', 'figure'),
+                   Input('dropdown-presets', 'value'),
+                   Input('slider-date-picker', 'value')])
+    def update_line_chart(show_commits, current_fig, preset, range):
+        min_index, max_index = range
+        dates = list(metrics.get_dates(commits).values())
+
+        # commits are in reverse chronological order
+        min_date = dates[(-1 - min_index) % len(dates)]
+        max_date = dates[(-1 - max_index) % len(dates)]
+
+        # only give commits within the date range
+        new_commits = [commit for commit in commits
+                       if min_date <= commit.committed_datetime <= max_date]
+
+        msg = f"You have selected {min_date.strftime('%x')} to {max_date.strftime('%x')}."
+
         if not show_commits:
-            return (current_fig, True)
+            return (current_fig, True, '', True)
 
         else:
-            x, y = get_commit_data(commits, commit_dict, preset)
+
+            x, y = get_commit_data(new_commits, commit_dict, preset)
             df = pd.DataFrame(
                 {'Commit Date': x, 'Number of Nodes': y})
 
@@ -427,9 +467,9 @@ def display(graph, commits, commit_dict):
             # fig = px.line(df, x="Commit Date",
             #                y="Number of Nodes", line_shape='hv')
 
-            return (fig, False)
+            return (fig, False, msg, False)
 
-    # this url might not be universal
+        # this url might not be universal
     web.open("http://127.0.0.1:8050/")
     if DEBUG_MODE:
         app.run_server(debug=True)
