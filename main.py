@@ -117,8 +117,7 @@ def main():
     file.close()
     print("Done.\n")
 
-    first = list(ast_dict.keys())[0]
-    visual.display(commit_dict.get(first), commits, commit_dict)
+    visual.display(commits, commit_dict)
 
 
 if __name__ == "__main__":
