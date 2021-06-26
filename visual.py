@@ -23,10 +23,11 @@ from datetime import datetime
 
 import subgraph
 import metrics
+import matrix
 
 # for development purposes only. If True, the web browser refreshes whenever
 # chanegs are made to this file
-DEBUG_MODE = True
+DEBUG_MODE = False
 
 # Graph presets. 'name' : ( [included_nodes], [included_edges], layout, show_nodes, description )
 ### possibly move into a json file ###
@@ -74,7 +75,7 @@ def get_graph_data(graph: nx.MultiDiGraph):
     return n_list + e_list
 
 
-def get_commit_data(commits, commit_dict, preset='all', function=None):
+def get_commit_data(commits, commit_dict, preset='all', matrix_type='adjacency', spectrum_type='eigenvalue'):
     """
     Computes data from the provided commits that can be graphed.
 
@@ -98,16 +99,19 @@ def get_commit_data(commits, commit_dict, preset='all', function=None):
 
     for graph, sha1_list in subgraphs:
 
-        # do graph analysis here
-        # function as a parameter
-        calculation = len(graph.nodes)
+        # Graph energy for testing
+        mat = matrix.graph_to_matrix(graph, matrix=matrix_type)
+        eig_vals = matrix.analyze_matrix(mat, type=spectrum_type)[0]
+        energy = 0
+        for val in eig_vals:
+            energy += abs(val)
 
         # create data points
         for sha1 in sha1_list:
             try:
                 date = commit_times[sha1]
                 x.append(date)
-                y.append(calculation)
+                y.append(energy)
             except KeyError:
                 pass
 
@@ -195,11 +199,24 @@ def ControlTab():
     ])
 
 
-def AnalysisTab(dates: list[datetime]):
+def AnalysisTab(dates: list[datetime], commits):
     """
-    The component that allows for many commits to be analyzed.
+    The component that allows for many commits to be analyzed,and to choose the
+    current commit to graph.
     """
+    markings = {}
+    i = 0
+    while i < len(commits):
+        markings.update({i: commits[i].hexsha})
+        i += 1
+
     return dcc.Tab(label='Analysis', children=[
+        dcc.Checklist(
+            id='choose-commit', options=[{'label': 'Choose Commit', 'value': 'show'}]),
+        html.Div(id='commit-chooser', hidden=True, children=[
+            drc.NamedSlider(id='slider-commit-picker', name='Pick Commit SHA1',
+                            min=0, max=len(commits)-1, marks=markings, value=0, vertical=True),
+            html.Div(id='commit-picked', children=[]), ]),
         dcc.Checklist(
             id='show-commits', options=[{'label': 'Show commit history', 'value': 'show'}]),
         html.Div(id='commit-chart-options', hidden=True, children=[
@@ -207,29 +224,35 @@ def AnalysisTab(dates: list[datetime]):
                                  min=0, max=len(dates) - 1, step=1, value=[0, len(dates) - 1],
                                  allowCross=False
                                  ),
-            html.Div(id='date-picked', children=[])]),
+            html.Div(id='date-picked', children=[]),
+            drc.NamedDropdown(
+                name='Matrix Type',
+                id='dropdown-matrix-type',
+                options=drc.DropdownOptionsList(
+                    *matrix.MATRIX),
+                value='adjacency',
+                clearable=False),
+            drc.NamedDropdown(
+                name='Spectrum Type',
+                id='dropdown-spectrum-type',
+                options=drc.DropdownOptionsList(
+                    *matrix.SPECTRUM),
+                value='eigenvalue',
+                clearable=False)
+        ]),
     ])
 
 
-# need to change so that graph is taken from commit_dict instead of passed directly
-def display(graph, commits, commit_dict):
+def display(commits: list[Commit], commit_dict: dict[str, MultiDiGraph]):
     """
     Creates the Dash app and runs the development server.
 
-    :param graph: the graph to display
-    :type graph: networkx.MultiDiGraph
-    """
-    styles = {
-        'json-output': {
-            'overflow-y': 'scroll',
-            'height': 'calc(50% - 25px)',
-            'border': 'thin lightgrey solid'
-        },
-        'tab': {
-            'height': 'calc(98vh - 105px)'
-        }
-    }
+    :param commits: the list of Commit objects of the repo to display.
+    :type commits: Commit list
 
+    :param commit_dict: the dictionary produced by the main module mapping SHA1 to relationship graph of each commit.
+    :type commit_dict: {str, MultiDiGraph} dict
+    """
     default_stylesheet = [
         {
             "selector": 'edge',
@@ -242,6 +265,10 @@ def display(graph, commits, commit_dict):
 
     app = dash.Dash(__name__)
     app.layout = html.Div([
+        html.Div(children=[
+            dcc.Store(id='prev-node', data={'prev_node': None}),
+            dcc.Store(id='graph-index', data={'graph_index': 0})
+        ]),
         html.Div(className='eight columns',
                  style={'width': '70%',
                         'position': 'relative',
@@ -261,8 +288,6 @@ def display(graph, commits, commit_dict):
                               children=[dcc.Graph(id="commit-chart", figure={}, style={'height': '250px'})
                                         ]),
                  ]),
-        html.Div(hidden=True, children=[
-                 dcc.Store(id='prev-node', data=None)]),
         html.Div(className='four columns',
                  style={'width': '30%',
                         'position': 'relative',
@@ -270,7 +295,7 @@ def display(graph, commits, commit_dict):
                      dcc.Tabs(id='tabs', children=[
                          ControlTab(),
                          AnalysisTab(
-                             list(metrics.get_dates(commits).values())),
+                             list(metrics.get_dates(commits).values()), commits),
                      ]),
                  ])
     ])
@@ -306,8 +331,12 @@ def display(graph, commits, commit_dict):
     @app.callback(Output('graph', 'elements'),
                   [Input('dropdown-node-preferences', 'value'),
                   Input('dropdown-edge-preferences', 'value'),
-                  Input('dropdown-show-empty', 'value')])
-    def update_graph_data(node_list, edge_list, show_empty):
+                  Input('dropdown-show-empty', 'value'),
+                  Input('graph-index', 'data'),
+                   ])
+    def update_graph_data(node_list, edge_list, show_empty, data):
+        sha1 = list(commit_dict.keys())[data['graph_index']]
+        graph = commit_dict[sha1]
         new_graph = subgraph.subgraph(graph, node_list, edge_list)
 
         removes = []
@@ -316,17 +345,20 @@ def display(graph, commits, commit_dict):
                 removes.append(n)
 
         new_graph.remove_nodes_from(removes)
+
         return get_graph_data(new_graph)
 
     @app.callback([Output('graph', 'stylesheet'), Output('prev-node', 'data')],
                   [Input('graph', 'tapNode'),
                    Input('prev-node', 'data'),
+                   Input('graph-index', 'data'),
                    Input('dropdown-node-preferences', 'value'),
                    Input('dropdown-edge-preferences', 'value'),
                    Input('input-follower-color', 'value'),
                    Input('input-following-color', 'value'),
-                   Input('input-root-color', 'value')])
-    def generate_stylesheet(node, prev_node_data, node_list, edge_list, follower_color, following_color, root_color):
+                   Input('input-root-color', 'value')
+                   ])
+    def generate_stylesheet(node, prev_node_data, graph_data, node_list, edge_list, follower_color, following_color, root_color):
         # always color the roots
         stylesheet = [
             {
@@ -337,6 +369,8 @@ def display(graph, commits, commit_dict):
                 }
             },
         ]
+        sha1 = list(commit_dict.keys())[graph_data['graph_index']]
+        graph = commit_dict[sha1]
         new_graph = subgraph.subgraph(graph, node_list, edge_list)
         for n in new_graph.nodes:
             if new_graph.in_degree(n) == 0 and new_graph.degree(n) != 0:
@@ -349,7 +383,8 @@ def display(graph, commits, commit_dict):
                     }
                 })
         if node is None or node['data']['id'] == prev_node_data['prev_node']:
-            return (stylesheet, {'prev_node': None})
+            prev_node_data.update({'prev_node': None})
+            return (stylesheet, prev_node_data)
 
         # if node selected, color the graph to highlight this
         stylesheet = [{
@@ -423,11 +458,13 @@ def display(graph, commits, commit_dict):
                     }
                 })
 
-        return (stylesheet, {'prev_node': node['data']['id']})
+        prev_node_data.update({'prev_node': node['data']['id']})
+        return (stylesheet, prev_node_data)
 
     @app.callback(Output('graph', 'tapNode'),
-                  Input('dropdown-presets', 'value'))
-    def reset_selection(preset):
+                  Input('dropdown-presets', 'value'),
+                  Input('graph-index', 'data'))
+    def reset_selection(preset, data):
         return None
 
     @app.callback([Output("commit-chart", "figure"),
@@ -437,39 +474,57 @@ def display(graph, commits, commit_dict):
                   [Input("show-commits", "value"),
                    Input('commit-chart', 'figure'),
                    Input('dropdown-presets', 'value'),
-                   Input('slider-date-picker', 'value')])
-    def update_line_chart(show_commits, current_fig, preset, range):
-        min_index, max_index = range
-        dates = list(metrics.get_dates(commits).values())
-
-        # commits are in reverse chronological order
-        min_date = dates[(-1 - min_index) % len(dates)]
-        max_date = dates[(-1 - max_index) % len(dates)]
-
-        # only give commits within the date range
-        new_commits = [commit for commit in commits
-                       if min_date <= commit.committed_datetime <= max_date]
-
-        msg = f"You have selected {min_date.strftime('%x')} to {max_date.strftime('%x')}."
-
+                   Input('slider-date-picker', 'value'),
+                   Input('dropdown-matrix-type', 'value'),
+                   Input('dropdown-spectrum-type', 'value')
+                   ])
+    def update_line_chart(show_commits, current_fig, preset, range, m_type, s_type):
         if not show_commits:
             return (current_fig, True, '', True)
-
         else:
+            min_index, max_index = range
+            dates = list(metrics.get_dates(commits).values())
 
-            x, y = get_commit_data(new_commits, commit_dict, preset)
+            # commits are in reverse chronological order
+            min_date = dates[(-1 - min_index) % len(dates)]
+            max_date = dates[(-1 - max_index) % len(dates)]
+
+            # only give commits within the date range
+            new_commits = [commit for commit in commits
+                           if min_date <= commit.committed_datetime <= max_date]
+
+            msg = f"You have selected {min_date.strftime('%x')} to {max_date.strftime('%x')}."
+
+            x, y = get_commit_data(
+                new_commits, commit_dict, preset, matrix_type=m_type, spectrum_type=s_type)
             df = pd.DataFrame(
-                {'Commit Date': x, 'Number of Nodes': y})
+                {'Commit Date': x, 'Graph Energy': y})
 
             fig = px.scatter(df, x="Commit Date",
-                             y="Number of Nodes",)
+                             y="Graph Energy",)
 
             # fig = px.line(df, x="Commit Date",
             #                y="Number of Nodes", line_shape='hv')
 
             return (fig, False, msg, False)
 
-        # this url might not be universal
+    @app.callback([Output('commit-chooser', 'hidden'),
+                   Output('commit-picked', 'children'),
+                   Output('graph-index', 'data')],
+                  [Input("choose-commit", "value"),
+                   Input('slider-commit-picker', 'value'),
+                   Input('graph-index', 'data')])
+    def update_commit_selection(choose_commit, value, data):
+        if not choose_commit:
+            return (True, '', data)
+        else:
+            sha1 = list(commit_dict.keys())[value]
+            msg = f'You have selected commit with SHA1:\n{sha1}'
+            data.update({'graph_index': value})
+
+            return (False, msg, data)
+
+    # this url might not be universal
     web.open("http://127.0.0.1:8050/")
     if DEBUG_MODE:
         app.run_server(debug=True)
