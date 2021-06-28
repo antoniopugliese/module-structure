@@ -49,9 +49,6 @@ def unique_subgraphs(commit_dict, preset):
         if not graph_found:
             graph_commit_pairs.append((new_graph, [sha1]))
 
-    # for g, cs in graph_commit_pairs:
-    #     print(
-    #         f"Graph with {len(g.nodes)} nodes and {len(g.edges)} edges associated with commits: \n\t{cs}")
     return graph_commit_pairs
 
 
