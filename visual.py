@@ -20,6 +20,8 @@ import webbrowser as web
 import networkx as nx
 import os
 from datetime import datetime
+import redis
+import time
 
 import subgraph
 import metrics
@@ -27,7 +29,7 @@ import matrix
 
 # for development purposes only. If True, the web browser refreshes whenever
 # chanegs are made to this file
-DEBUG_MODE = False
+DEBUG_MODE = True
 
 # Graph presets. 'name' : ( [included_nodes], [included_edges], layout, show_nodes, description )
 ### possibly move into a json file ###
@@ -204,18 +206,12 @@ def AnalysisTab(dates: list[datetime], commits):
     The component that allows for many commits to be analyzed,and to choose the
     current commit to graph.
     """
-    markings = {}
-    i = 0
-    while i < len(commits):
-        markings.update({i: commits[i].hexsha})
-        i += 1
-
     return dcc.Tab(label='Analysis', children=[
         dcc.Checklist(
             id='choose-commit', options=[{'label': 'Choose Commit', 'value': 'show'}]),
         html.Div(id='commit-chooser', hidden=True, children=[
-            drc.NamedSlider(id='slider-commit-picker', name='Pick Commit SHA1',
-                            min=0, max=len(commits)-1, marks=markings, value=0, vertical=True),
+            drc.NamedDropdown(id='dropdown-commit-picker', name='Pick Commit SHA1',
+                              options=[{'label': commit.hexsha, 'value': commit.hexsha} for commit in commits], clearable=False, value=commits[0].hexsha),
             html.Div(id='commit-picked', children=[]), ]),
         dcc.Checklist(
             id='show-commits', options=[{'label': 'Show commit history', 'value': 'show'}]),
@@ -243,7 +239,7 @@ def AnalysisTab(dates: list[datetime], commits):
     ])
 
 
-def display(commits: list[Commit], commit_dict: dict[str, MultiDiGraph]):
+def display(repo_name, rs: redis.Redis, commits: list[Commit], commit_dict: dict[str, MultiDiGraph]):
     """
     Creates the Dash app and runs the development server.
 
@@ -267,7 +263,7 @@ def display(commits: list[Commit], commit_dict: dict[str, MultiDiGraph]):
     app.layout = html.Div([
         html.Div(children=[
             dcc.Store(id='prev-node', data={'prev_node': None}),
-            dcc.Store(id='graph-index', data={'graph_index': 0})
+            dcc.Store(id='graph-sha1', data={'graph_sha1': commits[0].hexsha})
         ]),
         html.Div(className='eight columns',
                  style={'width': '70%',
@@ -307,6 +303,13 @@ def display(commits: list[Commit], commit_dict: dict[str, MultiDiGraph]):
             return {'name': layout, 'animate': False, "numIter": 500}
         return {'name': layout}
 
+    # @app.callback([Input('graph','elements'),Input('graph','layout'),Input('dropdown-presets', 'value'), Input('dropdown-node-preferences'),Input('dropdown-edge-preferences'), Input('graph-sha1','data')])
+    # def save_cose_layout(elems, layout,preset, nodes, edges, graph_data):
+    #     if preset == "cose":
+    #         print("Waiting for physics simulation...")
+    #         time.sleep(5)
+    #         # sha1 + _preset (if not custom) + _cose
+
     @app.callback([Output('dropdown-node-preferences', 'value'),
                    Output('dropdown-edge-preferences', 'value'),
                    Output('dropdown-layout', 'value'),
@@ -332,10 +335,10 @@ def display(commits: list[Commit], commit_dict: dict[str, MultiDiGraph]):
                   [Input('dropdown-node-preferences', 'value'),
                   Input('dropdown-edge-preferences', 'value'),
                   Input('dropdown-show-empty', 'value'),
-                  Input('graph-index', 'data'),
+                  Input('graph-sha1', 'data'),
                    ])
     def update_graph_data(node_list, edge_list, show_empty, data):
-        sha1 = list(commit_dict.keys())[data['graph_index']]
+        sha1 = data['graph_sha1']
         graph = commit_dict[sha1]
         new_graph = subgraph.subgraph(graph, node_list, edge_list)
 
@@ -351,7 +354,7 @@ def display(commits: list[Commit], commit_dict: dict[str, MultiDiGraph]):
     @app.callback([Output('graph', 'stylesheet'), Output('prev-node', 'data')],
                   [Input('graph', 'tapNode'),
                    Input('prev-node', 'data'),
-                   Input('graph-index', 'data'),
+                   Input('graph-sha1', 'data'),
                    Input('dropdown-node-preferences', 'value'),
                    Input('dropdown-edge-preferences', 'value'),
                    Input('input-follower-color', 'value'),
@@ -369,7 +372,7 @@ def display(commits: list[Commit], commit_dict: dict[str, MultiDiGraph]):
                 }
             },
         ]
-        sha1 = list(commit_dict.keys())[graph_data['graph_index']]
+        sha1 = graph_data['graph_sha1']
         graph = commit_dict[sha1]
         new_graph = subgraph.subgraph(graph, node_list, edge_list)
         for n in new_graph.nodes:
@@ -463,7 +466,7 @@ def display(commits: list[Commit], commit_dict: dict[str, MultiDiGraph]):
 
     @app.callback(Output('graph', 'tapNode'),
                   Input('dropdown-presets', 'value'),
-                  Input('graph-index', 'data'))
+                  Input('graph-sha1', 'data'))
     def reset_selection(preset, data):
         return None
 
@@ -510,17 +513,16 @@ def display(commits: list[Commit], commit_dict: dict[str, MultiDiGraph]):
 
     @app.callback([Output('commit-chooser', 'hidden'),
                    Output('commit-picked', 'children'),
-                   Output('graph-index', 'data')],
+                   Output('graph-sha1', 'data')],
                   [Input("choose-commit", "value"),
-                   Input('slider-commit-picker', 'value'),
-                   Input('graph-index', 'data')])
-    def update_commit_selection(choose_commit, value, data):
+                   Input('dropdown-commit-picker', 'value'),
+                   Input('graph-sha1', 'data')])
+    def update_commit_selection(choose_commit, sha1, data):
         if not choose_commit:
             return (True, '', data)
         else:
-            sha1 = list(commit_dict.keys())[value]
             msg = f'You have selected commit with SHA1:\n{sha1}'
-            data.update({'graph_index': value})
+            data.update({'graph_sha1': sha1})
 
             return (False, msg, data)
 
