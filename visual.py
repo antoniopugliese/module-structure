@@ -11,17 +11,17 @@ from dash.exceptions import PreventUpdate
 import dash_html_components as html
 import dash_core_components as dcc
 import dash_reusable_components as drc
+
 import plotly.express as px
 import pandas as pd
 from git.objects.commit import Commit
-from networkx import MultiDiGraph
-
-import webbrowser as web
 import networkx as nx
+from networkx import MultiDiGraph
+import webbrowser as web
 import os
 from datetime import datetime
 import redis
-import time
+import math
 
 import subgraph
 import metrics
@@ -55,18 +55,29 @@ PRESETS = {
 }
 
 
-def get_graph_data(graph: nx.MultiDiGraph):
+def get_graph_data(graph: nx.MultiDiGraph, positions=None):
     """
     Transforms the node and edge data to a format that can be displayed.
 
    :param graph: the graph of the data
    :type graph: networkx.MultiDiGraph
+
+   :param positions: The networkx positions of the nodes that will be used if provided.
+   :type positions: {Node : (int,int)} 
     """
-    n_list = [{
-        'data': {
-            'id': node.get_name(),
-            'label': node.get_name().split(os.sep)[-1]}
-    } for node in graph.nodes]
+    if not positions:
+        n_list = [{
+            'data': {
+                'id': node.get_name(),
+                'label': node.get_name().split(os.sep)[-1]}
+        } for node in graph.nodes]
+    else:
+        n_list = [{
+            'data': {
+                'id': node.get_name(),
+                'label': node.get_name().split(os.sep)[-1]},
+            'position': {'x': positions[node][0], 'y':positions[node][1]}
+        } for node in graph.nodes]
 
     e_list = [{
         'data': {
@@ -300,15 +311,9 @@ def display(repo_name, rs: redis.Redis, commits: list[Commit], commit_dict: dict
                   [Input('dropdown-layout', 'value')])
     def update_graph_layout(layout):
         if layout == 'cose':
-            return {'name': layout, 'animate': False, "numIter": 500}
+            # positions will be put in by networkx algorithm
+            return {'name': 'preset'}
         return {'name': layout}
-
-    # @app.callback([Input('graph','elements'),Input('graph','layout'),Input('dropdown-presets', 'value'), Input('dropdown-node-preferences'),Input('dropdown-edge-preferences'), Input('graph-sha1','data')])
-    # def save_cose_layout(elems, layout,preset, nodes, edges, graph_data):
-    #     if preset == "cose":
-    #         print("Waiting for physics simulation...")
-    #         time.sleep(5)
-    #         # sha1 + _preset (if not custom) + _cose
 
     @app.callback([Output('dropdown-node-preferences', 'value'),
                    Output('dropdown-edge-preferences', 'value'),
@@ -336,8 +341,9 @@ def display(repo_name, rs: redis.Redis, commits: list[Commit], commit_dict: dict
                   Input('dropdown-edge-preferences', 'value'),
                   Input('dropdown-show-empty', 'value'),
                   Input('graph-sha1', 'data'),
+                  Input('graph', 'layout'),
                    ])
-    def update_graph_data(node_list, edge_list, show_empty, data):
+    def update_graph_data(node_list, edge_list, show_empty, data, layout):
         sha1 = data['graph_sha1']
         graph = commit_dict[sha1]
         new_graph = subgraph.subgraph(graph, node_list, edge_list)
@@ -349,7 +355,13 @@ def display(repo_name, rs: redis.Redis, commits: list[Commit], commit_dict: dict
 
         new_graph.remove_nodes_from(removes)
 
-        return get_graph_data(new_graph)
+        if layout['name'] == 'preset':
+            # does not have grouping of trees like cose, but still works.
+            # has optional args that can be tweaked to give better results.
+            pos = nx.spring_layout(new_graph, scale=500, iterations=1000)
+            return get_graph_data(new_graph, positions=pos)
+        else:
+            return get_graph_data(new_graph)
 
     @app.callback([Output('graph', 'stylesheet'), Output('prev-node', 'data')],
                   [Input('graph', 'tapNode'),
