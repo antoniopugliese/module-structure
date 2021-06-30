@@ -9,6 +9,7 @@ edge types.
 >>> h.nodes
     [FolderNode('root'), FolderNode('src')]
 """
+
 import networkx as nx
 import os
 import node
@@ -45,6 +46,7 @@ def get_preferences():
     """
     # potentially use path finding function from parsing.py
     current_dir = os.path.dirname(os.path.abspath(__file__))
+    
     with open(os.path.join(current_dir, "config.json"), "r") as f:
         config = json.load(f)
 
@@ -110,9 +112,11 @@ def subgraph(graph: nx.MultiDiGraph, nodes, edges):
     node_list = list(map(str_to_node, nodes))
     edge_list = list(map(str_to_edge, edges))
 
+    # generate a list nodes in the subgraph
     sub_nodes = [(n, d)
                  for n, d in graph.nodes(data=True) if type(n) in node_list]
 
+    # generate a list edges in the subgraph
     sub_edges = [(start, end, edge_attribute)
                  for start, end, edge_attribute in graph.edges(data=True)
                  if (type(edge_attribute['edge']) in edge_list)]

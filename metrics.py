@@ -34,6 +34,7 @@ def unique_subgraphs(commit_dict, preset):
         new_graph = subgraph.subgraph(graph, *visual.PRESETS[preset][0:2])
         i = 0
         graph_found = False
+        
         while (i < len(graph_commit_pairs) and not graph_found):
             if len(graph_commit_pairs) != 0:
                 g, c = graph_commit_pairs[i]

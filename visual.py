@@ -29,7 +29,7 @@ import matrix
 
 # for development purposes only. If True, the web browser refreshes whenever
 # chanegs are made to this file
-DEBUG_MODE = True
+DEBUG_MODE = False
 
 # Graph presets. 'name' : ( [included_nodes], [included_edges], layout, show_nodes, description )
 ### possibly move into a json file ###
@@ -64,6 +64,9 @@ def get_graph_data(graph: nx.MultiDiGraph, positions=None):
 
    :param positions: The networkx positions of the nodes that will be used if provided.
    :type positions: {Node : (int,int)} 
+
+   :return: a list of all node and edge data in the graph
+   :rtype: str list
     """
     if not positions:
         n_list = [{
@@ -517,9 +520,6 @@ def display(repo_name, rs: redis.Redis, commits: list[Commit], commit_dict: dict
 
             fig = px.scatter(df, x="Commit Date",
                              y="Graph Energy",)
-
-            # fig = px.line(df, x="Commit Date",
-            #                y="Number of Nodes", line_shape='hv')
 
             return (fig, False, msg, False)
 

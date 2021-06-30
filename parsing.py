@@ -9,6 +9,7 @@ file to alter what commits are analyzed.
 
 Requires Python 3.8.3 or above.
 """
+
 import os
 from git import Repo, Git
 import ast
@@ -99,7 +100,7 @@ def create_ast_graph(files, repo_path, repo_name):
 
     graph = nx.MultiDiGraph()
 
-    # create root node
+    # create root node as target repo name
     graph.add_node(node.FolderNode(repo_name))
 
     for file in files:
@@ -142,25 +143,21 @@ def create_ast_dict(commits, repo_path, repo_name, g):
     :return: a dictionary mapping the SHA1 of each commit to a node object.
     :rtype: dictionary {str : node}
     """
-
-    # Side effect for testing
     print("Creating ast dictionary...", end="", flush=True)
 
     ast_dict = {}
 
     for commit in commits:
+        # switch into new git branch, parse, and create new graph
         sha1 = commit.hexsha
         g.checkout(sha1)
-        # get list of file paths from repo dir
         files = g.ls_files().split('\n')
         assert files != None
 
-        # create graph
         graph = create_ast_graph(files, repo_path, repo_name)
 
         ast_dict.update({sha1: graph})
 
-    # Side effect for testing
     print("Done")
     return ast_dict
 
@@ -187,14 +184,13 @@ def update_ast_dict(dict, commits, repo_path, repo_name, g):
     :return: An updated dictionary with any new commits.
     :rtype: dictionary {str : node}
     """
-
-    # loop through commits
-    # Improve this
-
     print("Updating the dictionary...", end="", flush=True)
+
+    # loop through list of commits
     for commit in commits:
         sha1 = commit.hexsha
         if dict.get(sha1) == None:
+            # if the file has not been parsed, parse and create new graph
             g.checkout(sha1)
             files = g.ls_files().split('\n')
             assert files != None
@@ -208,5 +204,11 @@ def update_ast_dict(dict, commits, repo_path, repo_name, g):
 
 
 def print_graph(graph):
+    """
+    Prints the current graph in the order of networkx.graph.nodes.
+
+    :param graph: a networkx graph representing the file structure
+    :type graph: networkx graph
+    """
     for n in list(graph.nodes):
         print(n.get_name())

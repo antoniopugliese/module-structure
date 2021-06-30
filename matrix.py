@@ -5,7 +5,6 @@ this graph.
 import networkx as nx
 import networkx.linalg.laplacianmatrix as laplac
 import scipy as sp
-# import scipy.linalg as linalg
 import scipy.sparse.linalg as linalg
 import numpy as np
 
@@ -38,16 +37,6 @@ def graph_to_matrix(graph, order=None, weight=None, matrix="adjacency"):
     :return: a sparse matrix representation of the graph
     :rtype: scipy.sparse
     """
-    # if matrix == "adjacency":
-    #     return nx.adjacency_matrix(graph, order, weight)
-    # elif matrix == "laplacian":
-    #     return nx.laplacian_matrix(graph, order, weight)
-    # elif matrix == "normalized":
-    #     return nx.normalized_laplacian_matrix(graph, order, weight)
-    # elif matrix == "directed":
-    #     return nx.directed_laplacian_matrix(graph, order, weight)
-    # elif matrix == "combinatorial":
-    #     return nx.directed_combinatorial_laplacian_matrix(graph, order, weight)
     func = MATRIX.get(matrix)  # exception for invalid type
     return func(graph, order, weight)
 

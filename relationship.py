@@ -40,6 +40,7 @@ class CallLister(ast.NodeVisitor):
 
         elif type(node.func) is ast.Attribute:
             self.calls.append(node.func.attr)
+
         self.generic_visit(node)
 
     def reset(self):
@@ -76,8 +77,10 @@ class ClassLister(ast.NodeVisitor):
         for b in node.bases:
             if type(b) is ast.Name:
                 bases.append(b.id)
+
             elif type(b) is ast.Attribute:
                 bases.append(b.value.id)
+        
         self.extends.update({node.name: bases})
         self.generic_visit(node)
 
@@ -112,9 +115,11 @@ class ImportLister(ast.NodeVisitor):
         """
         self.imported_mods.append((node.module, node.level))
         funcs = []
+
         for a in node.names:
             if a.asname != None:
                 funcs.append(a.asname)
+
             else:
                 funcs.append(a.name)
 
@@ -174,11 +179,46 @@ class DefinitionLister(ast.NodeVisitor):
         :type node: ast.FunctionDef
         """
         func_name = os.path.join(self.starting_node.name, node.name)
+
         # edge (u,v): "u defines v"
         self.graph.add_edge(self.starting_node, FuncNode(
             func_name, node), edge=edge.DefinitionEdge(""))
+
         self.generic_visit(node)
 
+
+def get_repo_node_helper(graph, starting_node, mod, level):
+    """
+    Helper for get_repo_node which searches for relative imports.
+
+    :param graph: the graph representing the target repo
+    :type graph: networkx.MultiDiGraph
+
+    :param starting_node: the name of the node to start the search from
+    :type starting_node: str
+
+    :param mod: the name of the target Python module
+    :type mod: str
+
+    :param level: the level of the relative import (level=0 means an absolute import)
+    :type level: int
+
+    :return: FileNode object associated with ``mod``
+    :rtype: FileNode
+    """
+    # print(f"relative for {mod}")
+    # for relative imports, go up in directories according to level
+    target_node = starting_node
+    while (level != 0):
+        # each node only has one direct predeccesor
+        target_node = list(graph.predecessors(target_node))[0]
+        level -= 1
+    # after reaching top directory, search successors recursively for target
+    for node in graph.successors(target_node):
+        n = node.get_name()
+        if n.endswith(mod) or n.endswith(mod + ".py"):
+            return node
+    return None
 
 def get_repo_node(graph: nx.MultiDiGraph, starting_node, mod, level):
     """
@@ -196,23 +236,10 @@ def get_repo_node(graph: nx.MultiDiGraph, starting_node, mod, level):
     :param level: the level of the relative import (level=0 means an absolute import)
     :type level: int
 
+    :return: FileNode object associated with ``mod``
     :rtype: FileNode
     """
-    if (level != 0):
-        # print(f"relative for {mod}")
-        # for relative imports, go up in directories according to level
-        target_node = starting_node
-        while (level != 0):
-            # each node only has one direct predeccesor
-            target_node = list(graph.predecessors(target_node))[0]
-            level -= 1
-        # after reaching top directory, search successors recursively for target
-        for node in graph.successors(target_node):
-            n = node.get_name()
-            if n.endswith(mod) or n.endswith(mod + ".py"):
-                return node
-        return None
-    else:
+    if level == 0:
         # for absolute imports, search to see if module in graph
         target_node_name = mod.replace('.', os.sep)
         for node in graph.nodes:
@@ -220,6 +247,8 @@ def get_repo_node(graph: nx.MultiDiGraph, starting_node, mod, level):
             if n.endswith(target_node_name) or n.endswith(target_node_name + ".py"):
                 return node
         return None
+    else:
+        get_repo_node_helper(graph, starting_node, mod, level)
 
 
 def import_relationship(graph: nx.MultiDiGraph):
@@ -270,6 +299,7 @@ def get_func_nodes(graph, parent_node, n_list):
     :rtype: Node list
     """
     nodes = []
+
     if type(parent_node) is FileNode:
         for node in graph.successors(parent_node):
             for target_name in n_list:
@@ -279,6 +309,7 @@ def get_func_nodes(graph, parent_node, n_list):
     elif type(parent_node) is FolderNode:
         for node in graph.successors(parent_node):
             nodes += get_func_nodes(graph, node, n_list)
+
     return nodes
 
 
@@ -289,7 +320,8 @@ def imports_dict(graph):
     :param graph: the tree representing the target code repo
     :type graph: networkx.MultiDiGraph
 
-    :returns: A dictionary mapping the name of a Python file to a list of all modules it imports from its own repo, which is represented by `graph`.
+    :returns: A dictionary mapping the name of a Python file to a list of all 
+    modules it imports from its own repo, which is represented by `graph`.
     :rtype: dict {str : str list}
     """
     import_dict = {}
@@ -305,6 +337,7 @@ def imports_dict(graph):
                 if imported_node is not None:
                     funcs = node_visitor.imported_funcs[name]
                     imports += get_func_nodes(graph, imported_node, funcs)
+                    
             import_dict.update({node: imports})
 
             node_visitor.reset()
@@ -342,6 +375,68 @@ def function_call_relationship(graph: nx.MultiDiGraph):
     # add collected edges
     graph.add_edges_from(func_edges)
 
+def inheritance_relationship_class_helper(graph, node, node_visitor):
+    """
+    Helper for inheritance_relationship() that generates a list of ClassNode objects.
+
+    :param graph: the graph representing the target code repo
+    :type graph: networkx.MultiDiGraph
+
+    :param node: the current node in the graph
+    :type node: networkx.node
+
+    :param node_visitor: the type of nodes that are visited
+    :type node_visitor: ClassLister()
+
+    :return: a list of nodes representing the classes in the repo
+    :rtype: node.Node list
+    """
+    classes = []
+    for c in graph.successors(node):
+                n = c.get_name().split(os.sep)[-1]
+                if n in node_visitor.classes:
+                    classes.append(c)
+    
+    return classes
+
+def inheritance_relationship_import_helper(classes, node, import_dict, node_visitor, inherit_edges):
+    """
+    Helper method for inheritance_relationship() that determines every inheritance
+    in the file structure.
+
+    :param classes: a list of nodes representing the classes in the repo
+    :type classes: node.Node list
+
+    :param node: the current node in the graph
+    :type node: networkx.node
+
+    :param import_dict: a dictionary of all imported functions
+    :type import_dict: {str : str list} 
+
+    :param node_visitor: the type of nodes that are visited
+    :type node_visitor: ClassLister()
+
+    :param inherit_edges: list of inheritances in thhe file structure
+    :type inherit_edges: str list 
+    """
+    for c in classes:
+        # n1 is class name as it would appear in code
+        n1 = c.get_name().split(os.sep)[-1]
+        for imported_class in import_dict[node]:
+            # n2 is class name as it would appear in code
+            n2 = imported_class.get_name().split(os.sep)[-1]
+            # handle multiple inheritance later
+            extends = node_visitor.extends[n1]
+            if len(extends) == 1 and extends[0] == n2:
+                # edge (u,v): "u is a parent class of v"
+                inherit_edges.append((imported_class, c,
+                                        {'edge': edge.InheritanceEdge("")}))
+            for c2 in classes:
+                n3 = c2.get_name().split(os.sep)[-1]
+                if len(extends) == 1 and extends[0] == n3:
+                    # edge (u,v): "u is a parent class of v"
+                    inherit_edges.append((c2, c,
+                                            {'edge': edge.InheritanceEdge("")}))
 
 def inheritance_relationship(graph: nx.MultiDiGraph):
     """
@@ -360,30 +455,10 @@ def inheritance_relationship(graph: nx.MultiDiGraph):
             node_visitor.visit(node.get_ast())
 
             # get list of ClassNode objects corresponding to the class names
-            classes = []
-            for c in graph.successors(node):
-                n = c.get_name().split(os.sep)[-1]
-                if n in node_visitor.classes:
-                    classes.append(c)
+            classes = inheritance_relationship_class_helper(graph, node, node_visitor)
 
-            for c in classes:
-                # n1 is class name as it would appear in code
-                n1 = c.get_name().split(os.sep)[-1]
-                for imported_class in import_dict[node]:
-                    # n2 is class name as it would appear in code
-                    n2 = imported_class.get_name().split(os.sep)[-1]
-                    # handle multiple inheritance later
-                    extends = node_visitor.extends[n1]
-                    if len(extends) == 1 and extends[0] == n2:
-                        # edge (u,v): "u is a parent class of v"
-                        inherit_edges.append((imported_class, c,
-                                              {'edge': edge.InheritanceEdge("")}))
-                    for c2 in classes:
-                        n3 = c2.get_name().split(os.sep)[-1]
-                        if len(extends) == 1 and extends[0] == n3:
-                            # edge (u,v): "u is a parent class of v"
-                            inherit_edges.append((c2, c,
-                                                  {'edge': edge.InheritanceEdge("")}))
+            # get all inheritances
+            inheritance_relationship_import_helper(classes, node, import_dict, node_visitor, inherit_edges)
 
             node_visitor.reset()
 

@@ -15,6 +15,9 @@ def add_to_database(rs: redis.Redis, name, key, value):
     :param rs: a redis database
     :type rs: redis.Redis
 
+    :param name: the name of the object being stored
+    :type name: str
+
     :param key: represents the key to be added for the database
     :type key: str
 
@@ -31,6 +34,9 @@ def get_from_database(rs: redis.Redis, name, key):
     :param rs: a redis database
     :type rs: redis.Redis
 
+    :param name: the name of the object being stored
+    :type name: str
+
     :param key: represents the key for the database
     :type key: str 
 
@@ -44,10 +50,14 @@ def get_from_database(rs: redis.Redis, name, key):
 
 
 def main_db():
+    # Initialize the redis database (database 0)
     rs = redis.Redis(db=0)
+
+    # Locations in file directory w.r.t local device
     home = os.path.expanduser("~")
     current_dir = os.path.dirname(os.path.abspath(__file__))
 
+    # Opening the config file
     with open(os.path.join(current_dir, "config.json"), "r") as f:
         config = json.load(f)
 
@@ -57,6 +67,7 @@ def main_db():
 
     repo_path = get_from_database(rs, repo_name, "repo_path")
 
+    # If the repo_path is not in the database, scan the directory to find it
     if repo_path is not None:
         print("Found path.")
     else:
@@ -69,12 +80,12 @@ def main_db():
     except OSError:
         print("Error changing directory")
 
-    # create Repo object and extract list of commits
+    # Create Repo object and extract list of commits
     repo = Repo(repo_path)
     assert not repo.bare
     g = Git(repo_path)
     g.checkout(config["branch"])
-    # limited to 10 for testing
+    # Limited to 10 for testing
     commits = list(repo.iter_commits(
         config["branch"], max_count=config["max_count"]))
 
@@ -82,30 +93,33 @@ def main_db():
 
     ast_dict = get_from_database(rs, repo_name, "ast_dict")
 
+    # If the ast_dict is not in the database, create the ast_dict
     if ast_dict is not None:
-        print("Found.")
+        print("ASTs have been found.")
         ast_dict = parsing.update_ast_dict(
             ast_dict, commits, repo_path, repo_name, g)
     else:
-        print("Not Found.")
+        print("ASTs are not found...", end= "", flush=True)
         ast_dict = parsing.create_ast_dict(commits, repo_path, repo_name, g)
         add_to_database(rs, repo_name, "ast_dict", ast_dict)
+        print("ASTs have been created")
 
     print("Checking if relationships have been formed...", end="", flush=True)
 
     commit_dict = get_from_database(rs, repo_name, "commit_dict")
 
+    # If the commit_dict is not in the database, create thhe commit_dict
     if commit_dict is not None:
-        print("Found a file.")
+        print("Found the commit history.")
     else:
-        print("Not Found.")
+        print("Commit history not found.")
         commit_dict = dict(map(lambda key:
                                (key, rel.create_all_relationships(ast_dict[key])), ast_dict))
         print("Storing relationships...", end="", flush=True)
         add_to_database(rs, repo_name, "commit_dict", commit_dict)
         print("Done.")
 
-    print("Done.\n")
+    print("Displaying graph\n")
 
     visual.display(repo_name, rs, commits, commit_dict)
 
@@ -175,28 +189,6 @@ def main():
         pickle.dump(ast_dict, file, protocol=pickle.HIGHEST_PROTOCOL)
     print("Done.")
 
-    #commit_list = list(ast_dict.keys())
-    # graph_dict = {}
-
-    # for commit in commit_list:
-    #     new_graph = rel.create_all_relationships(ast_dict[commit])
-    #     matrix = mat.graph_to_matrix(new_graph)
-    #     eigenvalues = mat.calculate_eig(new_graph)
-    #     graph_dict.update({commit: (new_graph, matrix, eigenvalues)})
-
-    # print("Done.")
-
-    # first = commit_list[0]
-    # tup = graph_dict.get(first)
-    # visual.display(tup[0])
-
-    # commit_dict = dict(map(lambda key:
-    #                        (key, rel.create_all_relationships(ast_dict[key])), ast_dict))
-
-    # first = commit_list[0]
-    # tup = graph_dict.get(first)
-    # visual.display(tup[0])
-
     # just for testing since it takes a while for 25 commits
     try:
         print("Checking if relationships have been formed...", end="", flush=True)
@@ -217,8 +209,6 @@ def main():
         print("Done.")
     file.close()
     print("Done.\n")
-
-    visual.display(commits, commit_dict)
 
 
 if __name__ == "__main__":

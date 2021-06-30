@@ -3,7 +3,6 @@ This module defines node objects to be used in constructing a graph representing
 the file structure of a code repo, and the structure of its Python code files.
 """
 
-import ast
 from abc import ABC
 
 
