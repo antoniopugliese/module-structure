@@ -8,7 +8,7 @@ from git import Repo, Git
 import redis
 
 
-def add_to_database(rs, key, value):
+def add_to_database(rs: redis.Redis, name, key, value):
     """
     Adds a key and value to a database.
 
@@ -21,10 +21,10 @@ def add_to_database(rs, key, value):
     :param value: represents the value to be added for the database
     :type value: byte
     """
-    rs.set(key, pickle.dumps(value))
+    rs.hset(name, key, pickle.dumps(value))
 
 
-def get_from_database(rs, key):
+def get_from_database(rs: redis.Redis, name, key):
     """
     Gets the value corresponding to a key.
 
@@ -38,7 +38,7 @@ def get_from_database(rs, key):
     :rtype: Multiple types
     """
     try:
-        return pickle.loads(rs.get(key))
+        return pickle.loads(rs.hget(name, key))
     except TypeError:
         return None
 
@@ -55,14 +55,14 @@ def main_db():
 
     print("Finding path to target repo...", end="", flush=True)
 
-    repo_path = get_from_database(rs, "repo_path")
+    repo_path = get_from_database(rs, repo_name, "repo_path")
 
     if repo_path is not None:
         print("Found path.")
     else:
         print("Scanning start directory...", end="", flush=True)
         repo_path = parsing.find_dir(home, repo_name)
-        add_to_database(rs, "repo_path", repo_path)
+        add_to_database(rs, repo_name, "repo_path", repo_path)
 
     try:
         os.chdir(repo_path)
@@ -80,7 +80,7 @@ def main_db():
 
     print("Checking if file is in database...", end="", flush=True)
 
-    ast_dict = get_from_database(rs, "ast_dict")
+    ast_dict = get_from_database(rs, repo_name, "ast_dict")
 
     if ast_dict is not None:
         print("Found.")
@@ -89,11 +89,11 @@ def main_db():
     else:
         print("Not Found.")
         ast_dict = parsing.create_ast_dict(commits, repo_path, repo_name, g)
-        add_to_database(rs, "ast_dict", ast_dict)
+        add_to_database(rs, repo_name, "ast_dict", ast_dict)
 
     print("Checking if relationships have been formed...", end="", flush=True)
 
-    commit_dict = get_from_database(rs, "commit_dict")
+    commit_dict = get_from_database(rs, repo_name, "commit_dict")
 
     if commit_dict is not None:
         print("Found a file.")
@@ -102,12 +102,12 @@ def main_db():
         commit_dict = dict(map(lambda key:
                                (key, rel.create_all_relationships(ast_dict[key])), ast_dict))
         print("Storing relationships...", end="", flush=True)
-        add_to_database(rs, "commit_dict", commit_dict)
+        add_to_database(rs, repo_name, "commit_dict", commit_dict)
         print("Done.")
 
     print("Done.\n")
 
-    visual.display(commits, commit_dict)
+    visual.display(repo_name, rs, commits, commit_dict)
 
 
 def main():
