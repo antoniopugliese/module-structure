@@ -117,7 +117,7 @@ def main_db():
                                (key, rel.create_all_relationships(ast_dict[key])), ast_dict))
         print("Storing relationships...", end="", flush=True)
         add_to_database(rs, repo_name, "commit_dict", commit_dict)
-        print("Done.")
+        print("Done!")
 
     print("Displaying graph\n")
 
