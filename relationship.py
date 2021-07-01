@@ -108,6 +108,10 @@ class ImportLister(ast.NodeVisitor):
 
     def visit_Import(self, node: ast.Import):
         """
+        Gathers all the imported modules. 
+
+        :param node: the node that represents an import
+        :type node: ast.Import
         """
         for alias in node.names:
             self.imported_mods.append((alias.name, 1))
@@ -125,7 +129,6 @@ class ImportLister(ast.NodeVisitor):
         for a in node.names:
             if a.asname != None:
                 funcs.append(a.asname)
-
             else:
                 funcs.append(a.name)
 
@@ -242,15 +245,14 @@ def get_repo_node_helper(graph, starting_node, mod, level):
         # each node only has one direct predeccesor
         target_node = list(graph.predecessors(target_node))[0]
         level -= 1
+    
     # after reaching top directory, search successors recursively for target
     for node in graph.successors(target_node):
         # get last part of node name
         n = node.get_name().split(os.sep)[-1]
         if n == mod or n == (mod + ".py"):
             return node
-        # n = node.get_name()
-        # if n.endswith(mod) or n.endswith(mod + ".py"):
-        #     return node
+
     return None
 
 
@@ -431,6 +433,7 @@ def inheritance_relationship_class_helper(graph, node, node_visitor):
     :rtype: node.Node list
     """
     classes = []
+
     for c in graph.successors(node):
         n = c.get_name().split(os.sep)[-1]
         if n in node_visitor.classes:
@@ -508,6 +511,14 @@ def inheritance_relationship(graph: nx.MultiDiGraph):
     # add collected edges
     graph.add_edges_from(inherit_edges)
 
+def variable_relationship(graph):
+    """
+    Creates a directed edge whenever a variable definition is used. 
+
+    :param graph: the graph representing the target code repo
+    :type graph: networkx.MultiDiGraph
+    """
+    
 
 def add_graph_nodes(graph):
     """
