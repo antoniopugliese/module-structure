@@ -98,6 +98,7 @@ def main_db():
         print("ASTs have been found.")
         ast_dict = parsing.update_ast_dict(
             ast_dict, commits, repo_path, repo_name, g)
+        add_to_database(rs, repo_name, "ast_dict", ast_dict)
     else:
         print("ASTs are not found...", end="", flush=True)
         ast_dict = parsing.create_ast_dict(commits, repo_path, repo_name, g)
@@ -121,6 +122,8 @@ def main_db():
 
     print("Displaying graph.\n")
 
+    # save updated data (if any)
+    rs.bgsave()
     visual.display(repo_name, rs, commits, commit_dict)
 
 
