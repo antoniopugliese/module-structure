@@ -200,6 +200,24 @@ class NodeMaker(ast.NodeVisitor):
         self.generic_visit(node)
         self.starting_node = old_starting_node
 
+    def visit_Assign(self, node: ast.Assign):
+        """
+        """
+        for name in node.targets:
+            var_name = os.path.join(self.starting_node.name, name.id)
+            var_node = VarNode(var_name)
+            if type(name.ctx) is ast.Store:
+
+                # edge (u,v): "u defines variable v"
+                self.graph.add_edge(self.starting_node, var_node,
+                                    edge=edge.DefinitionEdge(""))
+
+                # See if other nodes are used in this variable assignment
+                old_starting_node = self.starting_node
+                self.starting_node = var_node
+                self.generic_visit(node.value)
+                self.starting_node = old_starting_node
+
     def visit_Name(self, node: ast.Name):
         """
         Adds a VarNode to the graph.
@@ -207,16 +225,15 @@ class NodeMaker(ast.NodeVisitor):
         :param node: a node representing the variable.
         :type node: ast.Name
         """
-        # Name is used in a lot of AST nodes. The Name with context 'Store'
-        # is the type of variables we are looking for. Ex. 'a = 1'.
-        if type(node.ctx) is ast.Store:
-            var_name = os.path.join(self.starting_node.name, node.id)
+        # determine what this variable node would be
+        var_name = self.starting_node.name
+        path = var_name.split(os.sep)[:-1]
+        var_node = VarNode(os.path.join(*path, node.id))
 
-            # edge (u,v): "u defines variable v"
-            self.graph.add_edge(self.starting_node, VarNode(
-                var_name), edge=edge.DefinitionEdge(""))
-
-            self.generic_visit(node)
+        if type(node.ctx) is ast.Load and self.graph.has_node(var_node):
+            # edge (u,v): "variable u is used in v"
+            self.graph.add_edge(var_node, self.starting_node,
+                                edge=edge.VariableEdge(""))
 
 
 def get_repo_node_helper(graph, starting_node, mod, level):
@@ -597,11 +614,12 @@ def graph_to_string(graph: nx.MultiDiGraph, starting_node, level=0):
         abrev_name = "$" + abrev_name + "$"
     st = abrev_name
     level += 1
-    for child in graph.successors(starting_node):
-        # if children nodes arent class functions
-        if not (type(child) is FuncNode and type(starting_node) is ClassNode):
-            st += "\n" + " "*3*level + graph_to_string(graph, child, level)
-        else:
-            st += " " + graph_to_string(graph, child, level)
+    if not (type(starting_node) is VarNode):
+        for child in graph.successors(starting_node):
+            # if children nodes arent class functions
+            if (type(child) is FuncNode and type(starting_node) is ClassNode):
+                st += " " + graph_to_string(graph, child, level)
+            else:
+                st += "\n" + " "*3*level + graph_to_string(graph, child, level)
 
     return st
