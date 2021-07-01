@@ -106,6 +106,12 @@ class ImportLister(ast.NodeVisitor):
         self.imported_mods = []
         self.imported_funcs = {}
 
+    def visit_Import(self, node: ast.Import):
+        """
+        """
+        for alias in node.names:
+            self.imported_mods.append((alias.name, 1))
+
     def visit_ImportFrom(self, node: ast.ImportFrom):
         """
         Gathers the imported modules and imported functions, or their alias if used.
@@ -238,9 +244,13 @@ def get_repo_node_helper(graph, starting_node, mod, level):
         level -= 1
     # after reaching top directory, search successors recursively for target
     for node in graph.successors(target_node):
-        n = node.get_name()
-        if n.endswith(mod) or n.endswith(mod + ".py"):
+        # get last part of node name
+        n = node.get_name().split(os.sep)[-1]
+        if n == mod or n == (mod + ".py"):
             return node
+        # n = node.get_name()
+        # if n.endswith(mod) or n.endswith(mod + ".py"):
+        #     return node
     return None
 
 
@@ -272,7 +282,7 @@ def get_repo_node(graph: nx.MultiDiGraph, starting_node, mod, level):
                 return node
         return None
     else:
-        get_repo_node_helper(graph, starting_node, mod, level)
+        return get_repo_node_helper(graph, starting_node, mod, level)
 
 
 def import_relationship(graph: nx.MultiDiGraph):
@@ -359,8 +369,12 @@ def imports_dict(graph):
             for (name, level) in node_visitor.imported_mods:
                 imported_node = get_repo_node(graph, node, name, level)
                 if imported_node is not None:
-                    funcs = node_visitor.imported_funcs[name]
-                    imports += get_func_nodes(graph, imported_node, funcs)
+                    try:
+                        funcs = node_visitor.imported_funcs[name]
+                        imports += get_func_nodes(graph, imported_node, funcs)
+                    except KeyError:
+                        pass  # Import statements do not have associated functions
+                        # like ImportFrom statements
 
             import_dict.update({node: imports})
 
