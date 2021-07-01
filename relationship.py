@@ -518,7 +518,11 @@ def variable_relationship(graph):
     :param graph: the graph representing the target code repo
     :type graph: networkx.MultiDiGraph
     """
-    
+    node_visitor = NodeMaker(graph)
+
+    for node in graph.nodes:
+        if type(node) is VarNode:
+            pass
 
 def add_graph_nodes(graph):
     """
@@ -529,9 +533,7 @@ def add_graph_nodes(graph):
     """
     node_visitor = NodeMaker(graph)
 
-    node_list = graph.nodes
-
-    for node in node_list:
+    for node in graph.nodes:
         if type(node) is FileNode:  # if at Python file
             node_visitor.starting_node = node
             node_visitor.visit(node.get_ast())
