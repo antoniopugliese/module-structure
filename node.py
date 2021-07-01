@@ -165,3 +165,19 @@ class FuncNode(Node):
         """
         super().__init__(n)
         self.tree = ast
+
+
+class VarNode(Node):
+    """
+    The Node subclass that represents a variable defined within a Python file,
+    Python class, or Python function.
+    """
+
+    def __init__(self, n):
+        """
+        Initializes VarNode object.
+
+        :returns: A VarNode object containing ``n``.
+        :rtype: VarNode
+        """
+        super().__init__(n)

@@ -10,7 +10,7 @@ Python 3.8.3 or above.
 
 import ast
 import os
-from node import FileNode, FolderNode, ClassNode, FuncNode
+from node import FileNode, FolderNode, ClassNode, FuncNode, VarNode
 import edge
 import networkx as nx
 
@@ -80,7 +80,7 @@ class ClassLister(ast.NodeVisitor):
 
             elif type(b) is ast.Attribute:
                 bases.append(b.value.id)
-        
+
         self.extends.update({node.name: bases})
         self.generic_visit(node)
 
@@ -133,15 +133,15 @@ class ImportLister(ast.NodeVisitor):
         self.imported_funcs = {}
 
 
-class DefinitionLister(ast.NodeVisitor):
+class NodeMaker(ast.NodeVisitor):
     """
-    This class will gather classes and functions defined within an AST, and add
+    This class will gather classes, functions, and variables defined within an AST, and add
     Node object representations of them to an existing root.
     """
 
     def __init__(self, root):
         """
-        The root to add the ClassNode and FuncNode.
+        The root to add the ClassNode, FuncNode, and VarNode.
 
         :param root: the FileNode object corresponding to the Python file of the AST.
         :type root: Node
@@ -179,12 +179,35 @@ class DefinitionLister(ast.NodeVisitor):
         :type node: ast.FunctionDef
         """
         func_name = os.path.join(self.starting_node.name, node.name)
+        func_node = FuncNode(func_name, node)
 
         # edge (u,v): "u defines v"
-        self.graph.add_edge(self.starting_node, FuncNode(
-            func_name, node), edge=edge.DefinitionEdge(""))
+        self.graph.add_edge(self.starting_node, func_node,
+                            edge=edge.DefinitionEdge(""))
 
+        # Add VarNodes as children of this FuncNode
+        old_starting_node = self.starting_node
+        self.starting_node = func_node
         self.generic_visit(node)
+        self.starting_node = old_starting_node
+
+    def visit_Name(self, node: ast.Name):
+        """
+        Adds a VarNode to the graph.
+
+        :param node: a node representing the variable.
+        :type node: ast.Name
+        """
+        # Name is used in a lot of AST nodes. The Name with context 'Store'
+        # is the type of variables we are looking for. Ex. 'a = 1'.
+        if type(node.ctx) is ast.Store:
+            var_name = os.path.join(self.starting_node.name, node.id)
+
+            # edge (u,v): "u defines variable v"
+            self.graph.add_edge(self.starting_node, VarNode(
+                var_name), edge=edge.DefinitionEdge(""))
+
+            self.generic_visit(node)
 
 
 def get_repo_node_helper(graph, starting_node, mod, level):
@@ -219,6 +242,7 @@ def get_repo_node_helper(graph, starting_node, mod, level):
         if n.endswith(mod) or n.endswith(mod + ".py"):
             return node
     return None
+
 
 def get_repo_node(graph: nx.MultiDiGraph, starting_node, mod, level):
     """
@@ -337,7 +361,7 @@ def imports_dict(graph):
                 if imported_node is not None:
                     funcs = node_visitor.imported_funcs[name]
                     imports += get_func_nodes(graph, imported_node, funcs)
-                    
+
             import_dict.update({node: imports})
 
             node_visitor.reset()
@@ -375,6 +399,7 @@ def function_call_relationship(graph: nx.MultiDiGraph):
     # add collected edges
     graph.add_edges_from(func_edges)
 
+
 def inheritance_relationship_class_helper(graph, node, node_visitor):
     """
     Helper for inheritance_relationship() that generates a list of ClassNode objects.
@@ -393,11 +418,12 @@ def inheritance_relationship_class_helper(graph, node, node_visitor):
     """
     classes = []
     for c in graph.successors(node):
-                n = c.get_name().split(os.sep)[-1]
-                if n in node_visitor.classes:
-                    classes.append(c)
-    
+        n = c.get_name().split(os.sep)[-1]
+        if n in node_visitor.classes:
+            classes.append(c)
+
     return classes
+
 
 def inheritance_relationship_import_helper(classes, node, import_dict, node_visitor, inherit_edges):
     """
@@ -430,13 +456,14 @@ def inheritance_relationship_import_helper(classes, node, import_dict, node_visi
             if len(extends) == 1 and extends[0] == n2:
                 # edge (u,v): "u is a parent class of v"
                 inherit_edges.append((imported_class, c,
-                                        {'edge': edge.InheritanceEdge("")}))
+                                      {'edge': edge.InheritanceEdge("")}))
             for c2 in classes:
                 n3 = c2.get_name().split(os.sep)[-1]
                 if len(extends) == 1 and extends[0] == n3:
                     # edge (u,v): "u is a parent class of v"
                     inherit_edges.append((c2, c,
-                                            {'edge': edge.InheritanceEdge("")}))
+                                          {'edge': edge.InheritanceEdge("")}))
+
 
 def inheritance_relationship(graph: nx.MultiDiGraph):
     """
@@ -455,10 +482,12 @@ def inheritance_relationship(graph: nx.MultiDiGraph):
             node_visitor.visit(node.get_ast())
 
             # get list of ClassNode objects corresponding to the class names
-            classes = inheritance_relationship_class_helper(graph, node, node_visitor)
+            classes = inheritance_relationship_class_helper(
+                graph, node, node_visitor)
 
             # get all inheritances
-            inheritance_relationship_import_helper(classes, node, import_dict, node_visitor, inherit_edges)
+            inheritance_relationship_import_helper(
+                classes, node, import_dict, node_visitor, inherit_edges)
 
             node_visitor.reset()
 
@@ -466,14 +495,14 @@ def inheritance_relationship(graph: nx.MultiDiGraph):
     graph.add_edges_from(inherit_edges)
 
 
-def definition_nodes(graph):
+def add_graph_nodes(graph):
     """
-    Adds ClassNode and FuncNode to the base `graph`.
+    Adds ClassNode, FuncNode, and VarNode to the base ``graph``.
 
     :param graph: the graph representing the target code repo
     :type graph: networkx.MultiDiGraph
     """
-    node_visitor = DefinitionLister(graph)
+    node_visitor = NodeMaker(graph)
 
     node_list = graph.nodes
 
@@ -496,7 +525,7 @@ def create_all_relationships(graph):
     :return: the graph with all relationships added
     :rtype: networkx.MultiDiGraph
     """
-    new_graph = definition_nodes(graph)
+    new_graph = add_graph_nodes(graph)
     import_relationship(new_graph)
     function_call_relationship(new_graph)
     inheritance_relationship(new_graph)
@@ -523,6 +552,8 @@ def graph_to_string(graph: nx.MultiDiGraph, starting_node, level=0):
         abrev_name = "[" + abrev_name + "]"
     elif type(starting_node) is FuncNode:
         abrev_name = "(" + abrev_name + ")"
+    elif type(starting_node) is VarNode:
+        abrev_name = "$" + abrev_name + "$"
     st = abrev_name
     level += 1
     for child in graph.successors(starting_node):

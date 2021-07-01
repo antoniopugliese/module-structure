@@ -53,6 +53,7 @@ class DirectoryEdge(Edge):
         """
         super().__init__(name)
 
+
 class ImportEdge(Edge):
     """
     This class represents an edge between two nodes if one node imports a module
@@ -70,6 +71,7 @@ class ImportEdge(Edge):
         :type name: str
         """
         super().__init__(name)
+
 
 class FunctionCallEdge(Edge):
     """
@@ -89,6 +91,7 @@ class FunctionCallEdge(Edge):
         """
         super().__init__(name)
 
+
 class InheritanceEdge(Edge):
     """
     This class represents an edge between two nodes if one node inherits from 
@@ -107,6 +110,7 @@ class InheritanceEdge(Edge):
         """
         super().__init__(name)
 
+
 class DefinitionEdge(Edge):
     """
     This class represents an edge between two nodes if one node contains a
@@ -114,6 +118,22 @@ class DefinitionEdge(Edge):
 
     If a method is defined within a class, the node representing this method has
     an edge to the class where the method was defined. 
+    """
+
+    def __init__(self, name):
+        """
+        Object initializer
+
+        :param name: name of edge
+        :type name: str
+        """
+        super().__init__(name)
+
+
+class VariableEdge(Edge):
+    """
+    A VariableEdge from Node ``u`` to Node ``v`` represents: 
+    "``u`` uses variable ``v``"
     """
 
     def __init__(self, name):
