@@ -245,14 +245,26 @@ def get_repo_node_helper(graph, starting_node, mod, level):
         # each node only has one direct predeccesor
         target_node = list(graph.predecessors(target_node))[0]
         level -= 1
-    
-    # after reaching top directory, search successors recursively for target
-    for node in graph.successors(target_node):
-        # get last part of node name
-        n = node.get_name().split(os.sep)[-1]
-        if n == mod or n == (mod + ".py"):
-            return node
 
+    # after reaching top directory, search successors recursively for target
+    for node, succesors in nx.bfs_successors(graph, target_node):
+        # need to match last parts of each node name exactly
+
+        # -index is the number of parts to match with. for example, to search for
+        # mod 'apply.core', we need to match [apply], [core] (or [apply], [core.py])
+        index = -len(mod.split("."))
+
+        # get the last parts of the current node
+        n = node.get_name().split(os.sep)[index:]
+
+        # make folder and file version of module. Ex. the folder apply/core or the
+        # file apply/core.py
+        mod_folder = mod.split(".")[index:]
+        mod_file = mod.split(".")[index:-1] + \
+            [(mod.split(".")[-1] + ".py")]
+
+        if n == mod_folder or n == (mod_file):
+            return node
     return None
 
 
@@ -511,6 +523,7 @@ def inheritance_relationship(graph: nx.MultiDiGraph):
     # add collected edges
     graph.add_edges_from(inherit_edges)
 
+
 def variable_relationship(graph):
     """
     Creates a directed edge whenever a variable definition is used. 
@@ -523,6 +536,7 @@ def variable_relationship(graph):
     for node in graph.nodes:
         if type(node) is VarNode:
             pass
+
 
 def add_graph_nodes(graph):
     """
