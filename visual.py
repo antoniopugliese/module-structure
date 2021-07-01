@@ -19,6 +19,7 @@ import networkx as nx
 from networkx import MultiDiGraph
 import webbrowser as web
 import os
+import pickle
 from datetime import datetime
 import redis
 import math
@@ -29,7 +30,7 @@ import matrix
 
 # for development purposes only. If True, the web browser refreshes whenever
 # chanegs are made to this file
-DEBUG_MODE = False
+DEBUG_MODE = True
 
 # Graph presets. 'name' : ( [included_nodes], [included_edges], layout, show_nodes, description )
 ### possibly move into a json file ###
@@ -253,7 +254,7 @@ def AnalysisTab(dates: list[datetime], commits):
     ])
 
 
-def display(repo_name, rs: redis.Redis, commits: list[Commit], commit_dict: dict[str, MultiDiGraph]):
+def display(repo_name: str, rs: redis.Redis, commits: list[Commit], commit_dict: dict[str, MultiDiGraph]):
     """
     Creates the Dash app and runs the development server.
 
@@ -359,9 +360,20 @@ def display(repo_name, rs: redis.Redis, commits: list[Commit], commit_dict: dict
         new_graph.remove_nodes_from(removes)
 
         if layout['name'] == 'preset':
-            # does not have grouping of trees like cose, but still works.
-            # has optional args that can be tweaked to give better results.
-            pos = nx.spring_layout(new_graph, scale=500, iterations=1000)
+            # sha1 + _nodes.sort + _edges.sort + _show_empty
+            node_list.sort()
+            edge_list.sort()
+            key = f"{sha1}_{str(node_list)}_{str(edge_list)}_{show_empty}"
+            if rs.hexists(repo_name, key):
+                # get previously calculated positions
+                pos = pickle.loads(rs.hget(repo_name, key))
+            else:
+                # does not have grouping of trees like cose, but still works.
+                # has optional args that can be tweaked to give better results.
+                print("Running physics simulation...", end="", flush=True)
+                pos = nx.spring_layout(new_graph, scale=500, iterations=500)
+                rs.hset(repo_name, key, pickle.dumps(pos))
+                print("Done.")
             return get_graph_data(new_graph, positions=pos)
         else:
             return get_graph_data(new_graph)

@@ -99,7 +99,7 @@ def main_db():
         ast_dict = parsing.update_ast_dict(
             ast_dict, commits, repo_path, repo_name, g)
     else:
-        print("ASTs are not found...", end= "", flush=True)
+        print("ASTs are not found...", end="", flush=True)
         ast_dict = parsing.create_ast_dict(commits, repo_path, repo_name, g)
         add_to_database(rs, repo_name, "ast_dict", ast_dict)
         print("ASTs have been created")
@@ -119,7 +119,7 @@ def main_db():
         add_to_database(rs, repo_name, "commit_dict", commit_dict)
         print("Done!")
 
-    print("Displaying graph\n")
+    print("Displaying graph.\n")
 
     visual.display(repo_name, rs, commits, commit_dict)
 
