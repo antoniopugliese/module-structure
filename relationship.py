@@ -202,6 +202,8 @@ class NodeMaker(ast.NodeVisitor):
 
     def visit_Assign(self, node: ast.Assign):
         """
+        Adds a VarNode and creates a DefinitionEdge between the function,
+        class, or file that defined the variable.
         """
         for name in node.targets:
             if type(name) is ast.Name:
@@ -221,26 +223,17 @@ class NodeMaker(ast.NodeVisitor):
 
     def visit_Name(self, node: ast.Name):
         """
-        Adds a VarNode to the graph.
+        Adds a VariableEdge to the graph.
 
         :param node: a node representing the variable.
         :type node: ast.Name
         """
-        # # determine what this variable node would be
-        # var_name = self.starting_node.name
-        # path = var_name.split(os.sep)[:-1]
-        # var_node = VarNode(os.path.join(*path, node.id))
-
-        # if type(node.ctx) is ast.Load and self.graph.has_node(var_node):
-        #     # edge (u,v): "variable u is used in v"
-        #     self.graph.add_edge(var_node, self.starting_node,
-        #                         edge=edge.VariableEdge(""))
         if type(node.ctx) is ast.Load:
             var_name = node.id
 
             current_path = self.starting_node.get_name()
             i = len(current_path.split(os.sep))
-            
+
             # hueristic to look through scopes to try and find variable declaration
             while i > 0:
                 path = current_path.split(os.sep)[:i]
@@ -249,6 +242,9 @@ class NodeMaker(ast.NodeVisitor):
                     # edge (u,v): "variable u is used in v"
                     self.graph.add_edge(var_node, self.starting_node,
                                         edge=edge.VariableEdge(""))
+                    break
+                # stop search after searching through entire file scope
+                if path[-1].endswith(".py"):
                     break
                 i -= 1
 
