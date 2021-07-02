@@ -226,15 +226,31 @@ class NodeMaker(ast.NodeVisitor):
         :param node: a node representing the variable.
         :type node: ast.Name
         """
-        # determine what this variable node would be
-        var_name = self.starting_node.name
-        path = var_name.split(os.sep)[:-1]
-        var_node = VarNode(os.path.join(*path, node.id))
+        # # determine what this variable node would be
+        # var_name = self.starting_node.name
+        # path = var_name.split(os.sep)[:-1]
+        # var_node = VarNode(os.path.join(*path, node.id))
 
-        if type(node.ctx) is ast.Load and self.graph.has_node(var_node):
-            # edge (u,v): "variable u is used in v"
-            self.graph.add_edge(var_node, self.starting_node,
-                                edge=edge.VariableEdge(""))
+        # if type(node.ctx) is ast.Load and self.graph.has_node(var_node):
+        #     # edge (u,v): "variable u is used in v"
+        #     self.graph.add_edge(var_node, self.starting_node,
+        #                         edge=edge.VariableEdge(""))
+        if type(node.ctx) is ast.Load:
+            var_name = node.id
+
+            current_path = self.starting_node.get_name()
+            i = len(current_path.split(os.sep))
+            
+            # hueristic to look through scopes to try and find variable declaration
+            while i > 0:
+                path = current_path.split(os.sep)[:i]
+                var_node = VarNode(os.path.join(*path, var_name))
+                if self.graph.has_node(var_node):
+                    # edge (u,v): "variable u is used in v"
+                    self.graph.add_edge(var_node, self.starting_node,
+                                        edge=edge.VariableEdge(""))
+                    break
+                i -= 1
 
     def visit_Lambda(self, node: ast.Lambda):
         lambda_node = LambdaNode(os.path.join(
