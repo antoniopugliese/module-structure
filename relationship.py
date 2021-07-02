@@ -10,7 +10,7 @@ Python 3.8.3 or above.
 
 import ast
 import os
-from node import FileNode, FolderNode, ClassNode, FuncNode, VarNode
+from node import FileNode, FolderNode, ClassNode, FuncNode, VarNode, LambdaNode
 import edge
 import networkx as nx
 
@@ -204,19 +204,20 @@ class NodeMaker(ast.NodeVisitor):
         """
         """
         for name in node.targets:
-            var_name = os.path.join(self.starting_node.name, name.id)
-            var_node = VarNode(var_name)
-            if type(name.ctx) is ast.Store:
+            if type(name) is ast.Name:
+                var_name = os.path.join(self.starting_node.name, name.id)
+                var_node = VarNode(var_name)
+                if type(name.ctx) is ast.Store:
 
-                # edge (u,v): "u defines variable v"
-                self.graph.add_edge(self.starting_node, var_node,
-                                    edge=edge.DefinitionEdge(""))
+                    # edge (u,v): "u defines variable v"
+                    self.graph.add_edge(self.starting_node, var_node,
+                                        edge=edge.DefinitionEdge(""))
 
-                # See if other nodes are used in this variable assignment
-                old_starting_node = self.starting_node
-                self.starting_node = var_node
-                self.generic_visit(node.value)
-                self.starting_node = old_starting_node
+                    # See if other nodes are used in this variable assignment
+                    old_starting_node = self.starting_node
+                    self.starting_node = var_node
+                    self.generic_visit(node.value)
+                    self.starting_node = old_starting_node
 
     def visit_Name(self, node: ast.Name):
         """
@@ -234,6 +235,13 @@ class NodeMaker(ast.NodeVisitor):
             # edge (u,v): "variable u is used in v"
             self.graph.add_edge(var_node, self.starting_node,
                                 edge=edge.VariableEdge(""))
+
+    def visit_Lambda(self, node: ast.Lambda):
+        lambda_node = LambdaNode(os.path.join(
+            self.starting_node.name, "lambda"))
+        # edge (u,v): "u defines lambda v"
+        self.graph.add_edge(self.starting_node, lambda_node,
+                            edge=edge.DefinitionEdge(""))
 
 
 def get_repo_node_helper(graph, starting_node, mod, level):

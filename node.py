@@ -173,11 +173,8 @@ class VarNode(Node):
     Python class, or Python function.
     """
 
-    def __init__(self, n):
-        """
-        Initializes VarNode object.
 
-        :returns: A VarNode object containing ``n``.
-        :rtype: VarNode
-        """
-        super().__init__(n)
+class LambdaNode(Node):
+    """
+    The Node subclass that represents a Python lambda function.
+    """
