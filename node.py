@@ -172,7 +172,7 @@ class VarNode(Node):
     The Node subclass that represents a variable defined within a Python file,
     Python class, or Python function.
     """
-    
+
     def __init__(self, n, ast):
         """
         Initializes VarNode object.
@@ -183,8 +183,9 @@ class VarNode(Node):
         :param ast: the AST object representing a variable.
         :type ast: ast.VariableDef
         """
-        super.__init__(n)
+        super().__init__(n)
         self.tree = ast
+
 
 class LambdaNode(Node):
     """
@@ -201,21 +202,26 @@ class LambdaNode(Node):
         :return: A LambdaNode object containing `n` and `ast`.
         :rtype: LambdaNode 
         """
-        super.__init__(n)
+        super().__init__(n)
         self.tree = ast
+
+
+class IfNode(Node):
+    """
+    The Node subclass that represents a Python ``if`` statement.
+    """
+
 
 class ForNode(Node):
     """
-    The Node subclass that represents a Python for loop. 
+    The Node subclass that represents a Python ``for`` loop. 
     """
 
     def __init__(self, n):
         """
-        Initializes a FolderNode
+        Initializes a ForNode
 
         :param n: the name of the for loop.
         :type n: str
         """
         super().__init__(n)
-
-

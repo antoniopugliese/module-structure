@@ -160,7 +160,7 @@ class NodeMaker(ast.NodeVisitor):
         self.graph = nx.MultiDiGraph()
         self.graph.add_edges_from(root.edges.data())
         self.starting_node = None
-    
+
     def change_scope(self, new, node):
         """
         Temporarily changes scope while visiting nodes. 
@@ -172,7 +172,7 @@ class NodeMaker(ast.NodeVisitor):
         :type node: Node
         """
         temp = self.starting_node
-        self.starting_node = new 
+        self.starting_node = new
         self.generic_visit(node)
         self.starting_node = temp
 
@@ -217,7 +217,7 @@ class NodeMaker(ast.NodeVisitor):
         for name in node.targets:
             if type(name) is ast.Name:
                 var_name = os.path.join(self.starting_node.name, name.id)
-                var_node = VarNode(var_name)
+                var_node = VarNode(var_name, node.value)
                 if type(name.ctx) is ast.Store:
 
                     # edge (u,v): "u defines variable v"
@@ -243,7 +243,7 @@ class NodeMaker(ast.NodeVisitor):
             # hueristic to look through scopes to try and find variable declaration
             while i > 0:
                 path = current_path.split(os.sep)[:i]
-                var_node = VarNode(os.path.join(*path, var_name))
+                var_node = VarNode(os.path.join(*path, var_name), None)
                 if self.graph.has_node(var_node):
                     # edge (u,v): "variable u is used in v"
                     self.graph.add_edge(var_node, self.starting_node,
@@ -255,16 +255,24 @@ class NodeMaker(ast.NodeVisitor):
                 i -= 1
 
     def visit_Lambda(self, node: ast.Lambda):
-        lambda_node = LambdaNode(os.path.join(
-            self.starting_node.name, "lambda"))
+        base = self.starting_node.name
+        i = 1
+        lambda_node = LambdaNode(os.path.join(base, "lambda1"), node.body)
+
+        # might be multiple lambdas in this scope
+        while self.graph.has_node(lambda_node):
+            i += 1
+            lamb = "lambda" + str(i)
+            lambda_node = LambdaNode(os.path.join(base, lamb), node.body)
+
         # edge (u,v): "u defines lambda v"
         self.graph.add_edge(self.starting_node, lambda_node,
                             edge=edge.DefinitionEdge(""))
-    
+
     def visit_For(self, node):
         for_node = ForNode(os.path.join(self.starting_node.name, "for"))
 
-        self.graph.add_edge(self.starting_node, for_node, 
+        self.graph.add_edge(self.starting_node, for_node,
                             edge=edge.ControlFlowEdge(""))
 
 
