@@ -150,7 +150,13 @@ Assumes a top-down approach will be taken.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="parsing.print_graph">
 <span class="sig-prename descclassname"><span class="pre">parsing.</span></span><span class="sig-name descname"><span class="pre">print_graph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#parsing.print_graph" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Prints the current graph in the order of networkx.graph.nodes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>graph</strong> (<em>networkx graph</em>) – a networkx graph representing the file structure</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="parsing.update_ast_dict">
@@ -222,11 +228,25 @@ children nodes, and at most one parent Node.</p>
 </dd></dl>
 
 <dl class="py class">
+<dt class="sig sig-object py" id="node.ForNode">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">node.</span></span><span class="sig-name descname"><span class="pre">ForNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#node.ForNode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#node.Node" title="node.Node"><code class="xref py py-class docutils literal notranslate"><span class="pre">node.Node</span></code></a></p>
+<p>The Node subclass that represents a Python for loop.</p>
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="node.FuncNode">
 <em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">node.</span></span><span class="sig-name descname"><span class="pre">FuncNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ast</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#node.FuncNode" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#node.Node" title="node.Node"><code class="xref py py-class docutils literal notranslate"><span class="pre">node.Node</span></code></a></p>
 <p>The Node subclass that represents a function defined within a Python file or
 a Python class.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="node.LambdaNode">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">node.</span></span><span class="sig-name descname"><span class="pre">LambdaNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ast</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#node.LambdaNode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#node.Node" title="node.Node"><code class="xref py py-class docutils literal notranslate"><span class="pre">node.Node</span></code></a></p>
+<p>The Node subclass that represents a Python lambda function.</p>
 </dd></dl>
 
 <dl class="py class">
@@ -252,6 +272,14 @@ Python function.</p>
 
 </dd></dl>
 
+<dl class="py class">
+<dt class="sig sig-object py" id="node.VarNode">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">node.</span></span><span class="sig-name descname"><span class="pre">VarNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ast</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#node.VarNode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#node.Node" title="node.Node"><code class="xref py py-class docutils literal notranslate"><span class="pre">node.Node</span></code></a></p>
+<p>The Node subclass that represents a variable defined within a Python file,
+Python class, or Python function.</p>
+</dd></dl>
+
 </section>
 <section id="module-relationship">
 <span id="relationship"></span><h1>Relationship<a class="headerlink" href="#module-relationship" title="Permalink to this headline">¶</a></h1>
@@ -261,39 +289,6 @@ abstract syntax trees (AST) of each of the relevant files in order to construct
 the final graph.</p>
 <p>Requires:
 Python 3.8.3 or above.</p>
-<dl class="py class">
-<dt class="sig sig-object py" id="relationship.AstGraph">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">relationship.</span></span><span class="sig-name descname"><span class="pre">AstGraph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">commit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#relationship.AstGraph" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">networkx.classes.multidigraph.MultiDiGraph</span></code></p>
-<p>This class represents the graph that will be constructed.</p>
-<p>By design, this class will extend the NetworkX MultiDiGraph in order to
-represent the connections and dependencies between modules. The nodes of the
-graph will represent each file within the a repo directory. A directed edge
-from one node to another will represent the dependency that a node has.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="relationship.AstGraph.add_edge">
-<span class="sig-name descname"><span class="pre">add_edge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">attr</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#relationship.AstGraph.add_edge" title="Permalink to this definition">¶</a></dt>
-<dd><p>Adds a directed edge from <cite>u</cite> to <cite>v</cite>.
-TODO: properly tie the <a href="#id1"><span class="problematic" id="id2">**</span></a>attr to attributes for the graph</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="relationship.AstGraph.add_node">
-<span class="sig-name descname"><span class="pre">add_node</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node_for_adding</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">attr</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#relationship.AstGraph.add_node" title="Permalink to this definition">¶</a></dt>
-<dd><p>Adds a node to the graph.
-TODO: properly tie the <a href="#id3"><span class="problematic" id="id4">**</span></a>attr to attributes for the graph</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="relationship.AstGraph.get_edge_data">
-<span class="sig-name descname"><span class="pre">get_edge_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#relationship.AstGraph.get_edge_data" title="Permalink to this definition">¶</a></dt>
-<dd><p>Gets the edge data from <cite>u</cite> to <cite>v</cite>.
-TODO: Display all the edges depending on the type of edge based on the
-edge module</p>
-</dd></dl>
-
-</dd></dl>
-
 <dl class="py class">
 <dt class="sig sig-object py" id="relationship.CallLister">
 <em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">relationship.</span></span><span class="sig-name descname"><span class="pre">CallLister</span></span><a class="headerlink" href="#relationship.CallLister" title="Permalink to this definition">¶</a></dt>
@@ -344,36 +339,6 @@ used.</p>
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="relationship.DefinitionLister">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">relationship.</span></span><span class="sig-name descname"><span class="pre">DefinitionLister</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#relationship.DefinitionLister" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ast.NodeVisitor</span></code></p>
-<p>This class will gather classes and functions defined within an AST, and add
-Node object representations of them to an existing root.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="relationship.DefinitionLister.visit_ClassDef">
-<span class="sig-name descname"><span class="pre">visit_ClassDef</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#relationship.DefinitionLister.visit_ClassDef" title="Permalink to this definition">¶</a></dt>
-<dd><p>Adds a ClassNode to the graph, as well as any functions defined in the class.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>node</strong> (<em>ast.ClassDef</em>) – a node that represents a class definition</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="relationship.DefinitionLister.visit_FunctionDef">
-<span class="sig-name descname"><span class="pre">visit_FunctionDef</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#relationship.DefinitionLister.visit_FunctionDef" title="Permalink to this definition">¶</a></dt>
-<dd><p>Adds a FuncNode to the graph.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>node</strong> (<em>ast.FunctionDef</em>) – a node representing the function definition.</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
 <dt class="sig sig-object py" id="relationship.ImportLister">
 <em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">relationship.</span></span><span class="sig-name descname"><span class="pre">ImportLister</span></span><a class="headerlink" href="#relationship.ImportLister" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ast.NodeVisitor</span></code></p>
@@ -383,6 +348,17 @@ the functions the statements import, if any.</p>
 <dt class="sig sig-object py" id="relationship.ImportLister.reset">
 <span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#relationship.ImportLister.reset" title="Permalink to this definition">¶</a></dt>
 <dd><p>Clears the list of imported modules.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="relationship.ImportLister.visit_Import">
+<span class="sig-name descname"><span class="pre">visit_Import</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">ast.Import</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#relationship.ImportLister.visit_Import" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gathers all the imported modules.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>node</strong> (<em>ast.Import</em>) – the node that represents an import</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -398,6 +374,75 @@ the functions the statements import, if any.</p>
 
 </dd></dl>
 
+<dl class="py class">
+<dt class="sig sig-object py" id="relationship.NodeMaker">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">relationship.</span></span><span class="sig-name descname"><span class="pre">NodeMaker</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#relationship.NodeMaker" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ast.NodeVisitor</span></code></p>
+<p>This class will gather classes, functions, and variables defined within an AST, and add
+Node object representations of them to an existing root.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="relationship.NodeMaker.visit_Assign">
+<span class="sig-name descname"><span class="pre">visit_Assign</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">ast.Assign</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#relationship.NodeMaker.visit_Assign" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds a VarNode and creates a DefinitionEdge between the function,
+class, or file that defined the variable.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="relationship.NodeMaker.visit_ClassDef">
+<span class="sig-name descname"><span class="pre">visit_ClassDef</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#relationship.NodeMaker.visit_ClassDef" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds a ClassNode to the graph, as well as any functions defined in the class.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>node</strong> (<em>ast.ClassDef</em>) – a node that represents a class definition</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="relationship.NodeMaker.visit_For">
+<span class="sig-name descname"><span class="pre">visit_For</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#relationship.NodeMaker.visit_For" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="relationship.NodeMaker.visit_FunctionDef">
+<span class="sig-name descname"><span class="pre">visit_FunctionDef</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#relationship.NodeMaker.visit_FunctionDef" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds a FuncNode to the graph.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>node</strong> (<em>ast.FunctionDef</em>) – a node representing the function definition.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="relationship.NodeMaker.visit_Lambda">
+<span class="sig-name descname"><span class="pre">visit_Lambda</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">ast.Lambda</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#relationship.NodeMaker.visit_Lambda" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="relationship.NodeMaker.visit_Name">
+<span class="sig-name descname"><span class="pre">visit_Name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">ast.Name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#relationship.NodeMaker.visit_Name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds a VariableEdge to the graph.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>node</strong> (<em>ast.Name</em>) – a node representing the variable.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="relationship.add_graph_nodes">
+<span class="sig-prename descclassname"><span class="pre">relationship.</span></span><span class="sig-name descname"><span class="pre">add_graph_nodes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#relationship.add_graph_nodes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds ClassNode, FuncNode, and VarNode to the base <code class="docutils literal notranslate"><span class="pre">graph</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>graph</strong> (<em>networkx.MultiDiGraph</em>) – the graph representing the target code repo</p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py function">
 <dt class="sig sig-object py" id="relationship.create_all_relationships">
 <span class="sig-prename descclassname"><span class="pre">relationship.</span></span><span class="sig-name descname"><span class="pre">create_all_relationships</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#relationship.create_all_relationships" title="Permalink to this definition">¶</a></dt>
@@ -411,17 +456,6 @@ the functions the statements import, if any.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>networkx.MultiDiGraph</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="relationship.definition_nodes">
-<span class="sig-prename descclassname"><span class="pre">relationship.</span></span><span class="sig-name descname"><span class="pre">definition_nodes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#relationship.definition_nodes" title="Permalink to this definition">¶</a></dt>
-<dd><p>Adds ClassNode and FuncNode to the base <cite>graph</cite>.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>graph</strong> (<em>networkx.MultiDiGraph</em>) – the graph representing the target code repo</p>
 </dd>
 </dl>
 </dd></dl>
@@ -472,8 +506,33 @@ from the target code repo.</p>
 <li><p><strong>level</strong> (<em>int</em>) – the level of the relative import (level=0 means an absolute import)</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference internal" href="#node.FileNode" title="node.FileNode">FileNode</a></p>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>FileNode object associated with <code class="docutils literal notranslate"><span class="pre">mod</span></code></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#node.FileNode" title="node.FileNode">FileNode</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="relationship.get_repo_node_helper">
+<span class="sig-prename descclassname"><span class="pre">relationship.</span></span><span class="sig-name descname"><span class="pre">get_repo_node_helper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">starting_node</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mod</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">level</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#relationship.get_repo_node_helper" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper for get_repo_node which searches for relative imports.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>graph</strong> (<em>networkx.MultiDiGraph</em>) – the graph representing the target repo</p></li>
+<li><p><strong>starting_node</strong> (<em>str</em>) – the name of the node to start the search from</p></li>
+<li><p><strong>mod</strong> (<em>str</em>) – the name of the target Python module</p></li>
+<li><p><strong>level</strong> (<em>int</em>) – the level of the relative import (level=0 means an absolute import)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>FileNode object associated with <code class="docutils literal notranslate"><span class="pre">mod</span></code></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#node.FileNode" title="node.FileNode">FileNode</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -515,12 +574,11 @@ target code repo.</p>
 <dd class="field-odd"><p><strong>graph</strong> (<em>networkx.MultiDiGraph</em>) – the tree representing the target code repo</p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A dictionary mapping the name of a Python file to a list of all modules it imports from its own repo, which is represented by <cite>graph</cite>.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>dict {str : str list}</p>
+<dd class="field-even"><p>A dictionary mapping the name of a Python file to a list of all</p>
 </dd>
 </dl>
+<p>modules it imports from its own repo, which is represented by <cite>graph</cite>.
+:rtype: dict {str : str list}</p>
 </dd></dl>
 
 <dl class="py function">
@@ -531,6 +589,45 @@ from the target code repo.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>graph</strong> (<em>networkx.MultiDiGraph</em>) – the graph representing the target code repo</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="relationship.inheritance_relationship_class_helper">
+<span class="sig-prename descclassname"><span class="pre">relationship.</span></span><span class="sig-name descname"><span class="pre">inheritance_relationship_class_helper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node_visitor</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#relationship.inheritance_relationship_class_helper" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper for inheritance_relationship() that generates a list of ClassNode objects.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>graph</strong> (<em>networkx.MultiDiGraph</em>) – the graph representing the target code repo</p></li>
+<li><p><strong>node</strong> (<em>networkx.node</em>) – the current node in the graph</p></li>
+<li><p><strong>node_visitor</strong> (<a class="reference internal" href="#relationship.ClassLister" title="relationship.ClassLister"><em>ClassLister</em></a><em>(</em><em>)</em>) – the type of nodes that are visited</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a list of nodes representing the classes in the repo</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>node.Node list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="relationship.inheritance_relationship_import_helper">
+<span class="sig-prename descclassname"><span class="pre">relationship.</span></span><span class="sig-name descname"><span class="pre">inheritance_relationship_import_helper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">classes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">import_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node_visitor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inherit_edges</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#relationship.inheritance_relationship_import_helper" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper method for inheritance_relationship() that determines every inheritance
+in the file structure.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>classes</strong> (<em>node.Node list</em>) – a list of nodes representing the classes in the repo</p></li>
+<li><p><strong>node</strong> (<em>networkx.node</em>) – the current node in the graph</p></li>
+<li><p><strong>import_dict</strong> (<em>{str : str list}</em>) – a dictionary of all imported functions</p></li>
+<li><p><strong>node_visitor</strong> (<a class="reference internal" href="#relationship.ClassLister" title="relationship.ClassLister"><em>ClassLister</em></a><em>(</em><em>)</em>) – the type of nodes that are visited</p></li>
+<li><p><strong>inherit_edges</strong> (<em>str list</em>) – list of inheritances in thhe file structure</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
@@ -642,25 +739,71 @@ edge types.</p>
 <p>This module is used to display the module structure network.</p>
 <p>The display function is heavily adapted from this user: <a class="reference external" href="https://github.com/xhlulu">https://github.com/xhlulu</a>.</p>
 <dl class="py function">
+<dt class="sig sig-object py" id="visual.AnalysisTab">
+<span class="sig-prename descclassname"><span class="pre">visual.</span></span><span class="sig-name descname"><span class="pre">AnalysisTab</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dates</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">commits</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#visual.AnalysisTab" title="Permalink to this definition">¶</a></dt>
+<dd><p>The component that allows for many commits to be analyzed,and to choose the
+current commit to graph.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="visual.ControlTab">
+<span class="sig-prename descclassname"><span class="pre">visual.</span></span><span class="sig-name descname"><span class="pre">ControlTab</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#visual.ControlTab" title="Permalink to this definition">¶</a></dt>
+<dd><p>The component that changes the settings and layout of the graph.</p>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="visual.display">
-<span class="sig-prename descclassname"><span class="pre">visual.</span></span><span class="sig-name descname"><span class="pre">display</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#visual.display" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">visual.</span></span><span class="sig-name descname"><span class="pre">display</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">repo_name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">redis.client.Redis</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">commits</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">commit_dict</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#visual.display" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates the Dash app and runs the development server.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>graph</strong> (<em>networkx.MultiDiGraph</em>) – the graph to display</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>commits</strong> (<em>Commit list</em>) – the list of Commit objects of the repo to display.</p></li>
+<li><p><strong>commit_dict</strong> (<em>{str</em><em>, </em><em>MultiDiGraph} dict</em>) – the dictionary produced by the main module mapping SHA1 to relationship graph of each commit.</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="visual.get_data">
-<span class="sig-prename descclassname"><span class="pre">visual.</span></span><span class="sig-name descname"><span class="pre">get_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">networkx.classes.multidigraph.MultiDiGraph</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#visual.get_data" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="visual.get_commit_data">
+<span class="sig-prename descclassname"><span class="pre">visual.</span></span><span class="sig-name descname"><span class="pre">get_commit_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">commits</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">commit_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">preset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'all'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">matrix_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'adjacency'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spectrum_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'eigenvalue'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#visual.get_commit_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes data from the provided commits that can be graphed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>commits</strong> (<em>git.objects.commit.Commit list</em>) – the commit objects to analyze</p></li>
+<li><p><strong>commit_dict</strong> (<em>{str : networkx.MultiDiGraph}</em>) – the sha1-graph dictionary for the repo</p></li>
+<li><p><strong>preset</strong> (<em>str</em>) – the subgraph preset to analyze the commit graphs with. Defaults to ‘all’.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the data to plot on a x-axis and y-axis, respectively.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="visual.get_graph_data">
+<span class="sig-prename descclassname"><span class="pre">visual.</span></span><span class="sig-name descname"><span class="pre">get_graph_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">networkx.classes.multidigraph.MultiDiGraph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">positions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#visual.get_graph_data" title="Permalink to this definition">¶</a></dt>
 <dd><blockquote>
 <div><p>Transforms the node and edge data to a format that can be displayed.</p>
 </div></blockquote>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>graph</strong> (<em>networkx.MultiDiGraph</em>) – the graph of the data</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>graph</strong> (<em>networkx.MultiDiGraph</em>) – the graph of the data</p></li>
+<li><p><strong>positions</strong> (<em>{Node :</em><em> (</em><em>int</em><em>,</em><em>int</em><em>)</em><em>}</em>) – The networkx positions of the nodes that will be used if provided.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a list of all node and edge data in the graph</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>str list</p>
 </dd>
 </dl>
 </dd></dl>
@@ -671,12 +814,15 @@ edge types.</p>
 <p>This module will take in a NetworkX graph and construct an adjacency matrix from
 this graph.</p>
 <dl class="py function">
-<dt class="sig sig-object py" id="matrix.calculate_svd">
-<span class="sig-prename descclassname"><span class="pre">matrix.</span></span><span class="sig-name descname"><span class="pre">calculate_svd</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">matrix</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#matrix.calculate_svd" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculates the singular value decomposition from a matrix.</p>
+<dt class="sig sig-object py" id="matrix.analyze_matrix">
+<span class="sig-prename descclassname"><span class="pre">matrix.</span></span><span class="sig-name descname"><span class="pre">analyze_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">matrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'eigenvalue'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#matrix.analyze_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates the singular values or eigenvalues from a matrix.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>matrix</strong> (<em>scipy.sparse</em>) – a sparse matrix representing a NetworkX graph</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>matrix</strong> (<em>scipy.sparse</em>) – a sparse matrix representing a NetworkX graph</p></li>
+<li><p><strong>type</strong> (<em>str</em>) – either singular values or eigenvalues</p></li>
+</ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>a unitary matrix</p>
@@ -689,7 +835,7 @@ this graph.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="matrix.graph_to_matrix">
-<span class="sig-prename descclassname"><span class="pre">matrix.</span></span><span class="sig-name descname"><span class="pre">graph_to_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#matrix.graph_to_matrix" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">matrix.</span></span><span class="sig-name descname"><span class="pre">graph_to_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">matrix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'adjacency'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#matrix.graph_to_matrix" title="Permalink to this definition">¶</a></dt>
 <dd><p>Converts a NetworkX graph into an adjacency matrix.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -697,6 +843,7 @@ this graph.</p>
 <li><p><strong>graph</strong> (<em>NetworkX graphh</em>) – a NetworkX graph</p></li>
 <li><p><strong>order</strong> (<em>Node list</em>) – a list or ordered nodes in the NetworkX graph</p></li>
 <li><p><strong>weight</strong> (<em>int</em>) – represents which weight will be represented in the matrix</p></li>
+<li><p><strong>matrix</strong> (<em>str</em>) – the type of matrix wanted</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -712,6 +859,22 @@ this graph.</p>
 <section id="module-metrics">
 <span id="metrics"></span><h1>Metrics<a class="headerlink" href="#module-metrics" title="Permalink to this headline">¶</a></h1>
 <p>This module analyzes the commit-graph dictionary created by the main module.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="metrics.get_dates">
+<span class="sig-prename descclassname"><span class="pre">metrics.</span></span><span class="sig-name descname"><span class="pre">get_dates</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">commits</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#metrics.get_dates" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gathers the dates of when <code class="docutils literal notranslate"><span class="pre">commits</span></code> were made.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>commits</strong> (<em>list</em><em>[</em><em>Commit</em><em>]</em>) – the list of commits to analyze.</p>
+</dd>
+</dl>
+<p>:returns:a dictionary mapping the sha1 of a commit to its commit datetime.
+:rtype: {str : datetime}</p>
+<p>For two commits published one day apart:
+&gt;&gt;&gt; get_dates([commit1, commit2])
+{‘d6944b9491b294c02fd0c0d9aff3ae56fa069644’: datetime(2021, 5, 24, 22, 48, 38), ‘b3b0669f716a7b3ed6cd573b57f3f8e12bcd495a’: datetime(2021, 5, 25, 15, 3, 14}</p>
+</dd></dl>
+
 <dl class="py function">
 <dt class="sig sig-object py" id="metrics.unique_subgraphs">
 <span class="sig-prename descclassname"><span class="pre">metrics.</span></span><span class="sig-name descname"><span class="pre">unique_subgraphs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">commit_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">preset</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#metrics.unique_subgraphs" title="Permalink to this definition">¶</a></dt>

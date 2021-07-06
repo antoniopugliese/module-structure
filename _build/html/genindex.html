@@ -40,6 +40,7 @@
  | <a href="#F"><strong>F</strong></a>
  | <a href="#G"><strong>G</strong></a>
  | <a href="#I"><strong>I</strong></a>
+ | <a href="#L"><strong>L</strong></a>
  | <a href="#M"><strong>M</strong></a>
  | <a href="#N"><strong>N</strong></a>
  | <a href="#P"><strong>P</strong></a>
@@ -52,13 +53,13 @@
 <h2 id="A">A</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="index.html#relationship.AstGraph.add_edge">add_edge() (relationship.AstGraph method)</a>
+      <li><a href="index.html#relationship.add_graph_nodes">add_graph_nodes() (in module relationship)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="index.html#relationship.AstGraph.add_node">add_node() (relationship.AstGraph method)</a>
+      <li><a href="index.html#visual.AnalysisTab">AnalysisTab() (in module visual)</a>
 </li>
-      <li><a href="index.html#relationship.AstGraph">AstGraph (class in relationship)</a>
+      <li><a href="index.html#matrix.analyze_matrix">analyze_matrix() (in module matrix)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -66,13 +67,13 @@
 <h2 id="C">C</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="index.html#matrix.calculate_svd">calculate_svd() (in module matrix)</a>
-</li>
       <li><a href="index.html#relationship.CallLister">CallLister (class in relationship)</a>
 </li>
       <li><a href="index.html#relationship.ClassLister">ClassLister (class in relationship)</a>
 </li>
       <li><a href="index.html#node.ClassNode">ClassNode (class in node)</a>
+</li>
+      <li><a href="index.html#visual.ControlTab">ControlTab() (in module visual)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
@@ -90,12 +91,6 @@
 <h2 id="D">D</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="index.html#relationship.definition_nodes">definition_nodes() (in module relationship)</a>
-</li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="index.html#relationship.DefinitionLister">DefinitionLister (class in relationship)</a>
-</li>
       <li><a href="index.html#visual.display">display() (in module visual)</a>
 </li>
   </ul></td>
@@ -108,9 +103,11 @@
 </li>
       <li><a href="index.html#parsing.find_dir">find_dir() (in module parsing)</a>
 </li>
+      <li><a href="index.html#node.FolderNode">FolderNode (class in node)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="index.html#node.FolderNode">FolderNode (class in node)</a>
+      <li><a href="index.html#node.ForNode">ForNode (class in node)</a>
 </li>
       <li><a href="index.html#node.FuncNode">FuncNode (class in node)</a>
 </li>
@@ -124,11 +121,13 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="index.html#node.FileNode.get_ast">get_ast() (node.FileNode method)</a>
 </li>
-      <li><a href="index.html#visual.get_data">get_data() (in module visual)</a>
+      <li><a href="index.html#visual.get_commit_data">get_commit_data() (in module visual)</a>
 </li>
-      <li><a href="index.html#relationship.AstGraph.get_edge_data">get_edge_data() (relationship.AstGraph method)</a>
+      <li><a href="index.html#metrics.get_dates">get_dates() (in module metrics)</a>
 </li>
       <li><a href="index.html#relationship.get_func_nodes">get_func_nodes() (in module relationship)</a>
+</li>
+      <li><a href="index.html#visual.get_graph_data">get_graph_data() (in module visual)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
@@ -137,6 +136,8 @@
       <li><a href="index.html#subgraph.get_preferences">get_preferences() (in module subgraph)</a>
 </li>
       <li><a href="index.html#relationship.get_repo_node">get_repo_node() (in module relationship)</a>
+</li>
+      <li><a href="index.html#relationship.get_repo_node_helper">get_repo_node_helper() (in module relationship)</a>
 </li>
       <li><a href="index.html#matrix.graph_to_matrix">graph_to_matrix() (in module matrix)</a>
 </li>
@@ -152,11 +153,23 @@
 </li>
       <li><a href="index.html#relationship.ImportLister">ImportLister (class in relationship)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="index.html#relationship.imports_dict">imports_dict() (in module relationship)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="index.html#relationship.inheritance_relationship">inheritance_relationship() (in module relationship)</a>
+</li>
+      <li><a href="index.html#relationship.inheritance_relationship_class_helper">inheritance_relationship_class_helper() (in module relationship)</a>
+</li>
+      <li><a href="index.html#relationship.inheritance_relationship_import_helper">inheritance_relationship_import_helper() (in module relationship)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="L">L</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="index.html#node.LambdaNode">LambdaNode (class in node)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -213,6 +226,8 @@
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="index.html#node.Node">Node (class in node)</a>
+</li>
+      <li><a href="index.html#relationship.NodeMaker">NodeMaker (class in relationship)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -293,19 +308,31 @@
 <h2 id="V">V</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="index.html#node.VarNode">VarNode (class in node)</a>
+</li>
+      <li><a href="index.html#relationship.NodeMaker.visit_Assign">visit_Assign() (relationship.NodeMaker method)</a>
+</li>
       <li><a href="index.html#relationship.CallLister.visit_Call">visit_Call() (relationship.CallLister method)</a>
 </li>
       <li><a href="index.html#relationship.ClassLister.visit_ClassDef">visit_ClassDef() (relationship.ClassLister method)</a>
 
       <ul>
-        <li><a href="index.html#relationship.DefinitionLister.visit_ClassDef">(relationship.DefinitionLister method)</a>
+        <li><a href="index.html#relationship.NodeMaker.visit_ClassDef">(relationship.NodeMaker method)</a>
 </li>
       </ul></li>
+      <li><a href="index.html#relationship.NodeMaker.visit_For">visit_For() (relationship.NodeMaker method)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="index.html#relationship.DefinitionLister.visit_FunctionDef">visit_FunctionDef() (relationship.DefinitionLister method)</a>
+      <li><a href="index.html#relationship.NodeMaker.visit_FunctionDef">visit_FunctionDef() (relationship.NodeMaker method)</a>
+</li>
+      <li><a href="index.html#relationship.ImportLister.visit_Import">visit_Import() (relationship.ImportLister method)</a>
 </li>
       <li><a href="index.html#relationship.ImportLister.visit_ImportFrom">visit_ImportFrom() (relationship.ImportLister method)</a>
+</li>
+      <li><a href="index.html#relationship.NodeMaker.visit_Lambda">visit_Lambda() (relationship.NodeMaker method)</a>
+</li>
+      <li><a href="index.html#relationship.NodeMaker.visit_Name">visit_Name() (relationship.NodeMaker method)</a>
 </li>
       <li>
     visual

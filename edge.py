@@ -144,3 +144,18 @@ class VariableEdge(Edge):
         :type name: str
         """
         super().__init__(name)
+
+class ControlFlowEdge(Edge):
+    """
+    A ControlFlowEdge from Node ``u`` to Node ``v`` represents the control flow
+    of the program.
+    """
+    
+    def __init__(self, name):
+        """
+        Object initializer
+
+        :param name: name of edge
+        :type name: str
+        """
+        super().__init__(name) 

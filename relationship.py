@@ -10,7 +10,7 @@ Python 3.8.3 or above.
 
 import ast
 import os
-from node import FileNode, FolderNode, ClassNode, FuncNode, VarNode, LambdaNode
+from node import FileNode, FolderNode, ClassNode, FuncNode, VarNode, LambdaNode, ForNode
 import edge
 import networkx as nx
 
@@ -160,6 +160,21 @@ class NodeMaker(ast.NodeVisitor):
         self.graph = nx.MultiDiGraph()
         self.graph.add_edges_from(root.edges.data())
         self.starting_node = None
+    
+    def change_scope(self, new, node):
+        """
+        Temporarily changes scope while visiting nodes. 
+
+        :param new: new starting node
+        :type new: Node
+
+        :param node: current node that is being visited
+        :type node: Node
+        """
+        temp = self.starting_node
+        self.starting_node = new 
+        self.generic_visit(node)
+        self.starting_node = temp
 
     def visit_ClassDef(self, node):
         """
@@ -175,10 +190,7 @@ class NodeMaker(ast.NodeVisitor):
                             edge=edge.DefinitionEdge(""))
 
         # Add FuncNodes as children of this ClassNode
-        old_starting_node = self.starting_node
-        self.starting_node = class_node
-        self.generic_visit(node)
-        self.starting_node = old_starting_node
+        self.change_scope(class_node, node)
 
     def visit_FunctionDef(self, node):
         """
@@ -195,10 +207,7 @@ class NodeMaker(ast.NodeVisitor):
                             edge=edge.DefinitionEdge(""))
 
         # Add VarNodes as children of this FuncNode
-        old_starting_node = self.starting_node
-        self.starting_node = func_node
-        self.generic_visit(node)
-        self.starting_node = old_starting_node
+        self.change_scope(func_node, node)
 
     def visit_Assign(self, node: ast.Assign):
         """
@@ -216,10 +225,7 @@ class NodeMaker(ast.NodeVisitor):
                                         edge=edge.DefinitionEdge(""))
 
                     # See if other nodes are used in this variable assignment
-                    old_starting_node = self.starting_node
-                    self.starting_node = var_node
-                    self.generic_visit(node.value)
-                    self.starting_node = old_starting_node
+                    self.change_scope(var_node, node)
 
     def visit_Name(self, node: ast.Name):
         """
@@ -254,6 +260,12 @@ class NodeMaker(ast.NodeVisitor):
         # edge (u,v): "u defines lambda v"
         self.graph.add_edge(self.starting_node, lambda_node,
                             edge=edge.DefinitionEdge(""))
+    
+    def visit_For(self, node):
+        for_node = ForNode(os.path.join(self.starting_node.name, "for"))
+
+        self.graph.add_edge(self.starting_node, for_node, 
+                            edge=edge.ControlFlowEdge(""))
 
 
 def get_repo_node_helper(graph, starting_node, mod, level):

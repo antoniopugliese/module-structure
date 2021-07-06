@@ -154,11 +154,11 @@ class FuncNode(Node):
         """
         Initializes FuncNode object.
 
-        :param ast: the AST of the function.
-        :type ast: ast
+        :param n: the full function name.
+        :type n: str
 
-        :return: A FuncNode object containing `n` and `ast`.
-        :rtype: FuncNode
+        :param ast: the AST object representing a function
+        :type ast: ast.FunctionDef
 
         For function ``func_a()`` defined within Python file 'main.py' with AST 'ast':
         >>> ClassNode('C:\\Users\\Jackson\\Documents\\example\\main.py\\func_a', ast)
@@ -172,9 +172,50 @@ class VarNode(Node):
     The Node subclass that represents a variable defined within a Python file,
     Python class, or Python function.
     """
+    
+    def __init__(self, n, ast):
+        """
+        Initializes VarNode object.
 
+        :param n: the full variable name.
+        :type n: str
+
+        :param ast: the AST object representing a variable.
+        :type ast: ast.VariableDef
+        """
+        super.__init__(n)
+        self.tree = ast
 
 class LambdaNode(Node):
     """
     The Node subclass that represents a Python lambda function.
     """
+
+    def __init__(self, n, ast):
+        """
+        Initializes LambdaNode object.
+
+        :param ast: the AST object representing a Lambda expression.
+        :type ast: ast.Lambda
+
+        :return: A LambdaNode object containing `n` and `ast`.
+        :rtype: LambdaNode 
+        """
+        super.__init__(n)
+        self.tree = ast
+
+class ForNode(Node):
+    """
+    The Node subclass that represents a Python for loop. 
+    """
+
+    def __init__(self, n):
+        """
+        Initializes a FolderNode
+
+        :param n: the name of the for loop.
+        :type n: str
+        """
+        super().__init__(n)
+
+
