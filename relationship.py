@@ -561,20 +561,6 @@ def inheritance_relationship(graph: nx.MultiDiGraph):
     graph.add_edges_from(inherit_edges)
 
 
-def variable_relationship(graph):
-    """
-    Creates a directed edge whenever a variable definition is used. 
-
-    :param graph: the graph representing the target code repo
-    :type graph: networkx.MultiDiGraph
-    """
-    node_visitor = NodeMaker(graph)
-
-    for node in graph.nodes:
-        if type(node) is VarNode:
-            pass
-
-
 def add_graph_nodes(graph):
     """
     Adds ClassNode, FuncNode, and VarNode to the base ``graph``.
