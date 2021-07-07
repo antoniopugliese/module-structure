@@ -74,7 +74,7 @@ def main_db():
         print("Scanning start directory...", end="", flush=True)
         repo_path = parsing.find_dir(home, repo_name)
         add_to_database(rs, repo_name, "repo_path", repo_path)
-
+        print("Done.")
     try:
         os.chdir(repo_path)
     except OSError:

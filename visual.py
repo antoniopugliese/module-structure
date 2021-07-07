@@ -25,12 +25,13 @@ import redis
 import math
 
 import subgraph
+import node
 import metrics
 import matrix
 
 # for development purposes only. If True, the web browser refreshes whenever
 # chanegs are made to this file
-DEBUG_MODE = False
+DEBUG_MODE = True
 
 # Graph presets. 'name' : ( [included_nodes], [included_edges], layout, show_nodes, description )
 ### possibly move into a json file ###
@@ -47,14 +48,42 @@ PRESETS = {
     'import dependency': (["File", "Folder"], ["Import"], 'concentric', 'No',
                           "The imports of each Python file. Nodes are Python files or folders (as Python packages). " +
                           "A directed edge from **u** to **v**  represents '**u** is imported by **v**.'"),
-    'definitions': (["File", "Class", "Function"], ["Definition"], 'cose', 'No',
-                    "The organization of Python class and function definitions. Nodes are files, functions, or classes. " +
-                    "A directed edge from **u** to **v**  represents '**u** defines **v**.'"),
+    'broad definitions': (["File", "Class", "Function"], ["Definition"], 'cose', 'No',
+                          "The organization of Python class and function definitions. Nodes are files, functions, or classes. " +
+                          "A directed edge from **u** to **v**  represents '**u** defines **v**.'"),
+    'granular definitions': (["File", "Class", "Function", "Variable", "Lambda", "If", "For", "While", "Try"], ["Definition"], 'cose', 'No',
+                             "The variables, lambda expressions, if-statements, for loops, while loops, and try-statements defined within Python files." +
+                             "A directed edge from **u** to **v**  represents '**u** defines **v**.'"),
     'all': (["File", "Folder", "Class", "Function"], ["Inheritance", "Directory", "Function Call", "Import", "Definition"], 'concentric', 'No',
             "Every type of node and edge displayed at once."),
     'custom': ([], [], 'concentric', 'Yes', "Choose the Node and Edge types to include. ")
 }
 
+NODE_SHAPES = {
+    node.FolderNode: 'ellipse',
+    node.FileNode: 'ellipse',
+    node.ClassNode: 'rectangle',
+    node.FuncNode: 'triangle',
+    node.VarNode: 'pentagon',
+    node.LambdaNode: 'star',
+    node.IfNode: 'star',
+    node.ForNode: 'star',
+    node.WhileNode: 'star',
+    node.TryNode: 'star',
+}
+
+
+# possible node shapes
+# 'ellipse',
+#                         'triangle',
+#                         'rectangle',
+#                         'diamond',
+#                         'pentagon',
+#                         'hexagon',
+#                         'heptagon',
+#                         'octagon',
+#                         'star',
+#                         'polygon',
 
 def get_graph_data(graph: nx.MultiDiGraph, positions=None):
     """
@@ -315,8 +344,7 @@ def display(repo_name: str, rs: redis.Redis, commits: list[Commit], commit_dict:
                   [Input('dropdown-layout', 'value')])
     def update_graph_layout(layout):
         if layout == 'cose':
-            # positions will be put in by networkx algorithm
-            return {'name': 'preset'}
+            return {'name': 'cose', 'animate': False, 'numIter': 500}
         return {'name': layout}
 
     @app.callback([Output('dropdown-node-preferences', 'value'),
@@ -403,6 +431,7 @@ def display(repo_name: str, rs: redis.Redis, commits: list[Commit], commit_dict:
         graph = commit_dict[sha1]
         new_graph = subgraph.subgraph(graph, node_list, edge_list)
         for n in new_graph.nodes:
+            shape = NODE_SHAPES.get(type(n))
             if new_graph.in_degree(n) == 0 and new_graph.degree(n) != 0:
                 stylesheet.append({
                     "selector": 'node[id = "{}"]'.format(n.get_name()),
@@ -410,8 +439,15 @@ def display(repo_name: str, rs: redis.Redis, commits: list[Commit], commit_dict:
                         'background-color': root_color,
                         'opacity': 0.9,
                         "label": "data(label)",
+                        'shape': shape
                     }
                 })
+            else:
+                stylesheet.append({
+                    "selector": 'node[id = "{}"]'.format(n.get_name()),
+                    "style": {'shape': shape}
+                })
+
         if node is None or node['data']['id'] == prev_node_data['prev_node']:
             prev_node_data.update({'prev_node': None})
             return (stylesheet, prev_node_data)
@@ -421,7 +457,6 @@ def display(repo_name: str, rs: redis.Redis, commits: list[Commit], commit_dict:
             "selector": 'node',
             'style': {
                 'opacity': 0.3,
-                'shape': 'ellipse',
             }
         }, {
             'selector': 'edge',
