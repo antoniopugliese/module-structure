@@ -10,7 +10,8 @@ Python 3.8.3 or above.
 
 import ast
 import os
-from node import FileNode, FolderNode, ClassNode, FuncNode, VarNode, LambdaNode, ForNode
+from node import (FileNode, FolderNode, ClassNode, FuncNode,
+                  VarNode, LambdaNode, ForNode, IfNode)
 import edge
 import networkx as nx
 
@@ -219,7 +220,6 @@ class NodeMaker(ast.NodeVisitor):
                 var_name = os.path.join(self.starting_node.name, name.id)
                 var_node = VarNode(var_name, node.value)
                 if type(name.ctx) is ast.Store:
-
                     # edge (u,v): "u defines variable v"
                     self.graph.add_edge(self.starting_node, var_node,
                                         edge=edge.DefinitionEdge(""))
@@ -269,11 +269,51 @@ class NodeMaker(ast.NodeVisitor):
         self.graph.add_edge(self.starting_node, lambda_node,
                             edge=edge.DefinitionEdge(""))
 
-    def visit_For(self, node):
-        for_node = ForNode(os.path.join(self.starting_node.name, "for"))
+    def visit_For(self, node: ast.For):
+        base = self.starting_node.name
+        i = 1
+        for_node = ForNode(os.path.join(base, "for1"))
+
+        # might be multiple for loops in this scope
+        while self.graph.has_node(for_node):
+            i += 1
+            for_st = "for" + str(i)
+            for_node = ForNode(os.path.join(base, for_st))
 
         self.graph.add_edge(self.starting_node, for_node,
-                            edge=edge.ControlFlowEdge(""))
+                            edge=edge.DefinitionEdge(""))
+
+        # self.change_scope(for_node, node)
+        self.generic_visit(node)
+
+    def visit_If(self, node: ast.If):
+        base = self.starting_node.name
+        i = 1
+        if_node = IfNode(os.path.join(base, "if1"))
+
+        # might be multiple if statements in this scope
+        while self.graph.has_node(if_node):
+            i += 1
+            if_st = "if" + str(i)
+            if_node = IfNode(os.path.join(base, if_st))
+
+        # edge (u,v): "u defines if statement v"
+        self.graph.add_edge(self.starting_node, if_node,
+                            edge=edge.DefinitionEdge(""))
+
+        # test - draw VariableEdge if depends on some variable
+        self.change_scope(if_node, node.test)
+
+        # TODO: body - draw ControlFlowEdge if modifies some variable
+        for child in node.body:
+            # walk child nodes to create loop variables
+            self.change_scope(if_node, child)
+
+        # TODO: orelse - draw ControlFlowEdge if modifies some var;
+        # check for nested if statements
+        for child in node.orelse:
+            # walk child nodes to create loop variables
+            self.change_scope(if_node, child)
 
 
 def get_repo_node_helper(graph, starting_node, mod, level):
