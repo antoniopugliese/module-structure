@@ -11,7 +11,7 @@ Python 3.8.3 or above.
 import ast
 import os
 from node import (FileNode, FolderNode, ClassNode, FuncNode,
-                  VarNode, LambdaNode, ForNode, IfNode)
+                  VarNode, LambdaNode, ForNode, IfNode, WhileNode, TryNode)
 import edge
 import networkx as nx
 
@@ -164,7 +164,7 @@ class NodeMaker(ast.NodeVisitor):
 
     def change_scope(self, new, node):
         """
-        Temporarily changes scope while visiting nodes. 
+        Temporarily changes the scope to visit the children of a AST node. 
 
         :param new: new starting node
         :type new: Node
@@ -229,7 +229,8 @@ class NodeMaker(ast.NodeVisitor):
 
     def visit_Name(self, node: ast.Name):
         """
-        Adds a VariableEdge to the graph.
+        Draws a VariableEdge between the function, class, or file that uses a 
+        variable.
 
         :param node: a node representing the variable.
         :type node: ast.Name
@@ -255,6 +256,12 @@ class NodeMaker(ast.NodeVisitor):
                 i -= 1
 
     def visit_Lambda(self, node: ast.Lambda):
+        """
+        Adds a LambdaNode to the graph and draws a DefinitionEdge.
+
+        :param node: the ast node representing the lambda.
+        :type node: ast.Lambda
+        """
         base = self.starting_node.name
         i = 1
         lambda_node = LambdaNode(os.path.join(base, "lambda1"), node.body)
@@ -270,6 +277,14 @@ class NodeMaker(ast.NodeVisitor):
                             edge=edge.DefinitionEdge(""))
 
     def visit_For(self, node: ast.For):
+        """
+        Adds a ForNode to the graph and draws a DefinitionEdge. Draws a
+        VariableEdge if a variable is used in the test clause. Draws ControlFlowEdge
+        between variables that are modified within the for loop.
+
+        :param node: the ast node representing the for loop.
+        :type node: ast.For
+        """
         base = self.starting_node.name
         i = 1
         for_node = ForNode(os.path.join(base, "for1"))
@@ -280,13 +295,88 @@ class NodeMaker(ast.NodeVisitor):
             for_st = "for" + str(i)
             for_node = ForNode(os.path.join(base, for_st))
 
+        # edge (u,v): "u defines for loop v"
         self.graph.add_edge(self.starting_node, for_node,
                             edge=edge.DefinitionEdge(""))
+
+        # TODO: node.iter - draw VariableEdge to variable being looped over.
+
+        # TODO: node.body - draw ControlFlowEdge if modifies some variable
+
+        # TODO: node.orelse - rare else statement in for loops
 
         # self.change_scope(for_node, node)
         self.generic_visit(node)
 
+    def visit_While(self, node: ast.While):
+        """
+        Adds a WhileNode to the graph and draws a DefinitionEdge. Draws a
+        VariableEdge if a variable is used in the test clause. Draws ControlFlowEdge
+        between variables that are modified within the while loop.
+
+        :param node: the ast node representing the while loop.
+        :type node: ast.While
+        """
+        base = self.starting_node.name
+        i = 1
+        while_node = WhileNode(os.path.join(base, "while1"))
+
+        # might be multiple while loops in this scope
+        while self.graph.has_node(while_node):
+            i += 1
+            while_st = "while" + str(i)
+            while_node = WhileNode(os.path.join(base, while_st))
+
+        # edge (u,v): "u defines while loop v"
+        self.graph.add_edge(self.starting_node, while_node,
+                            edge=edge.DefinitionEdge(""))
+
+        # node.test - draw VariableEdge if depends on some variable
+        self.change_scope(while_node, node.test)
+
+        # TODO: node.body - draw ControlFlowEdge if modifies some variable
+
+        # TODO: node.orelse - rare else statement in while loops.
+
+        # self.change_scope(while_node, node)
+        self.generic_visit(node)
+
+    def visit_Try(self, node: ast.Try):
+        """
+        Adds a TryNode to the graph and draws a DefinitionEdge. Draws ControlFlowEdge
+        between variables that are modified within the try statement.
+
+        :param node: the ast node representing the try statement.
+        :type node: ast.Try
+        """
+        base = self.starting_node.name
+        i = 1
+        try_node = TryNode(os.path.join(base, "try1"))
+
+        # might be multiple while loops in this scope
+        while self.graph.has_node(try_node):
+            i += 1
+            try_st = "try" + str(i)
+            try_node = WhileNode(os.path.join(base, try_st))
+
+        # edge (u,v): "u defines while loop v"
+        self.graph.add_edge(self.starting_node, try_node,
+                            edge=edge.DefinitionEdge(""))
+
+        # TODO: node.body - draw ControlFlowEdge if modifies some variable
+
+        #self.change_scope(try_node, node)
+        self.generic_visit(node)
+
     def visit_If(self, node: ast.If):
+        """
+        Adds a IfNode to the graph and draws a DefinitionEdge. Draws a
+        VariableEdge if a variable is used in the test clause. Draws ControlFlowEdge
+        between variables that are modified within the if statement.
+
+        :param node: the ast node representing the if statement.
+        :type node: ast.If
+        """
         base = self.starting_node.name
         i = 1
         if_node = IfNode(os.path.join(base, "if1"))
@@ -301,19 +391,22 @@ class NodeMaker(ast.NodeVisitor):
         self.graph.add_edge(self.starting_node, if_node,
                             edge=edge.DefinitionEdge(""))
 
-        # test - draw VariableEdge if depends on some variable
+        # node.test - draw VariableEdge if depends on some variable
         self.change_scope(if_node, node.test)
 
-        # TODO: body - draw ControlFlowEdge if modifies some variable
+        # TODO: node.body - draw ControlFlowEdge if modifies some variable
         for child in node.body:
             # walk child nodes to create loop variables
             self.change_scope(if_node, child)
 
-        # TODO: orelse - draw ControlFlowEdge if modifies some var;
+        # TODO: node.orelse - draw ControlFlowEdge if modifies some var;
         # check for nested if statements
         for child in node.orelse:
             # walk child nodes to create loop variables
             self.change_scope(if_node, child)
+
+        self.change_scope(if_node, node)
+        # self.generic_visit(node)
 
 
 def get_repo_node_helper(graph, starting_node, mod, level):

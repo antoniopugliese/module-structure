@@ -231,7 +231,7 @@ children nodes, and at most one parent Node.</p>
 <dt class="sig sig-object py" id="node.ForNode">
 <em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">node.</span></span><span class="sig-name descname"><span class="pre">ForNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#node.ForNode" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#node.Node" title="node.Node"><code class="xref py py-class docutils literal notranslate"><span class="pre">node.Node</span></code></a></p>
-<p>The Node subclass that represents a Python for loop.</p>
+<p>The Node subclass that represents a Python <code class="docutils literal notranslate"><span class="pre">for</span></code> loop.</p>
 </dd></dl>
 
 <dl class="py class">
@@ -240,6 +240,13 @@ children nodes, and at most one parent Node.</p>
 <dd><p>Bases: <a class="reference internal" href="#node.Node" title="node.Node"><code class="xref py py-class docutils literal notranslate"><span class="pre">node.Node</span></code></a></p>
 <p>The Node subclass that represents a function defined within a Python file or
 a Python class.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="node.IfNode">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">node.</span></span><span class="sig-name descname"><span class="pre">IfNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#node.IfNode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#node.Node" title="node.Node"><code class="xref py py-class docutils literal notranslate"><span class="pre">node.Node</span></code></a></p>
+<p>The Node subclass that represents a Python <code class="docutils literal notranslate"><span class="pre">if</span></code> statement.</p>
 </dd></dl>
 
 <dl class="py class">
@@ -273,11 +280,25 @@ Python function.</p>
 </dd></dl>
 
 <dl class="py class">
+<dt class="sig sig-object py" id="node.TryNode">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">node.</span></span><span class="sig-name descname"><span class="pre">TryNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#node.TryNode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#node.Node" title="node.Node"><code class="xref py py-class docutils literal notranslate"><span class="pre">node.Node</span></code></a></p>
+<p>The Node subclass that represents a Python <code class="docutils literal notranslate"><span class="pre">try-except</span></code> statement.</p>
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="node.VarNode">
 <em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">node.</span></span><span class="sig-name descname"><span class="pre">VarNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ast</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#node.VarNode" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#node.Node" title="node.Node"><code class="xref py py-class docutils literal notranslate"><span class="pre">node.Node</span></code></a></p>
 <p>The Node subclass that represents a variable defined within a Python file,
 Python class, or Python function.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="node.WhileNode">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">node.</span></span><span class="sig-name descname"><span class="pre">WhileNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#node.WhileNode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#node.Node" title="node.Node"><code class="xref py py-class docutils literal notranslate"><span class="pre">node.Node</span></code></a></p>
+<p>The Node subclass that represents a Python <code class="docutils literal notranslate"><span class="pre">while</span></code> statement.</p>
 </dd></dl>
 
 </section>
@@ -381,6 +402,20 @@ the functions the statements import, if any.</p>
 <p>This class will gather classes, functions, and variables defined within an AST, and add
 Node object representations of them to an existing root.</p>
 <dl class="py method">
+<dt class="sig sig-object py" id="relationship.NodeMaker.change_scope">
+<span class="sig-name descname"><span class="pre">change_scope</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#relationship.NodeMaker.change_scope" title="Permalink to this definition">¶</a></dt>
+<dd><p>Temporarily changes the scope to visit the children of a AST node.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>new</strong> (<a class="reference internal" href="#node.Node" title="node.Node"><em>Node</em></a>) – new starting node</p></li>
+<li><p><strong>node</strong> (<a class="reference internal" href="#node.Node" title="node.Node"><em>Node</em></a>) – current node that is being visited</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="relationship.NodeMaker.visit_Assign">
 <span class="sig-name descname"><span class="pre">visit_Assign</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">ast.Assign</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#relationship.NodeMaker.visit_Assign" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adds a VarNode and creates a DefinitionEdge between the function,
@@ -400,8 +435,16 @@ class, or file that defined the variable.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="relationship.NodeMaker.visit_For">
-<span class="sig-name descname"><span class="pre">visit_For</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#relationship.NodeMaker.visit_For" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<span class="sig-name descname"><span class="pre">visit_For</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">ast.For</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#relationship.NodeMaker.visit_For" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds a ForNode to the graph and draws a DefinitionEdge. Draws a
+VariableEdge if a variable is used in the test clause. Draws ControlFlowEdge
+between variables that are modified within the for loop.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>node</strong> (<em>ast.For</em>) – the ast node representing the for loop.</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="relationship.NodeMaker.visit_FunctionDef">
@@ -415,17 +458,62 @@ class, or file that defined the variable.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="relationship.NodeMaker.visit_If">
+<span class="sig-name descname"><span class="pre">visit_If</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">ast.If</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#relationship.NodeMaker.visit_If" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds a IfNode to the graph and draws a DefinitionEdge. Draws a
+VariableEdge if a variable is used in the test clause. Draws ControlFlowEdge
+between variables that are modified within the if statement.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>node</strong> (<em>ast.If</em>) – the ast node representing the if statement.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="relationship.NodeMaker.visit_Lambda">
 <span class="sig-name descname"><span class="pre">visit_Lambda</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">ast.Lambda</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#relationship.NodeMaker.visit_Lambda" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Adds a LambdaNode to the graph and draws a DefinitionEdge.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>node</strong> (<em>ast.Lambda</em>) – the ast node representing the lambda.</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="relationship.NodeMaker.visit_Name">
 <span class="sig-name descname"><span class="pre">visit_Name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">ast.Name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#relationship.NodeMaker.visit_Name" title="Permalink to this definition">¶</a></dt>
-<dd><p>Adds a VariableEdge to the graph.</p>
+<dd><p>Draws a VariableEdge between the function, class, or file that uses a 
+variable.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>node</strong> (<em>ast.Name</em>) – a node representing the variable.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="relationship.NodeMaker.visit_Try">
+<span class="sig-name descname"><span class="pre">visit_Try</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">ast.Try</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#relationship.NodeMaker.visit_Try" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds a TryNode to the graph and draws a DefinitionEdge. Draws ControlFlowEdge
+between variables that are modified within the try statement.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>node</strong> (<em>ast.Try</em>) – the ast node representing the try statement.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="relationship.NodeMaker.visit_While">
+<span class="sig-name descname"><span class="pre">visit_While</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">ast.While</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#relationship.NodeMaker.visit_While" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds a WhileNode to the graph and draws a DefinitionEdge. Draws a
+VariableEdge if a variable is used in the test clause. Draws ControlFlowEdge
+between variables that are modified within the while loop.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>node</strong> (<em>ast.While</em>) – the ast node representing the while loop.</p>
 </dd>
 </dl>
 </dd></dl>

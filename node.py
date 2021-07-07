@@ -211,6 +211,19 @@ class IfNode(Node):
     The Node subclass that represents a Python ``if`` statement.
     """
 
+    def __init__(self, n):
+        """
+        Initializes IfNode object.
+
+        :param n: the if statement identifier.
+        :type n: str
+
+        For two ``if`` statements defined within Python file ``main.py``:
+        >>> IfNode('C:\\Users\\Jackson\\Documents\\example\\main.py\\if1')
+        >>> IfNode('C:\\Users\\Jackson\\Documents\\example\\main.py\\if2')
+        """
+        super().__init__(n)
+
 
 class ForNode(Node):
     """
@@ -219,9 +232,51 @@ class ForNode(Node):
 
     def __init__(self, n):
         """
-        Initializes a ForNode
+        Initializes ForNode object.
 
-        :param n: the name of the for loop.
+        :param n: the for statement identifier.
         :type n: str
+
+        For two ``for`` statements defined within Python file ``main.py``:
+        >>> ForNode('C:\\Users\\Jackson\\Documents\\example\\main.py\\for1')
+        >>> ForNode('C:\\Users\\Jackson\\Documents\\example\\main.py\\for2')
+        """
+        super().__init__(n)
+
+
+class WhileNode(Node):
+    """
+    The Node subclass that represents a Python ``while`` statement.
+    """
+
+    def __init__(self, n):
+        """
+        Initializes WhileNode object.
+
+        :param n: the while statement identifier.
+        :type n: str
+
+        For two ``while`` statements defined within Python file ``main.py``:
+        >>> WhileNode('C:\\Users\\Jackson\\Documents\\example\\main.py\\while1')
+        >>> WhileNode('C:\\Users\\Jackson\\Documents\\example\\main.py\\while2')
+        """
+        super().__init__(n)
+
+
+class TryNode(Node):
+    """
+    The Node subclass that represents a Python ``try-except`` statement.
+    """
+
+    def __init__(self, n):
+        """
+        Initializes TryNode object.
+
+        :param n: the try statement identifier.
+        :type n: str
+
+        For two ``try`` statements defined within Python file ``main.py``:
+        >>> TryNode('C:\\Users\\Jackson\\Documents\\example\\main.py\\try1')
+        >>> TryNode('C:\\Users\\Jackson\\Documents\\example\\main.py\\try2')
         """
         super().__init__(n)
