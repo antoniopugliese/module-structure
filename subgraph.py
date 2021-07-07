@@ -21,7 +21,13 @@ NODES = {
     "Folder": node.FolderNode,
     "File": node.FileNode,
     "Class": node.ClassNode,
-    "Function": node.FuncNode
+    "Function": node.FuncNode,
+    "Variable": node.VarNode,
+    "Lambda": node.LambdaNode,
+    "If": node.IfNode,
+    "For": node.ForNode,
+    "While": node.WhileNode,
+    "Try": node.TryNode,
 }
 
 # possible edges
@@ -46,7 +52,7 @@ def get_preferences():
     """
     # potentially use path finding function from parsing.py
     current_dir = os.path.dirname(os.path.abspath(__file__))
-    
+
     with open(os.path.join(current_dir, "config.json"), "r") as f:
         config = json.load(f)
 
@@ -66,7 +72,10 @@ def str_to_node(str):
     >>> str_to_node("Folder")
     node.FolderNode
     """
-    return NODES.get(str, "Invalid node in config")
+    try:
+        return NODES.get(str)
+    except KeyError:
+        raise ValueError(f"Node must be one of {NODES}")
 
 
 def str_to_edge(str):
@@ -82,7 +91,10 @@ def str_to_edge(str):
     >>> str_to_edge("Directory")
     edge.DirectoryEdge
     """
-    return EDGES.get(str, "Invalid edge in config")
+    try:
+        return EDGES.get(str)
+    except KeyError:
+        raise ValueError(f"Edge must be one of {EDGES}")
 
 
 def subgraph(graph: nx.MultiDiGraph, nodes, edges):
@@ -123,5 +135,10 @@ def subgraph(graph: nx.MultiDiGraph, nodes, edges):
 
     subgraph.add_nodes_from(sub_nodes)
     subgraph.add_edges_from(sub_edges)
+
+    # remove nodes not to be included
+    removes = [n
+               for n in subgraph.nodes if type(n) not in node_list]
+    subgraph.remove_nodes_from(removes)
 
     return subgraph
