@@ -211,24 +211,27 @@ def ControlTab():
                 clearable=False,
                 multi=True
             ), ]),
-        drc.NamedInput(
-            name='Followers Color',
-            id='input-follower-color',
-            type='text',
-            value='#0074D9',
-        ),
-        drc.NamedInput(
-            name='Following Color',
-            id='input-following-color',
-            type='text',
-            value='#FF4136',
-        ),
-        drc.NamedInput(
-            name='Root Color',
-            id='input-root-color',
-            type='text',
-            value='#000000',
-        ),
+        # hide color choosing for now
+        html.Div(id='choose-colors-container', hidden=True, children=[
+            drc.NamedInput(
+                name='Followers Color',
+                id='input-follower-color',
+                type='text',
+                value='#0074D9',
+            ),
+            drc.NamedInput(
+                name='Following Color',
+                id='input-following-color',
+                type='text',
+                value='#FF4136',
+            ),
+            drc.NamedInput(
+                name='Root Color',
+                id='input-root-color',
+                type='text',
+                value='#000000',
+            ),
+        ]),
         drc.NamedDropdown(
             name='Show 0 Degree Nodes',
             id='dropdown-show-empty',
@@ -453,7 +456,7 @@ def display(repo_name: str, rs: redis.Redis, commits: list[Commit], commit_dict:
             return (stylesheet, prev_node_data)
 
         # if node selected, color the graph to highlight this
-        stylesheet = [{
+        stylesheet += [{
             "selector": 'node',
             'style': {
                 'opacity': 0.3,
