@@ -169,6 +169,10 @@ def ControlTab():
     The component that changes the settings and layout of the graph.
     """
     return dcc.Tab(label='Control Panel', children=[
+        drc.NamedRadioItems(id='radio-mode', name='Choose graph mode', options=drc.DropdownOptionsList(
+            'exploration',
+            'overview'
+        ), value='exploration'),
         drc.NamedDropdown(
             name='Presets',
             id='dropdown-presets',
@@ -310,8 +314,10 @@ def display(repo_name: str, rs: redis.Redis, commits: list[Commit], commit_dict:
     app.layout = html.Div([
         html.Div(children=[
             dcc.Store(id='prev-node', data={'prev_node': None}),
-            dcc.Store(id='graph-sha1', data={'graph_sha1': commits[0].hexsha})
+            dcc.Store(id='graph-sha1', data={'graph_sha1': commits[0].hexsha}),
+            dcc.Store(id='exploration-nodes', data={'nodes': []})
         ]),
+        html.Div(id='empty-container', hidden=True, children=[]),
         html.Div(className='eight columns',
                  style={'width': '70%',
                         'position': 'relative',
@@ -342,6 +348,45 @@ def display(repo_name: str, rs: redis.Redis, commits: list[Commit], commit_dict:
                      ]),
                  ])
     ])
+
+    @app.callback(Output('exploration-nodes', 'data'),
+                  [Input('radio-mode', 'value'),
+                   Input('exploration-nodes', 'data'),
+                   Input('graph-sha1', 'data'),
+                   Input('dropdown-node-preferences', 'value'),
+                   Input('dropdown-edge-preferences', 'value'),
+                   Input('graph', 'tapNode')
+                   ])
+    def set_exploration_nodes(mode, explore_data, graph_sha1, node_list, edge_list, tapped_node):
+        if mode == 'overview':
+            return {'nodes': []}
+
+        # get graph
+        sha1 = graph_sha1['graph_sha1']
+        graph = commit_dict[sha1]
+        new_graph = subgraph.subgraph(graph, node_list, edge_list)
+
+        # set to not add duplicate nodes
+        allowed_nodes = explore_data['nodes']
+
+        if allowed_nodes == []:
+            # only allow roots and their direct children at first
+            for n in new_graph.nodes:
+                # if n is a root
+                if new_graph.in_degree(n) == 0 and new_graph.degree(n) != 0:
+                    allowed_nodes.append(n.get_name())
+                    for direct_child in new_graph.successors(n):
+                        allowed_nodes.append(direct_child.get_name())
+        elif tapped_node != None:
+            # add tapped node's children
+            for n in new_graph.nodes:
+                if n.get_name() == tapped_node['data']['id']:
+                    # allowed_nodes.add(n.get_name())
+                    for direct_child in new_graph.successors(n):
+                        allowed_nodes.append(direct_child.get_name())
+                    break
+
+        return {'nodes': allowed_nodes}
 
     @app.callback(Output('graph', 'layout'),
                   [Input('dropdown-layout', 'value')])
@@ -377,8 +422,9 @@ def display(repo_name: str, rs: redis.Redis, commits: list[Commit], commit_dict:
                   Input('dropdown-show-empty', 'value'),
                   Input('graph-sha1', 'data'),
                   Input('graph', 'layout'),
+                  Input('exploration-nodes', 'data')
                    ])
-    def update_graph_data(node_list, edge_list, show_empty, data, layout):
+    def update_graph_data(node_list, edge_list, show_empty, data, layout, explore_nodes):
         sha1 = data['graph_sha1']
         graph = commit_dict[sha1]
         new_graph = subgraph.subgraph(graph, node_list, edge_list)
@@ -387,6 +433,13 @@ def display(repo_name: str, rs: redis.Redis, commits: list[Commit], commit_dict:
         for n in new_graph.nodes:
             if show_empty == "No" and new_graph.degree(n) == 0:
                 removes.append(n)
+
+        # remove unexplored nodes if in explore mode
+        allowed_nodes = explore_nodes['nodes']
+        if allowed_nodes != []:
+            for n in new_graph.nodes:
+                if n.get_name() not in allowed_nodes:
+                    removes.append(n)
 
         new_graph.remove_nodes_from(removes)
 
@@ -422,13 +475,13 @@ def display(repo_name: str, rs: redis.Redis, commits: list[Commit], commit_dict:
     def generate_stylesheet(node, prev_node_data, graph_data, node_list, edge_list, follower_color, following_color, root_color):
         # always color the roots
         stylesheet = [
-            {
-                "selector": 'edge',
-                'style': {
-                    "curve-style": "bezier",
-                    "opacity": 0.65
-                }
-            },
+            # {
+            #     "selector": 'edge',
+            #     'style': {
+            #         "curve-style": "bezier",
+            #         "opacity": 0.65
+            #     }
+            # },
         ]
         sha1 = graph_data['graph_sha1']
         graph = commit_dict[sha1]
