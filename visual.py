@@ -6,7 +6,7 @@ The display function is heavily adapted from this user: https://github.com/xhlul
 
 import dash
 import dash_cytoscape as cyto
-from dash.dependencies import Input, Output
+from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 import dash_html_components as html
 import dash_core_components as dcc
@@ -361,16 +361,33 @@ def display(repo_name: str, rs: redis.Redis, commits: list[Commit], commit_dict:
         if mode == 'overview':
             return {'nodes': []}
 
+        allowed_nodes = explore_data['nodes']
+
         # get graph
         sha1 = graph_sha1['graph_sha1']
         graph = commit_dict[sha1]
         new_graph = subgraph.subgraph(graph, node_list, edge_list)
 
-        # set to not add duplicate nodes
-        allowed_nodes = explore_data['nodes']
+        # if tapped node is not a leaf, dont update
+        if tapped_node != None:
+            target_id = tapped_node['data']['id']
+            for n in new_graph.nodes:
+                if n.get_name() == target_id:
+                    for child in new_graph.successors(n):
+                        if child.get_name() in allowed_nodes:
+                            raise PreventUpdate
 
-        if allowed_nodes == []:
-            # only allow roots and their direct children at first
+        # determine if preset was changed to trigger this callback
+        ctx = dash.callback_context
+        preset_changed = False
+        for event in ctx.triggered:
+            prop_id = event['prop_id']
+            if prop_id == 'dropdown-node-preferences.value' or prop_id == 'dropdown-edge-preferences.value':
+                preset_changed = True
+                break
+
+        if allowed_nodes == [] or preset_changed:
+            # only allow roots at first
             for n in new_graph.nodes:
                 # if n is a root
                 if new_graph.in_degree(n) == 0 and new_graph.degree(n) != 0:
@@ -381,7 +398,6 @@ def display(repo_name: str, rs: redis.Redis, commits: list[Commit], commit_dict:
             # add tapped node's children
             for n in new_graph.nodes:
                 if n.get_name() == tapped_node['data']['id']:
-                    # allowed_nodes.add(n.get_name())
                     for direct_child in new_graph.successors(n):
                         allowed_nodes.append(direct_child.get_name())
                     break
@@ -422,9 +438,23 @@ def display(repo_name: str, rs: redis.Redis, commits: list[Commit], commit_dict:
                   Input('dropdown-show-empty', 'value'),
                   Input('graph-sha1', 'data'),
                   Input('graph', 'layout'),
-                  Input('exploration-nodes', 'data')
+                  Input('exploration-nodes', 'data'),
+                  Input('radio-mode', 'value')
                    ])
-    def update_graph_data(node_list, edge_list, show_empty, data, layout, explore_nodes):
+    def update_graph_data(node_list, edge_list, show_empty, data, layout, explore_nodes, mode):
+        # if exploration nodes triggered this callback while not in exploration mode, do not update
+        ctx = dash.callback_context
+        explore_triggered = False
+        mode_triggered = False
+        for event in ctx.triggered:
+            prop_id = event['prop_id']
+            if prop_id == 'exploration-nodes.data':
+                explore_triggered = True
+            if prop_id == 'radio-mode.value':
+                mode_triggered = True
+        if explore_triggered and not mode_triggered and mode != 'exploration':
+            raise PreventUpdate
+
         sha1 = data['graph_sha1']
         graph = commit_dict[sha1]
         new_graph = subgraph.subgraph(graph, node_list, edge_list)
@@ -436,7 +466,7 @@ def display(repo_name: str, rs: redis.Redis, commits: list[Commit], commit_dict:
 
         # remove unexplored nodes if in explore mode
         allowed_nodes = explore_nodes['nodes']
-        if allowed_nodes != []:
+        if mode == 'exploration' and allowed_nodes != []:
             for n in new_graph.nodes:
                 if n.get_name() not in allowed_nodes:
                     removes.append(n)
@@ -462,6 +492,53 @@ def display(repo_name: str, rs: redis.Redis, commits: list[Commit], commit_dict:
         else:
             return get_graph_data(new_graph)
 
+    def color_nodes(elements, stylesheet, tapped_node, following_color, follower_color):
+        node_id = tapped_node['data']['id']
+        for edge in elements:
+            try:
+                if edge['data']['source'] == node_id:
+                    stylesheet.append({
+                        "selector": 'node[id = "{}"]'.format(edge['data']['target']),
+                        "style": {
+                            'background-color': following_color,
+                            'opacity': 0.9,
+                            "label": "data(label)",
+                        }
+                    })
+                    stylesheet.append({
+                        "selector": 'edge[source= "{}"]'.format(node_id),
+                        "style": {
+                            "mid-target-arrow-color": following_color,
+                            "mid-target-arrow-shape": "vee",
+                            "line-color": following_color,
+                            'opacity': 0.9,
+                            'z-index': 5000,
+                        }
+                    })
+
+                if edge['data']['target'] == node_id:
+                    stylesheet.append({
+                        "selector": 'node[id = "{}"]'.format(edge['data']['source']),
+                        "style": {
+                            'background-color': follower_color,
+                            'opacity': 0.9,
+                            'z-index': 9999,
+                            "label": "data(label)",
+                        }
+                    })
+                    stylesheet.append({
+                        "selector": 'edge[target= "{}"]'.format(node_id),
+                        "style": {
+                            "mid-target-arrow-color": follower_color,
+                            "mid-target-arrow-shape": "vee",
+                            "line-color": follower_color,
+                            'opacity': 1,
+                            'z-index': 5000
+                        }
+                    })
+            except KeyError:
+                pass
+
     @app.callback([Output('graph', 'stylesheet'), Output('prev-node', 'data')],
                   [Input('graph', 'tapNode'),
                    Input('prev-node', 'data'),
@@ -472,17 +549,9 @@ def display(repo_name: str, rs: redis.Redis, commits: list[Commit], commit_dict:
                    Input('input-following-color', 'value'),
                    Input('input-root-color', 'value')
                    ])
-    def generate_stylesheet(node, prev_node_data, graph_data, node_list, edge_list, follower_color, following_color, root_color):
+    def generate_stylesheet(tapped_node, prev_node_data, graph_data, node_list, edge_list, follower_color, following_color, root_color):
         # always color the roots
-        stylesheet = [
-            # {
-            #     "selector": 'edge',
-            #     'style': {
-            #         "curve-style": "bezier",
-            #         "opacity": 0.65
-            #     }
-            # },
-        ]
+        stylesheet = []
         sha1 = graph_data['graph_sha1']
         graph = commit_dict[sha1]
         new_graph = subgraph.subgraph(graph, node_list, edge_list)
@@ -504,7 +573,7 @@ def display(repo_name: str, rs: redis.Redis, commits: list[Commit], commit_dict:
                     "style": {'shape': shape}
                 })
 
-        if node is None or node['data']['id'] == prev_node_data['prev_node']:
+        if tapped_node is None or tapped_node['data']['id'] == prev_node_data['prev_node']:
             prev_node_data.update({'prev_node': None})
             return (stylesheet, prev_node_data)
 
@@ -521,7 +590,7 @@ def display(repo_name: str, rs: redis.Redis, commits: list[Commit], commit_dict:
                 "curve-style": "bezier",
             }
         }, {
-            "selector": 'node[id = "{}"]'.format(node['data']['id']),
+            "selector": 'node[id = "{}"]'.format(tapped_node['data']['id']),
             "style": {
                 'background-color': '#B10DC9',
                 "border-color": "purple",
@@ -537,49 +606,11 @@ def display(repo_name: str, rs: redis.Redis, commits: list[Commit], commit_dict:
             }
         }]
 
-        for edge in node['edgesData']:
-            if edge['source'] == node['data']['id']:
-                stylesheet.append({
-                    "selector": 'node[id = "{}"]'.format(edge['target']),
-                    "style": {
-                        'background-color': following_color,
-                        'opacity': 0.9,
-                        "label": "data(label)",
-                    }
-                })
-                stylesheet.append({
-                    "selector": 'edge[id= "{}"]'.format(edge['id']),
-                    "style": {
-                        "mid-target-arrow-color": following_color,
-                        "mid-target-arrow-shape": "vee",
-                        "line-color": following_color,
-                        'opacity': 0.9,
-                        'z-index': 5000,
-                    }
-                })
+        new_elements = get_graph_data(new_graph)
+        color_nodes(new_elements, stylesheet, tapped_node,
+                    following_color, follower_color)
 
-            if edge['target'] == node['data']['id']:
-                stylesheet.append({
-                    "selector": 'node[id = "{}"]'.format(edge['source']),
-                    "style": {
-                        'background-color': follower_color,
-                        'opacity': 0.9,
-                        'z-index': 9999,
-                        "label": "data(label)",
-                    }
-                })
-                stylesheet.append({
-                    "selector": 'edge[id= "{}"]'.format(edge['id']),
-                    "style": {
-                        "mid-target-arrow-color": follower_color,
-                        "mid-target-arrow-shape": "vee",
-                        "line-color": follower_color,
-                        'opacity': 1,
-                        'z-index': 5000
-                    }
-                })
-
-        prev_node_data.update({'prev_node': node['data']['id']})
+        prev_node_data.update({'prev_node': tapped_node['data']['id']})
         return (stylesheet, prev_node_data)
 
     @app.callback(Output('graph', 'tapNode'),
