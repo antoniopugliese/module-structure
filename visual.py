@@ -61,29 +61,17 @@ PRESETS = {
 
 NODE_SHAPES = {
     node.FolderNode: 'ellipse',
-    node.FileNode: 'ellipse',
+    node.FileNode: 'triangle',
     node.ClassNode: 'rectangle',
-    node.FuncNode: 'triangle',
+    node.FuncNode: 'pentagon',
     node.VarNode: 'pentagon',
-    node.LambdaNode: 'star',
-    node.IfNode: 'star',
-    node.ForNode: 'star',
-    node.WhileNode: 'star',
-    node.TryNode: 'star',
+    node.LambdaNode: 'hexagon',
+    node.IfNode: 'hexagon',
+    node.ForNode: 'hexagon',
+    node.WhileNode: 'hexagon',
+    node.TryNode: 'hexagon',
 }
 
-
-# possible node shapes
-# 'ellipse',
-#                         'triangle',
-#                         'rectangle',
-#                         'diamond',
-#                         'pentagon',
-#                         'hexagon',
-#                         'heptagon',
-#                         'octagon',
-#                         'star',
-#                         'polygon',
 
 def get_graph_data(graph: nx.MultiDiGraph, positions=None):
     """
@@ -289,6 +277,21 @@ def AnalysisTab(dates: list[datetime], commits):
         ]),
     ])
 
+# possible move to subgraph.py
+
+
+def get_roots(graph):
+    """
+    Lists the id's of the roots of ``graph``.
+    """
+    roots = []
+    for n in graph.nodes:
+        # if n is a root
+        if graph.in_degree(n) == 0 and graph.degree(n) != 0:
+            roots.append(n.get_name())
+
+    return roots
+
 
 def display(repo_name: str, rs: redis.Redis, commits: list[Commit], commit_dict: dict[str, MultiDiGraph]):
     """
@@ -359,7 +362,7 @@ def display(repo_name: str, rs: redis.Redis, commits: list[Commit], commit_dict:
                    ])
     def set_exploration_nodes(mode, explore_data, graph_sha1, node_list, edge_list, tapped_node):
         if mode == 'overview':
-            return {'nodes': []}
+            return dash.no_update
 
         allowed_nodes = explore_data['nodes']
 
@@ -374,7 +377,8 @@ def display(repo_name: str, rs: redis.Redis, commits: list[Commit], commit_dict:
             for n in new_graph.nodes:
                 if n.get_name() == target_id:
                     for child in new_graph.successors(n):
-                        if child.get_name() in allowed_nodes:
+                        # if it is a leaf, or does not have any successors to add
+                        if child.get_name() in allowed_nodes or new_graph.successors(child):
                             raise PreventUpdate
 
         # determine if preset was changed to trigger this callback
@@ -386,7 +390,7 @@ def display(repo_name: str, rs: redis.Redis, commits: list[Commit], commit_dict:
                 preset_changed = True
                 break
 
-        if allowed_nodes == [] or preset_changed:
+        if preset_changed:
             # only allow roots at first
             for n in new_graph.nodes:
                 # if n is a root
@@ -405,10 +409,20 @@ def display(repo_name: str, rs: redis.Redis, commits: list[Commit], commit_dict:
         return {'nodes': allowed_nodes}
 
     @app.callback(Output('graph', 'layout'),
-                  [Input('dropdown-layout', 'value')])
-    def update_graph_layout(layout):
+                  [Input('dropdown-layout', 'value')], [State('graph-sha1', 'data'), State('dropdown-node-preferences', 'value'),
+                                                        State('dropdown-edge-preferences', 'value')])
+    def update_graph_layout(layout, graph_sha1, node_list, edge_list):
+        # get graph
+        sha1 = graph_sha1['graph_sha1']
+        graph = commit_dict[sha1]
+        new_graph = subgraph.subgraph(graph, node_list, edge_list)
+
         if layout == 'cose':
             return {'name': 'cose', 'animate': False, 'numIter': 500}
+        elif layout == 'breadthfirst':
+            roots = get_roots(new_graph)
+            return {'name': 'breadthfirst', 'roots': roots}
+
         return {'name': layout}
 
     @app.callback([Output('dropdown-node-preferences', 'value'),
@@ -442,19 +456,6 @@ def display(repo_name: str, rs: redis.Redis, commits: list[Commit], commit_dict:
                   Input('radio-mode', 'value')
                    ])
     def update_graph_data(node_list, edge_list, show_empty, data, layout, explore_nodes, mode):
-        # if exploration nodes triggered this callback while not in exploration mode, do not update
-        ctx = dash.callback_context
-        explore_triggered = False
-        mode_triggered = False
-        for event in ctx.triggered:
-            prop_id = event['prop_id']
-            if prop_id == 'exploration-nodes.data':
-                explore_triggered = True
-            if prop_id == 'radio-mode.value':
-                mode_triggered = True
-        if explore_triggered and not mode_triggered and mode != 'exploration':
-            raise PreventUpdate
-
         sha1 = data['graph_sha1']
         graph = commit_dict[sha1]
         new_graph = subgraph.subgraph(graph, node_list, edge_list)
@@ -466,7 +467,7 @@ def display(repo_name: str, rs: redis.Redis, commits: list[Commit], commit_dict:
 
         # remove unexplored nodes if in explore mode
         allowed_nodes = explore_nodes['nodes']
-        if mode == 'exploration' and allowed_nodes != []:
+        if mode == 'exploration':
             for n in new_graph.nodes:
                 if n.get_name() not in allowed_nodes:
                     removes.append(n)
@@ -551,26 +552,40 @@ def display(repo_name: str, rs: redis.Redis, commits: list[Commit], commit_dict:
                    ])
     def generate_stylesheet(tapped_node, prev_node_data, graph_data, node_list, edge_list, follower_color, following_color, root_color):
         # always color the roots
-        stylesheet = []
+        stylesheet = [
+            {
+                'selector': 'edge',
+                'style': {
+                    'opacity': 0.5,
+                    "curve-style": "bezier",
+                }}
+        ]
         sha1 = graph_data['graph_sha1']
         graph = commit_dict[sha1]
         new_graph = subgraph.subgraph(graph, node_list, edge_list)
         for n in new_graph.nodes:
             shape = NODE_SHAPES.get(type(n))
+            size = len(list(new_graph.successors(n)))*2 + 20
+
             if new_graph.in_degree(n) == 0 and new_graph.degree(n) != 0:
                 stylesheet.append({
                     "selector": 'node[id = "{}"]'.format(n.get_name()),
                     "style": {
                         'background-color': root_color,
                         'opacity': 0.9,
-                        "label": "data(label)",
-                        'shape': shape
+                        'label': 'data(label)',
+                        'shape': shape,
+                        'width': size,
+                        'height': size
                     }
                 })
             else:
                 stylesheet.append({
                     "selector": 'node[id = "{}"]'.format(n.get_name()),
-                    "style": {'shape': shape}
+                    "style": {'shape': shape,
+                                'width': size,
+                                'height': size
+                              }
                 })
 
         if tapped_node is None or tapped_node['data']['id'] == prev_node_data['prev_node']:
@@ -593,9 +608,6 @@ def display(repo_name: str, rs: redis.Redis, commits: list[Commit], commit_dict:
             "selector": 'node[id = "{}"]'.format(tapped_node['data']['id']),
             "style": {
                 'background-color': '#B10DC9',
-                "border-color": "purple",
-                "border-width": 2,
-                "border-opacity": 1,
                 "opacity": 1,
 
                 "label": "data(label)",
