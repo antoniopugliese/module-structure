@@ -1,5 +1,6 @@
 {
   "repo_name": "snorkel",
+  "repo_link": "https://github.com/snorkel-team/snorkel",
   "branch": "master",
   "max_count": 25,
   "nodes": [

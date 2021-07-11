@@ -48,6 +48,51 @@ def get_from_database(rs: redis.Redis, name, key):
     except TypeError:
         return None
 
+def get_repo(rs, repo_name, start):
+    """
+    Gets the repo path from file directory. 
+
+    :param rs: the Redis database
+    :type rs: Redis
+
+    :param repo_name: the name of the repo
+    :type repo_name: str
+
+    :param home: the start directory
+    :type home: str
+
+    :return: the path of the repo
+    :rtype: str
+    """
+    repo_path = get_from_database(rs, repo_name, "repo_path")
+
+    # If the repo_path is not in the database, scan the directory to find it
+    if repo_path is not None:
+        print("Found path.")
+    else:
+        print("Scanning start directory...", end="", flush=True)
+        repo_path = parsing.find_dir(start, repo_name)
+        print(repo_path)
+        add_to_database(rs, repo_name, "repo_path", repo_path)
+        print("Done.")
+    
+    return repo_path
+
+def find_repo(rs, repo_name, repo_link, dir):
+    repo_path = get_from_database(rs, repo_name, "repo_path")
+
+    if repo_path is not None:
+        print("Found path.")
+    else:
+        print("Cloning from git...", end="", flush= True)
+        new_dir = os.path.join(dir, "module_data")
+        os.chdir(new_dir)
+        Repo.clone_from(repo_link, new_dir)
+        repo_path = parsing.find_dir(new_dir, repo_name)
+        add_to_database(rs, repo_name, "repo_path", repo_path)
+        print("Done.")
+    
+    return repo_path
 
 def main_db():
     # Initialize the redis database (database 0)
@@ -62,23 +107,16 @@ def main_db():
         config = json.load(f)
 
     repo_name = config["repo_name"]
+    repo_link = config["repo_link"]
 
     print("Finding path to target repo...", end="", flush=True)
 
-    repo_path = get_from_database(rs, repo_name, "repo_path")
+    repo_path = get_repo(rs, repo_name, home)
 
-    # If the repo_path is not in the database, scan the directory to find it
-    if repo_path is not None:
-        print("Found path.")
-    else:
-        print("Scanning start directory...", end="", flush=True)
-        repo_path = parsing.find_dir(home, repo_name)
-        add_to_database(rs, repo_name, "repo_path", repo_path)
-        print("Done.")
     try:
         os.chdir(repo_path)
     except OSError:
-        print("Error changing directory")
+        print("Error changing directory") 
 
     # Create Repo object and extract list of commits
     repo = Repo(repo_path)
