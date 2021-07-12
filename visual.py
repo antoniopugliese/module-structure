@@ -330,7 +330,7 @@ def display(repo_name: str, rs: redis.Redis, commits: list[Commit], commit_dict:
                               children=[cyto.Cytoscape(
                                   id='graph',
                                   layout={'name': 'concentric'},
-                                  style={'width': '100%', 'height': '500px'},
+                                  style={'width': '100%', 'height': '750px'},
                                   elements=[],
                                   stylesheet=default_stylesheet),
                      ]),
@@ -425,6 +425,8 @@ def display(repo_name: str, rs: redis.Redis, commits: list[Commit], commit_dict:
         elif layout == 'breadthfirst':
             roots = get_roots(new_graph)
             return {'name': 'breadthfirst', 'roots': roots}
+        elif layout == 'concentric':
+            return {'name': 'concentric', 'spacingFactor': 0.5}
 
         return {'name': layout}
 
@@ -454,12 +456,12 @@ def display(repo_name: str, rs: redis.Redis, commits: list[Commit], commit_dict:
                   Input('dropdown-edge-preferences', 'value'),
                   Input('dropdown-show-empty', 'value'),
                   Input('graph-sha1', 'data'),
-                  Input('graph', 'layout'),
                   Input('exploration-nodes', 'data'),
                   Input('radio-mode', 'value')
                    ])
-    def update_graph_data(node_list, edge_list, show_empty, data, layout, explore_nodes, mode):
-        sha1 = data['graph_sha1']
+    def update_graph_data(node_list, edge_list, show_empty, graph_sha1, explore_nodes, mode):
+        # get graph
+        sha1 = graph_sha1['graph_sha1']
         graph = commit_dict[sha1]
         new_graph = subgraph.subgraph(graph, node_list, edge_list)
 
@@ -469,34 +471,21 @@ def display(repo_name: str, rs: redis.Redis, commits: list[Commit], commit_dict:
                 removes.append(n)
 
         # remove unexplored nodes if in explore mode
-        allowed_nodes = explore_nodes['nodes']
         if mode == 'exploration':
+            allowed_nodes = explore_nodes['nodes']
             for n in new_graph.nodes:
                 if n.get_name() not in allowed_nodes:
                     removes.append(n)
 
         new_graph.remove_nodes_from(removes)
 
-        if layout['name'] == 'preset':
-            # sha1 + _nodes.sort + _edges.sort + _show_empty
-            node_list.sort()
-            edge_list.sort()
-            key = f"{sha1}_{str(node_list)}_{str(edge_list)}_{show_empty}"
-            if rs.hexists(repo_name, key):
-                # get previously calculated positions
-                pos = pickle.loads(rs.hget(repo_name, key))
-            else:
-                # does not have grouping of trees like cose, but still works.
-                # has optional args that can be tweaked to give better results.
-                print("Running physics simulation...", end="", flush=True)
-                pos = nx.spring_layout(new_graph, scale=500, iterations=500)
-                rs.hset(repo_name, key, pickle.dumps(pos))
-                print("Done.")
-            return get_graph_data(new_graph, positions=pos)
-        else:
-            return get_graph_data(new_graph)
+        return get_graph_data(new_graph)
 
     def color_nodes(elements, stylesheet, tapped_node, following_color, follower_color):
+        """
+        Highlights ``tapped_node`` as well as its parent and children nodes. 
+        Prerequisites: ``tapped_node`` cannot be ``None``.
+        """
         node_id = tapped_node['data']['id']
         for edge in elements:
             try:
@@ -506,17 +495,18 @@ def display(repo_name: str, rs: redis.Redis, commits: list[Commit], commit_dict:
                         "style": {
                             'background-color': following_color,
                             'opacity': 0.9,
-                            "label": "data(label)",
+                            "label": "data(label)"
                         }
                     })
                     stylesheet.append({
                         "selector": 'edge[source= "{}"]'.format(node_id),
                         "style": {
                             "mid-target-arrow-color": following_color,
-                            "mid-target-arrow-shape": "vee",
+                            "mid-target-arrow-shape": 'triangle-backcurve',
                             "line-color": following_color,
-                            'opacity': 0.9,
+                            'opacity': 0.7,
                             'z-index': 5000,
+                            'arrow-scale': 3
                         }
                     })
 
@@ -534,10 +524,11 @@ def display(repo_name: str, rs: redis.Redis, commits: list[Commit], commit_dict:
                         "selector": 'edge[target= "{}"]'.format(node_id),
                         "style": {
                             "mid-target-arrow-color": follower_color,
-                            "mid-target-arrow-shape": "vee",
+                            "mid-target-arrow-shape": 'triangle-backcurve',
                             "line-color": follower_color,
-                            'opacity': 1,
-                            'z-index': 5000
+                            'opacity': 0.7,
+                            'z-index': 5000,
+                            'arrow-scale': 3
                         }
                     })
             except KeyError:
