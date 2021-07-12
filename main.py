@@ -48,6 +48,7 @@ def get_from_database(rs: redis.Redis, name, key):
     except TypeError:
         return None
 
+
 def get_repo(rs, repo_name, start):
     """
     Gets the repo path from file directory. 
@@ -75,8 +76,9 @@ def get_repo(rs, repo_name, start):
         print(repo_path)
         add_to_database(rs, repo_name, "repo_path", repo_path)
         print("Done")
-    
+
     return repo_path
+
 
 def find_repo(rs, repo_name, repo_link, dir):
     repo_path = get_from_database(rs, repo_name, "repo_path")
@@ -84,16 +86,18 @@ def find_repo(rs, repo_name, repo_link, dir):
     if repo_path is not None:
         print("Found path.")
     else:
-        print("Cloning from git...", end="", flush= True)
+        print("Cloning from git...", end="", flush=True)
         new_dir = os.path.join(dir, "module_data")
         os.chdir(new_dir)
-        clone = "git clone" + repo_link
+        clone = f"git clone {repo_link}"
         os.system(clone)
         repo_path = parsing.find_dir(new_dir, repo_name)
         add_to_database(rs, repo_name, "repo_path", repo_path)
+        os.chdir(dir)
         print("Done")
-    
+
     return repo_path
+
 
 def main_db():
     # Initialize the redis database (database 0)
@@ -112,12 +116,13 @@ def main_db():
 
     print("Finding path to target repo...", end="", flush=True)
 
-    repo_path = get_repo(rs, repo_name, home)
+    #repo_path = get_repo(rs, repo_name, home)
+    repo_path = find_repo(rs, repo_name, repo_link, current_dir)
 
     try:
         os.chdir(repo_path)
     except OSError:
-        print("Error changing directory") 
+        print("Error changing directory")
 
     # Create Repo object and extract list of commits
     repo = Repo(repo_path)
@@ -162,7 +167,7 @@ def main_db():
     print("Displaying graph.\n")
 
     # save updated data (if any)
-    rs.bgsave()
+    rs.execute_command('BGSAVE SCHEDULE')
     visual.display(repo_name, rs, commits, commit_dict)
 
 
