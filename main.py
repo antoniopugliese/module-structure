@@ -68,13 +68,13 @@ def get_repo(rs, repo_name, start):
 
     # If the repo_path is not in the database, scan the directory to find it
     if repo_path is not None:
-        print("Found path.")
+        print("Found a path")
     else:
         print("Scanning start directory...", end="", flush=True)
         repo_path = parsing.find_dir(start, repo_name)
         print(repo_path)
         add_to_database(rs, repo_name, "repo_path", repo_path)
-        print("Done.")
+        print("Done")
     
     return repo_path
 
@@ -91,7 +91,7 @@ def find_repo(rs, repo_name, repo_link, dir):
         os.system(clone)
         repo_path = parsing.find_dir(new_dir, repo_name)
         add_to_database(rs, repo_name, "repo_path", repo_path)
-        print("Done.")
+        print("Done")
     
     return repo_path
 
