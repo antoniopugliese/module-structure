@@ -277,9 +277,8 @@ def AnalysisTab(dates: list[datetime], commits):
         ]),
     ])
 
+
 # possible move to subgraph.py
-
-
 def get_roots(graph):
     """
     Lists the id's of the roots of ``graph``.
@@ -376,10 +375,13 @@ def display(repo_name: str, rs: redis.Redis, commits: list[Commit], commit_dict:
             target_id = tapped_node['data']['id']
             for n in new_graph.nodes:
                 if n.get_name() == target_id:
-                    for child in new_graph.successors(n):
-                        # if it is a leaf, or does not have any successors to add
-                        if child.get_name() in allowed_nodes or new_graph.successors(child):
-                            raise PreventUpdate
+                    # if all children are already in allowed_nodes, dont update
+                    # since empty set is always a subset, this also prevents update
+                    # for nodes with no children to add
+                    children = set(
+                        map(lambda n: n.get_name(), new_graph.successors(n)))
+                    if children.issubset(set(allowed_nodes)):
+                        raise PreventUpdate
 
         # determine if preset was changed to trigger this callback
         ctx = dash.callback_context
@@ -391,6 +393,7 @@ def display(repo_name: str, rs: redis.Redis, commits: list[Commit], commit_dict:
                 break
 
         if preset_changed:
+            allowed_nodes = []
             # only allow roots at first
             for n in new_graph.nodes:
                 # if n is a root
