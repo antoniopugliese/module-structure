@@ -87,7 +87,8 @@ def find_repo(rs, repo_name, repo_link, dir):
         print("Cloning from git...", end="", flush= True)
         new_dir = os.path.join(dir, "module_data")
         os.chdir(new_dir)
-        Repo.clone_from(repo_link, new_dir)
+        clone = "git clone" + repo_link
+        os.system(clone)
         repo_path = parsing.find_dir(new_dir, repo_name)
         add_to_database(rs, repo_name, "repo_path", repo_path)
         print("Done.")
