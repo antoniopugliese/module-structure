@@ -247,7 +247,19 @@ def ControlTab():
                  id='description-card',
                  children=[],
                  style={'padding': 5,
-                        'margin': 5, })
+                        'margin': 5, }),
+        drc.NamedCard(title='Legend', id='legend-card', size=1, children=[
+            cyto.Cytoscape(id='legend-graph', layout={'name': 'grid', 'columns': 3},
+                           style={'width': '100%', 'height': '150px'},
+                           elements=[],
+                           stylesheet=[],
+                           pan={'x': 0, 'y': 25},
+                           userPanningEnabled=False,
+                           userZoomingEnabled=False
+                           )],
+                      style={'padding': 5,
+                             'margin': 10, }
+                      )
     ])
 
 
@@ -361,6 +373,32 @@ def display(repo_name: str, rs: redis.Redis, commits: list[Commit], commit_dict:
                      ]),
                  ])
     ])
+
+    @app.callback([Output('legend-graph', 'elements'), Output('legend-graph', 'stylesheet')], [Input('dropdown-node-preferences', 'value'),
+                                                                                               Input('dropdown-edge-preferences', 'value')])
+    def update_legend(node_list, edge_list):
+        elems = []
+        stylesheet = []
+
+        for n in node_list:
+            type = subgraph.str_to_node(n)
+            shape = NODE_SHAPES.get(type)
+
+            elems.append({
+                'data': {
+                    'id': n,
+                    'label': n},
+            })
+
+            stylesheet.append({
+                'selector': 'node[id = "{}"]'.format(n),
+                'style': {
+                    'label': 'data(label)',
+                    'shape': shape
+                }
+            })
+
+        return elems, stylesheet
 
     @app.callback(Output('exploration-nodes', 'data'),
                   [Input('radio-mode', 'value'),
