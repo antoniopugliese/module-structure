@@ -26,6 +26,7 @@ import math
 
 import subgraph
 import node
+import edge
 import metrics
 import matrix
 
@@ -72,6 +73,15 @@ NODE_SHAPES = {
     node.TryNode: 'hexagon',
 }
 
+EDGE_STYLE = {
+    edge.DirectoryEdge: 'solid',
+    edge.DefinitionEdge: 'solid',
+    edge.ImportEdge: 'dashed',
+    edge.InheritanceEdge: 'dashed',
+    edge.FunctionCallEdge: 'dotted',
+    edge.VariableEdge: 'dotted'
+}
+
 
 def get_graph_data(graph: nx.MultiDiGraph, positions=None):
     """
@@ -102,9 +112,10 @@ def get_graph_data(graph: nx.MultiDiGraph, positions=None):
 
     e_list = [{
         'data': {
+            'id': f'{str(type(d))}{d.__hash__}',
             'source':  u.get_name(),
             'target': v.get_name()}
-    } for u, v, d in graph.edges]
+    } for u, v, d in graph.edges(data='edge')]
 
     return n_list + e_list
 
@@ -438,7 +449,7 @@ def display(repo_name: str, rs: redis.Redis, commits: list[Commit], commit_dict:
                   [Input('dropdown-presets', 'value')])
     def preset_graph(preset):
         if preset == 'custom':
-            raise PreventUpdate
+            return (dash.no_update, dash.no_update, dash.no_update, dash.no_update, [dcc.Markdown(PRESETS.get('custom')[4])])
         nodes, edges, layout, show_empty, description = PRESETS.get(
             preset, 'invalid preset')
         return (nodes, edges, layout, show_empty, [dcc.Markdown(description)])
@@ -446,10 +457,7 @@ def display(repo_name: str, rs: redis.Redis, commits: list[Commit], commit_dict:
     @app.callback(Output('preferences-container', 'hidden'),
                   [Input('dropdown-presets', 'value')])
     def unhide_preferences(preset):
-        if preset == "custom":
-            return False
-        else:
-            return True
+        return (False if preset == 'custom' else True)
 
     @app.callback(Output('graph', 'elements'),
                   [Input('dropdown-node-preferences', 'value'),
@@ -581,6 +589,14 @@ def display(repo_name: str, rs: redis.Redis, commits: list[Commit], commit_dict:
                                 'height': size
                               }
                 })
+
+        for u, v, d in new_graph.edges(data=True):
+            line_style = EDGE_STYLE.get(type(d['edge']))
+
+            stylesheet.append({
+                "selector": 'edge[id = "{}"]'.format(f"{str(type(d['edge']))}{d['edge'].__hash__}"),
+                "style": {'line-style': line_style}
+            })
 
         if tapped_node is None or tapped_node['data']['id'] == prev_node_data['prev_node']:
             prev_node_data.update({'prev_node': None})

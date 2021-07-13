@@ -28,11 +28,11 @@ def Card(children, **kwargs):
                 'border': 'thin lightgrey solid',
                 'background-color': 'white',
 
-                # Remove possibility to select the text for better UX
-                'user-select': 'none',
-                '-moz-user-select': 'none',
-                '-webkit-user-select': 'none',
-                '-ms-user-select': 'none'
+                # # Remove possibility to select the text for better UX
+                # 'user-select': 'none',
+                # '-moz-user-select': 'none',
+                # '-webkit-user-select': 'none',
+                # '-ms-user-select': 'none'
             },
             kwargs.get('style', {})
         ),
@@ -75,7 +75,7 @@ def NamedSlider(name, **kwargs):
     )
 
 
-# not in original
+# not in original file
 def NamedRangeSlider(name, **kwargs):
     return html.Div(
         style={'padding': '20px 10px 25px 4px'},
