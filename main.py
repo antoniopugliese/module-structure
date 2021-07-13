@@ -116,7 +116,7 @@ def main_db():
 
     print("Finding path to target repo...", end="", flush=True)
 
-    #repo_path = get_repo(rs, repo_name, home)
+    # repo_path = get_repo(rs, repo_name, home)
     repo_path = find_repo(rs, repo_name, repo_link, current_dir)
 
     try:

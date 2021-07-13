@@ -618,7 +618,7 @@ def function_call_relationship(graph: nx.MultiDiGraph):
     graph.add_edges_from(func_edges)
 
 
-def inheritance_relationship_class_helper(graph, node, node_visitor):
+def inheritance_relationship_class_helper(classes, graph, node, node_visitor):
     """
     Helper for inheritance_relationship() that generates a list of ClassNode objects.
 
@@ -634,15 +634,11 @@ def inheritance_relationship_class_helper(graph, node, node_visitor):
     :return: a list of nodes representing the classes in the repo
     :rtype: node.Node list
     """
-    classes = []
 
     for c in graph.successors(node):
         n = c.get_name().split(os.sep)[-1]
         if n in node_visitor.classes:
             classes.append(c)
-
-    return classes
-
 
 def inheritance_relationship_import_helper(classes, node, import_dict, node_visitor, inherit_edges):
     """
@@ -667,21 +663,25 @@ def inheritance_relationship_import_helper(classes, node, import_dict, node_visi
     for c in classes:
         # n1 is class name as it would appear in code
         n1 = c.get_name().split(os.sep)[-1]
+        extends = node_visitor.extends[n1]
+        # if n1 == "SFApplier":
+        #     print("list of classes: ", classes)
+        #     print("current node: ", import_dict[node])
         for imported_class in import_dict[node]:
             # n2 is class name as it would appear in code
             n2 = imported_class.get_name().split(os.sep)[-1]
             # handle multiple inheritance later
-            extends = node_visitor.extends[n1]
             if len(extends) == 1 and extends[0] == n2:
                 # edge (u,v): "u is a parent class of v"
                 inherit_edges.append((imported_class, c,
                                       {'edge': edge.InheritanceEdge("")}))
-            for c2 in classes:
-                n3 = c2.get_name().split(os.sep)[-1]
-                if len(extends) == 1 and extends[0] == n3:
-                    # edge (u,v): "u is a parent class of v"
-                    inherit_edges.append((c2, c,
-                                          {'edge': edge.InheritanceEdge("")}))
+
+        for c2 in classes:
+            n3 = c2.get_name().split(os.sep)[-1]
+            if len(extends) == 1 and extends[0] == n3:
+                # edge (u,v): "u is a parent class of v"
+                new_edge = (c2, c, {'edge': edge.InheritanceEdge("")})
+                inherit_edges.append(new_edge)
 
 
 def inheritance_relationship(graph: nx.MultiDiGraph):
@@ -695,13 +695,14 @@ def inheritance_relationship(graph: nx.MultiDiGraph):
     import_dict = imports_dict(graph)
     node_visitor = ClassLister()
     inherit_edges = []
+    classes = []
 
     for node in graph.nodes:
         if type(node) is FileNode:  # if at Python file
             node_visitor.visit(node.get_ast())
 
             # get list of ClassNode objects corresponding to the class names
-            classes = inheritance_relationship_class_helper(
+            inheritance_relationship_class_helper(classes,
                 graph, node, node_visitor)
 
             # get all inheritances
