@@ -661,7 +661,7 @@ def inheritance_relationship_import_helper(classes, node, import_dict, node_visi
     :param node_visitor: the type of nodes that are visited
     :type node_visitor: ClassLister()
 
-    :param inherit_edges: list of inheritances in thhe file structure
+    :param inherit_edges: list of inheritances in the file structure
     :type inherit_edges: str list 
     """
     for c in classes:
@@ -674,14 +674,16 @@ def inheritance_relationship_import_helper(classes, node, import_dict, node_visi
             extends = node_visitor.extends[n1]
             if len(extends) == 1 and extends[0] == n2:
                 # edge (u,v): "u is a parent class of v"
-                inherit_edges.append((imported_class, c,
-                                      {'edge': edge.InheritanceEdge("")}))
+                new_edge = (imported_class, c, {'edge': edge.InheritanceEdge("")}) 
+                if new_edge not in inherit_edges:
+                    inherit_edges.append(new_edge)
             for c2 in classes:
                 n3 = c2.get_name().split(os.sep)[-1]
                 if len(extends) == 1 and extends[0] == n3:
                     # edge (u,v): "u is a parent class of v"
-                    inherit_edges.append((c2, c,
-                                          {'edge': edge.InheritanceEdge("")}))
+                    new_edge = (c2, c, {'edge': edge.InheritanceEdge("")}) 
+                    if new_edge not in inherit_edges:
+                        inherit_edges.append(new_edge)
 
 
 def inheritance_relationship(graph: nx.MultiDiGraph):
