@@ -536,19 +536,19 @@ def get_func_nodes(graph, parent_node, n_list):
     :return: the list of Node objects
     :rtype: Node list
     """
-    nodes = []
+    nodes = set()
 
     if type(parent_node) is FileNode:
         for node in graph.successors(parent_node):
             for target_name in n_list:
-                n_name = node.get_name()
-                if n_name.endswith(target_name):
-                    nodes.append(node)
+                n_name = node.get_name().split(os.sep)[-1]
+                if n_name == target_name:
+                    nodes.add(node)
     elif type(parent_node) is FolderNode:
         for node in graph.successors(parent_node):
-            nodes += get_func_nodes(graph, node, n_list)
+            nodes = nodes.union(get_func_nodes(graph, node, n_list))
 
-    return nodes
+    return list(nodes)
 
 
 def imports_dict(graph):
@@ -570,6 +570,7 @@ def imports_dict(graph):
             node_visitor.visit(node.get_ast())
 
             imports = []
+           #print(f'Node {node}:')
             for (name, level) in node_visitor.imported_mods:
                 imported_node = get_repo_node(graph, node, name, level)
                 if imported_node is not None:
@@ -640,49 +641,6 @@ def inheritance_relationship_class_helper(classes, graph, node, node_visitor):
         if n in node_visitor.classes:
             classes.append(c)
 
-def inheritance_relationship_import_helper(classes, node, import_dict, node_visitor, inherit_edges):
-    """
-    Helper method for inheritance_relationship() that determines every inheritance
-    in the file structure.
-
-    :param classes: a list of nodes representing the classes in the repo
-    :type classes: node.Node list
-
-    :param node: the current node in the graph
-    :type node: networkx.node
-
-    :param import_dict: a dictionary of all imported functions
-    :type import_dict: {str : str list} 
-
-    :param node_visitor: the type of nodes that are visited
-    :type node_visitor: ClassLister()
-
-    :param inherit_edges: list of inheritances in the file structure
-    :type inherit_edges: str list 
-    """
-    for c in classes:
-        # n1 is class name as it would appear in code
-        n1 = c.get_name().split(os.sep)[-1]
-        extends = node_visitor.extends[n1]
-        # if n1 == "SFApplier":
-        #     print("list of classes: ", classes)
-        #     print("current node: ", import_dict[node])
-        for imported_class in import_dict[node]:
-            # n2 is class name as it would appear in code
-            n2 = imported_class.get_name().split(os.sep)[-1]
-            # handle multiple inheritance later
-            if len(extends) == 1 and extends[0] == n2:
-                # edge (u,v): "u is a parent class of v"
-                inherit_edges.append((imported_class, c,
-                                      {'edge': edge.InheritanceEdge("")}))
-
-        for c2 in classes:
-            n3 = c2.get_name().split(os.sep)[-1]
-            if len(extends) == 1 and extends[0] == n3:
-                # edge (u,v): "u is a parent class of v"
-                new_edge = (c2, c, {'edge': edge.InheritanceEdge("")})
-                inherit_edges.append(new_edge)
-
 
 def inheritance_relationship(graph: nx.MultiDiGraph):
     """
@@ -695,19 +653,39 @@ def inheritance_relationship(graph: nx.MultiDiGraph):
     import_dict = imports_dict(graph)
     node_visitor = ClassLister()
     inherit_edges = []
-    classes = []
 
     for node in graph.nodes:
         if type(node) is FileNode:  # if at Python file
             node_visitor.visit(node.get_ast())
 
-            # get list of ClassNode objects corresponding to the class names
-            inheritance_relationship_class_helper(classes,
-                graph, node, node_visitor)
+            imported_classes = [n
+                                for n in import_dict[node] if type(n) is ClassNode]
 
-            # get all inheritances
-            inheritance_relationship_import_helper(
-                classes, node, import_dict, node_visitor, inherit_edges)
+            # gather the ClassNodes defined in this class
+            defined_nodes = []
+            for c in graph.successors(node):
+                n = c.get_name().split(os.sep)[-1]
+                if n in node_visitor.classes:
+                    defined_nodes.append(c)
+
+            for defined_class in defined_nodes:
+                defined_class_name = str(defined_class).split(os.sep)[-1]
+
+                for base_class in node_visitor.extends[defined_class_name]:
+                    # check if the base class was imported or defined within the
+                    # same file
+                    e = ()
+                    all_classes = imported_classes + defined_nodes
+                    for c in all_classes:
+                        class_name = str(c).split(os.sep)[-1]
+                        if base_class == class_name:
+                            e = (c, defined_class,
+                                 {'edge': edge.InheritanceEdge("")})
+                            break
+
+                    # if class was found, add inheritance edge
+                    if e != ():
+                        inherit_edges.append(e)
 
             node_visitor.reset()
 
