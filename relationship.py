@@ -14,6 +14,7 @@ from node import (FileNode, FolderNode, ClassNode, FuncNode,
                   VarNode, LambdaNode, ForNode, IfNode, WhileNode, TryNode)
 import edge
 import networkx as nx
+from networkx.readwrite import json_graph
 
 
 class CallLister(ast.NodeVisitor):
@@ -761,3 +762,15 @@ def graph_to_string(graph: nx.MultiDiGraph, starting_node, level=0):
                 st += "\n" + " "*3*level + graph_to_string(graph, child, level)
 
     return st
+
+def graph_to_json(graph):
+    """
+    Generates a graph in json format from a networkx graph.
+
+    :param graph: the graph to add the relationships to.
+    :type graph: networkx.MultiDiGraph
+
+    :return: a json formatted graph
+    :rtype: networkx.MultiDiGraph
+    """
+    return json_graph.node_link_data(graph)
