@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+
+<svg id="dataviz_area" height=200 width=450></svg>
+
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>D3 Page Template</title>
+        <script type="text/javascript" src="d3.js"></script>
+    </head>
+    <body>
+        <script type="text/javascript">
+			var svg = d3.select("#dataviz_area")
+			svg.append("circle")
+			.attr("cx", 2).attr("cy", 2).attr("r", 40).style("fill", "blue");
+			svg.append("circle")
+			.attr("cx", 140).attr("cy", 70).attr("r", 40).style("fill", "red");
+			svg.append("circle")
+			.attr("cx", 300).attr("cy", 100).attr("r", 40).style("fill", "green");
+        </script>
+    </body>
+</html>
