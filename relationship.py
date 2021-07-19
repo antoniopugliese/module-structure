@@ -211,16 +211,44 @@ class NodeMaker(ast.NodeVisitor):
         # Add VarNodes as children of this FuncNode
         self.change_scope(func_node, node)
 
+    def get_var(self, var_name, level=0):
+        current_path = self.starting_node.get_name()
+        i = len(current_path.split(os.sep)) - level
+
+        # hueristic to look through scopes to try and find variable declaration
+        while i > 0:
+            path = current_path.split(os.sep)[:i]
+            var_node = VarNode(os.path.join(*path, var_name), None)
+            if self.graph.has_node(var_node):
+                return var_node
+            # stop search after searching through entire file scope
+            if path[-1].endswith(".py"):
+                break
+            i -= 1
+
+        return None
+
     def visit_Assign(self, node: ast.Assign):
         """
         Adds a VarNode and creates a DefinitionEdge between the function,
         class, or file that defined the variable.
         """
         for name in node.targets:
-            if type(name) is ast.Name:
-                var_name = os.path.join(self.starting_node.name, name.id)
-                var_node = VarNode(var_name, node.value)
-                if type(name.ctx) is ast.Store:
+            if type(name) is ast.Name and type(name.ctx) is ast.Store:
+                var_name = name.id
+                var_node = self.get_var(var_name, level=1)
+
+                # if variable has already been defined
+                if var_node is not None and type(self.starting_node) in [IfNode]:
+                    # edge (u,v): "control flow statement u modifies variable v"
+                    self.graph.add_edge(self.starting_node, var_node,
+                                        edge=edge.ControlFlowEdge(""))
+
+                # create variable
+                else:
+                    var_name = os.path.join(self.starting_node.name, name.id)
+                    var_node = VarNode(var_name, node.value)
+
                     # edge (u,v): "u defines variable v"
                     self.graph.add_edge(self.starting_node, var_node,
                                         edge=edge.DefinitionEdge(""))
@@ -238,23 +266,15 @@ class NodeMaker(ast.NodeVisitor):
         """
         if type(node.ctx) is ast.Load:
             var_name = node.id
+            var_node = self.get_var(var_name)
 
-            current_path = self.starting_node.get_name()
-            i = len(current_path.split(os.sep))
+            # if previously defined variable is used
+            if var_node is not None:
 
-            # hueristic to look through scopes to try and find variable declaration
-            while i > 0:
-                path = current_path.split(os.sep)[:i]
-                var_node = VarNode(os.path.join(*path, var_name), None)
-                if self.graph.has_node(var_node):
+                if type(self.starting_node) in [FileNode, ClassNode, FuncNode, IfNode, ForNode, WhileNode, TryNode]:
                     # edge (u,v): "variable u is used in v"
                     self.graph.add_edge(var_node, self.starting_node,
                                         edge=edge.VariableEdge(""))
-                    break
-                # stop search after searching through entire file scope
-                if path[-1].endswith(".py"):
-                    break
-                i -= 1
 
     def visit_Lambda(self, node: ast.Lambda):
         """
@@ -301,13 +321,37 @@ class NodeMaker(ast.NodeVisitor):
                             edge=edge.DefinitionEdge(""))
 
         # TODO: node.iter - draw VariableEdge to variable being looped over.
+        self.change_scope(for_node, node.iter)
 
         # TODO: node.body - draw ControlFlowEdge if modifies some variable
+        for child in node.body:
+            if type(child) is ast.For:
+                old_scope = self.starting_node
+                self.starting_node = for_node
+                self.visit_For(child)
+                self.starting_node = old_scope
+            elif type(child) is ast.If:
+                old_scope = self.starting_node
+                self.starting_node = for_node
+                self.visit_If(child)
+                self.starting_node = old_scope
+            elif type(child) is ast.While:
+                old_scope = self.starting_node
+                self.starting_node = for_node
+                self.visit_While(child)
+                self.starting_node = old_scope
+            elif type(child) is ast.Assign:
+                old_scope = self.starting_node
+                self.starting_node = for_node
+                self.visit_Assign(child)
+                self.starting_node = old_scope
+            elif type(child) is ast.Try:
+                old_scope = self.starting_node
+                self.starting_node = for_node
+                self.visit_Try(child)
+                self.starting_node = old_scope
 
         # TODO: node.orelse - rare else statement in for loops
-
-        # self.change_scope(for_node, node)
-        self.generic_visit(node)
 
     def visit_While(self, node: ast.While):
         """
@@ -336,11 +380,29 @@ class NodeMaker(ast.NodeVisitor):
         self.change_scope(while_node, node.test)
 
         # TODO: node.body - draw ControlFlowEdge if modifies some variable
+        for child in node.body:
+            if type(child) is ast.For:
+                old_scope = self.starting_node
+                self.starting_node = while_node
+                self.visit_For(child)
+                self.starting_node = old_scope
+            elif type(child) is ast.If:
+                old_scope = self.starting_node
+                self.starting_node = while_node
+                self.visit_If(child)
+                self.starting_node = old_scope
+            elif type(child) is ast.Assign:
+                old_scope = self.starting_node
+                self.starting_node = while_node
+                self.visit_Assign(child)
+                self.starting_node = old_scope
+            elif type(child) is ast.Try:
+                old_scope = self.starting_node
+                self.starting_node = while_node
+                self.visit_Try(child)
+                self.starting_node = old_scope
 
         # TODO: node.orelse - rare else statement in while loops.
-
-        # self.change_scope(while_node, node)
-        self.generic_visit(node)
 
     def visit_Try(self, node: ast.Try):
         """
@@ -358,16 +420,34 @@ class NodeMaker(ast.NodeVisitor):
         while self.graph.has_node(try_node):
             i += 1
             try_st = "try" + str(i)
-            try_node = WhileNode(os.path.join(base, try_st))
+            try_node = TryNode(os.path.join(base, try_st))
 
         # edge (u,v): "u defines while loop v"
         self.graph.add_edge(self.starting_node, try_node,
                             edge=edge.DefinitionEdge(""))
 
         # TODO: node.body - draw ControlFlowEdge if modifies some variable
-
-        #self.change_scope(try_node, node)
-        self.generic_visit(node)
+        for child in node.body:
+            if type(child) is ast.For:
+                old_scope = self.starting_node
+                self.starting_node = try_node
+                self.visit_For(child)
+                self.starting_node = old_scope
+            elif type(child) is ast.If:
+                old_scope = self.starting_node
+                self.starting_node = try_node
+                self.visit_If(child)
+                self.starting_node = old_scope
+            elif type(child) is ast.Assign:
+                old_scope = self.starting_node
+                self.starting_node = try_node
+                self.visit_Assign(child)
+                self.starting_node = old_scope
+            elif type(child) is ast.Try:
+                old_scope = self.starting_node
+                self.starting_node = try_node
+                self.visit_Try(child)
+                self.starting_node = old_scope
 
     def visit_If(self, node: ast.If):
         """
@@ -397,16 +477,64 @@ class NodeMaker(ast.NodeVisitor):
 
         # TODO: node.body - draw ControlFlowEdge if modifies some variable
         for child in node.body:
-            # walk child nodes to create loop variables
-            self.change_scope(if_node, child)
+            if type(child) is ast.For:
+                old_scope = self.starting_node
+                self.starting_node = if_node
+                self.visit_For(child)
+                self.starting_node = old_scope
+            elif type(child) is ast.If:
+                old_scope = self.starting_node
+                self.starting_node = if_node
+                self.visit_If(child)
+                self.starting_node = old_scope
+            elif type(child) is ast.Assign:
+                old_scope = self.starting_node
+                self.starting_node = if_node
+                self.visit_Assign(child)
+                self.starting_node = old_scope
+            elif type(child) is ast.While:
+                old_scope = self.starting_node
+                self.starting_node = if_node
+                self.visit_While(child)
+                self.starting_node = old_scope
+            elif type(child) is ast.Try:
+                old_scope = self.starting_node
+                self.starting_node = if_node
+                self.visit_Try(child)
+                self.starting_node = old_scope
+
+            #self.change_scope(if_node, child)
 
         # TODO: node.orelse - draw ControlFlowEdge if modifies some var;
         # check for nested if statements
         for child in node.orelse:
-            # walk child nodes to create loop variables
-            self.change_scope(if_node, child)
+            if type(child) is ast.For:
+                old_scope = self.starting_node
+                self.starting_node = if_node
+                self.visit_For(child)
+                self.starting_node = old_scope
+            elif type(child) is ast.If:
+                old_scope = self.starting_node
+                self.starting_node = if_node
+                self.visit_If(child)
+                self.starting_node = old_scope
+            elif type(child) is ast.Assign:
+                old_scope = self.starting_node
+                self.starting_node = if_node
+                self.visit_Assign(child)
+                self.starting_node = old_scope
+            elif type(child) is ast.While:
+                old_scope = self.starting_node
+                self.starting_node = if_node
+                self.visit_While(child)
+                self.starting_node = old_scope
+            elif type(child) is ast.Try:
+                old_scope = self.starting_node
+                self.starting_node = if_node
+                self.visit_Try(child)
+                self.starting_node = old_scope
 
-        self.change_scope(if_node, node)
+        #self.change_scope(if_node, node)
         # self.generic_visit(node)
 
 
@@ -762,6 +890,7 @@ def graph_to_string(graph: nx.MultiDiGraph, starting_node, level=0):
                 st += "\n" + " "*3*level + graph_to_string(graph, child, level)
 
     return st
+
 
 def graph_to_json(graph):
     """
