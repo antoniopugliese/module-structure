@@ -164,11 +164,17 @@ def main_db():
         add_to_database(rs, repo_name, "commit_dict", commit_dict)
         print("Done!")
 
+    latest_commit = "39dc1c46adcb3b8500b4e232fbe0efc41e65f0e1"
+    graph_data = rel.graph_to_json(commit_dict[latest_commit])
+
+    with open(os.path.join(current_dir, "module_data", latest_commit), "w") as f:
+        json.dump(graph_data, f, indent= 4)
+
     print("Displaying graph.\n")
 
     # save updated data (if any)
     rs.execute_command('BGSAVE SCHEDULE')
-    visual.display(repo_name, rs, commits, commit_dict)
+    #visual.display(repo_name, rs, commits, commit_dict)
 
 
 def main():
