@@ -48,7 +48,8 @@ class Node(dict):
         :return: A Node object containing n.
         :rtype: Node
         """
-        dict.__init__(self, name = n)
+        self.name = n
+        dict.__init__(self, name=n)
 
     def get_name(self):
         """
