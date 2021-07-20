@@ -14,7 +14,7 @@ be an edge attribute in the networkx module.
 import networkx as nx
 
 
-class Edge():
+class Edge(dict):
     """
     Object that represents an edge in a graph. This is an abstract class.
     """
@@ -26,7 +26,7 @@ class Edge():
         :param name: name of the edge
         :type name: str
         """
-        self.name = name
+        dict.__init__(self, name = name)
 
     def get_name(self):
         """
