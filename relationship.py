@@ -297,6 +297,16 @@ class NodeMaker(ast.NodeVisitor):
         self.graph.add_edge(self.starting_node, lambda_node,
                             edge=edge.DefinitionEdge(""))
 
+    def ast_node_types(self):
+        """Returns dictionary mapping ast node type to its corresponding visitor functions."""
+        return {
+            ast.For: self.visit_For,
+            ast.If: self.visit_If,
+            ast.While: self.visit_While,
+            ast.Assign: self.visit_Assign,
+            ast.Try: self.visit_Try,
+        }
+
     def visit_For(self, node: ast.For):
         """
         Adds a ForNode to the graph and draws a DefinitionEdge. Draws a
@@ -325,30 +335,11 @@ class NodeMaker(ast.NodeVisitor):
 
         # TODO: node.body - draw ControlFlowEdge if modifies some variable
         for child in node.body:
-            if type(child) is ast.For:
+            visit_func = self.ast_node_types().get(type(child), None)
+            if visit_func:
                 old_scope = self.starting_node
                 self.starting_node = for_node
-                self.visit_For(child)
-                self.starting_node = old_scope
-            elif type(child) is ast.If:
-                old_scope = self.starting_node
-                self.starting_node = for_node
-                self.visit_If(child)
-                self.starting_node = old_scope
-            elif type(child) is ast.While:
-                old_scope = self.starting_node
-                self.starting_node = for_node
-                self.visit_While(child)
-                self.starting_node = old_scope
-            elif type(child) is ast.Assign:
-                old_scope = self.starting_node
-                self.starting_node = for_node
-                self.visit_Assign(child)
-                self.starting_node = old_scope
-            elif type(child) is ast.Try:
-                old_scope = self.starting_node
-                self.starting_node = for_node
-                self.visit_Try(child)
+                visit_func(child)
                 self.starting_node = old_scope
 
         # TODO: node.orelse - rare else statement in for loops
@@ -381,25 +372,11 @@ class NodeMaker(ast.NodeVisitor):
 
         # TODO: node.body - draw ControlFlowEdge if modifies some variable
         for child in node.body:
-            if type(child) is ast.For:
+            visit_func = self.ast_node_types().get(type(child), None)
+            if visit_func:
                 old_scope = self.starting_node
                 self.starting_node = while_node
-                self.visit_For(child)
-                self.starting_node = old_scope
-            elif type(child) is ast.If:
-                old_scope = self.starting_node
-                self.starting_node = while_node
-                self.visit_If(child)
-                self.starting_node = old_scope
-            elif type(child) is ast.Assign:
-                old_scope = self.starting_node
-                self.starting_node = while_node
-                self.visit_Assign(child)
-                self.starting_node = old_scope
-            elif type(child) is ast.Try:
-                old_scope = self.starting_node
-                self.starting_node = while_node
-                self.visit_Try(child)
+                visit_func(child)
                 self.starting_node = old_scope
 
         # TODO: node.orelse - rare else statement in while loops.
@@ -428,25 +405,11 @@ class NodeMaker(ast.NodeVisitor):
 
         # TODO: node.body - draw ControlFlowEdge if modifies some variable
         for child in node.body:
-            if type(child) is ast.For:
+            visit_func = self.ast_node_types().get(type(child), None)
+            if visit_func:
                 old_scope = self.starting_node
                 self.starting_node = try_node
-                self.visit_For(child)
-                self.starting_node = old_scope
-            elif type(child) is ast.If:
-                old_scope = self.starting_node
-                self.starting_node = try_node
-                self.visit_If(child)
-                self.starting_node = old_scope
-            elif type(child) is ast.Assign:
-                old_scope = self.starting_node
-                self.starting_node = try_node
-                self.visit_Assign(child)
-                self.starting_node = old_scope
-            elif type(child) is ast.Try:
-                old_scope = self.starting_node
-                self.starting_node = try_node
-                self.visit_Try(child)
+                visit_func(child)
                 self.starting_node = old_scope
 
     def visit_If(self, node: ast.If):
@@ -477,65 +440,22 @@ class NodeMaker(ast.NodeVisitor):
 
         # TODO: node.body - draw ControlFlowEdge if modifies some variable
         for child in node.body:
-            if type(child) is ast.For:
+            visit_func = self.ast_node_types().get(type(child), None)
+            if visit_func:
                 old_scope = self.starting_node
                 self.starting_node = if_node
-                self.visit_For(child)
+                visit_func(child)
                 self.starting_node = old_scope
-            elif type(child) is ast.If:
-                old_scope = self.starting_node
-                self.starting_node = if_node
-                self.visit_If(child)
-                self.starting_node = old_scope
-            elif type(child) is ast.Assign:
-                old_scope = self.starting_node
-                self.starting_node = if_node
-                self.visit_Assign(child)
-                self.starting_node = old_scope
-            elif type(child) is ast.While:
-                old_scope = self.starting_node
-                self.starting_node = if_node
-                self.visit_While(child)
-                self.starting_node = old_scope
-            elif type(child) is ast.Try:
-                old_scope = self.starting_node
-                self.starting_node = if_node
-                self.visit_Try(child)
-                self.starting_node = old_scope
-
-            #self.change_scope(if_node, child)
 
         # TODO: node.orelse - draw ControlFlowEdge if modifies some var;
         # check for nested if statements
         for child in node.orelse:
-            if type(child) is ast.For:
+            visit_func = self.ast_node_types().get(type(child), None)
+            if visit_func:
                 old_scope = self.starting_node
                 self.starting_node = if_node
-                self.visit_For(child)
+                visit_func(child)
                 self.starting_node = old_scope
-            elif type(child) is ast.If:
-                old_scope = self.starting_node
-                self.starting_node = if_node
-                self.visit_If(child)
-                self.starting_node = old_scope
-            elif type(child) is ast.Assign:
-                old_scope = self.starting_node
-                self.starting_node = if_node
-                self.visit_Assign(child)
-                self.starting_node = old_scope
-            elif type(child) is ast.While:
-                old_scope = self.starting_node
-                self.starting_node = if_node
-                self.visit_While(child)
-                self.starting_node = old_scope
-            elif type(child) is ast.Try:
-                old_scope = self.starting_node
-                self.starting_node = if_node
-                self.visit_Try(child)
-                self.starting_node = old_scope
-
-        #self.change_scope(if_node, node)
-        # self.generic_visit(node)
 
 
 def get_repo_node_helper(graph, starting_node, mod, level):
