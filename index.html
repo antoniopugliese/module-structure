@@ -1,23 +1,24 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
 <style>
+  .links line {
+    stroke: #999;
+    stroke-opacity: 0.6;
+  }
 
-.links line {
-  stroke: #999;
-  stroke-opacity: 0.6;
-}
-
-.nodes circle {
-  stroke: #fff;
-  stroke-width: 1.5px;
-}
-
+  .nodes circle {
+    stroke: #fff;
+    stroke-width: 1.5px;
+  }
 </style>
 
 <head>
   <!-- Required meta tags -->
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <!--D3-->
+  <script src="https://d3js.org/d3.v4.min.js"></script>
 
   <!-- mdb CSS -->
   <link href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/3.6.0/mdb.min.css" rel="stylesheet" />
@@ -37,85 +38,8 @@
         <!-- Graph -->
         <div class="card">
           <div class="card-body">
-            <!-- Put graph here -->
-            <svg width="960" height="600"></svg>
-              <script src="https://d3js.org/d3.v4.min.js"></script>
-              <script>
-
-              var svg = d3.select("svg"),
-                  width = +svg.attr("width"),
-                  height = +svg.attr("height");
-
-              var color = d3.scaleOrdinal(d3.schemeCategory20);
-
-              var simulation = d3.forceSimulation()
-                  .force("link", d3.forceLink().id(function(d) { return d.id; }))
-                  .force("charge", d3.forceManyBody())
-                  .force("center", d3.forceCenter(width / 2, height / 2));
-
-              d3.json("module_data/39dc1c46adcb3b8500b4e232fbe0efc41e65f0e1.json", function(error, graph) {
-                if (error) throw error;
-
-                var link = svg.append("g")
-                    .attr("class", "links")
-                  .selectAll("line")
-                  .data(graph.links)
-                  .enter().append("line")
-                    .attr("stroke-width", function(d) { return Math.sqrt(d.value); });
-
-                var node = svg.append("g")
-                    .attr("class", "nodes")
-                  .selectAll("circle")
-                  .data(graph.nodes)
-                  .enter().append("circle")
-                    .attr("r", 5)
-                    .attr("fill", function(d) { return color(d.group); })
-                    .call(d3.drag()
-                        .on("start", dragstarted)
-                        .on("drag", dragged)
-                        .on("end", dragended));
-
-                node.append("title")
-                    .text(function(d) { return d.id; });
-
-                simulation
-                    .nodes(graph.nodes)
-                    .on("tick", ticked);
-
-                simulation.force("link")
-                    .links(graph.links);
-
-                function ticked() {
-                  link
-                      .attr("x1", function(d) { return d.source.x; })
-                      .attr("y1", function(d) { return d.source.y; })
-                      .attr("x2", function(d) { return d.target.x; })
-                      .attr("y2", function(d) { return d.target.y; });
-
-                  node
-                      .attr("cx", function(d) { return d.x; })
-                      .attr("cy", function(d) { return d.y; });
-                }
-              });
-
-              function dragstarted(d) {
-                if (!d3.event.active) simulation.alphaTarget(0.3).restart();
-                d.fx = d.x;
-                d.fy = d.y;
-              }
-
-              function dragged(d) {
-                d.fx = d3.event.x;
-                d.fy = d3.event.y;
-              }
-
-              function dragended(d) {
-                if (!d3.event.active) simulation.alphaTarget(0);
-                d.fx = null;
-                d.fy = null;
-              }
-
-              </script>
+            <svg id="graph-display" width="775" height="550"></svg>
+            <script src="test_d3_graph.js"></script>
           </div>
         </div>
       </div>
@@ -231,6 +155,8 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
     integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
     crossorigin="anonymous"></script>
+
+  <!--External Components-->
   <script src="./external_components/multiselect.min.js"></script>
   <script>document.multiselect('#node-dropdown');</script>
   <script>document.multiselect('#edge-dropdown');</script>
@@ -241,24 +167,3 @@
 </body>
 
 </html>
-
-<!-- <svg id="dataviz_area" height=200 width=450></svg>
-
-<html lang="en">
-    <head>
-        <meta charset="utf-8">
-        <title>D3 Page Template</title>
-        <script type="text/javascript" src="d3.js"></script>
-    </head>
-    <body>
-        <script type="text/javascript">
-			var svg = d3.select("#dataviz_area")
-			svg.append("circle")
-			.attr("cx", 2).attr("cy", 2).attr("r", 40).style("fill", "blue");
-			svg.append("circle")
-			.attr("cx", 140).attr("cy", 70).attr("r", 40).style("fill", "red");
-			svg.append("circle")
-			.attr("cx", 300).attr("cy", 100).attr("r", 40).style("fill", "green");
-        </script>
-    </body>
-</html> -->
