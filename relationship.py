@@ -775,8 +775,6 @@ def create_all_relationships(graph):
     function_call_relationship(new_graph)
     inheritance_relationship(new_graph)
 
-    print("New_graph", new_graph)
-
     return new_graph
 
 

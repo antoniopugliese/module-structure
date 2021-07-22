@@ -87,7 +87,7 @@ def find_repo(rs, repo_name, repo_link, dir):
         print("Found path.")
     else:
         print("Cloning from git...", end="", flush=True)
-        new_dir = os.path.join(dir, "module_data")
+        new_dir = os.path.join(dir, "frontend", "module_data")
         os.chdir(new_dir)
         clone = f"git clone {repo_link}"
         os.system(clone)
@@ -173,7 +173,7 @@ def main_db():
 
     latest_commit += ".json"
 
-    with open(os.path.join(current_dir, "module_data", latest_commit), "w") as f:
+    with open(os.path.join(current_dir, "frontend", "module_data", latest_commit), "w") as f:
         json.dump(graph_data, f, indent=4)
 
     print("Displaying graph.\n")
@@ -195,7 +195,7 @@ def main():
     repo_name = config["repo_name"]
 
     # Path to file containing pickled data
-    data_path = os.path.join(current_dir, "module_data")
+    data_path = os.path.join(current_dir, "frontend", "module_data")
 
     # Recursively determine where target repo is based on home directory
     print("Finding path to target repo...", end="", flush=True)

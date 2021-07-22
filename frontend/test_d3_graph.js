@@ -12,7 +12,7 @@ const simulation = d3.forceSimulation()
   .force("charge", d3.forceManyBody())
   .force("center", d3.forceCenter(width / 2, height / 2));
 
-d3.json("module_data/39dc1c46adcb3b8500b4e232fbe0efc41e65f0e1.json", (error, graph) => {
+d3.json("../module_data/39dc1c46adcb3b8500b4e232fbe0efc41e65f0e1.json", (error, graph) => {
   if (error) throw error;
 
   let link = svg.append("g")
