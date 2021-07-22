@@ -774,7 +774,7 @@ def create_all_relationships(graph):
     import_relationship(new_graph)
     function_call_relationship(new_graph)
     inheritance_relationship(new_graph)
-    
+
     print("New_graph", new_graph)
 
     return new_graph
@@ -814,7 +814,7 @@ def graph_to_string(graph: nx.MultiDiGraph, starting_node, level=0):
     return st
 
 
-def graph_to_json(graph):
+def graph_to_json(graph: nx.MultiDiGraph):
     """
     Generates a graph in json format from a networkx graph.
 
@@ -824,4 +824,19 @@ def graph_to_json(graph):
     :return: a json formatted graph
     :rtype: networkx.MultiDiGraph
     """
-    return json_graph.node_link_data(graph)  
+    # {"nodes": [], "links": []}
+    # Node: {"id":,"group":}
+    # Edge: {"source":,"target":,"value":}
+    nodelist = []
+    edgelist = []
+
+    for n in graph.nodes:
+        nodelist.append({"id": n.get_name(), "group": 1})
+
+    for u, v, d in graph.edges:
+        assert (u is not None) and (v is not None)
+
+        edgelist.append(
+            {"source": u.get_name(), "target": v.get_name(), "value": 1})
+
+    return {"nodes": nodelist, "links": edgelist}
