@@ -4,3 +4,4 @@ module_data/
 **/__pycache__/
 **/tests.py
 testing/
+node_modules

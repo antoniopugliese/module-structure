@@ -166,15 +166,15 @@ def main_db():
 
     latest_commit = "39dc1c46adcb3b8500b4e232fbe0efc41e65f0e1"
     latest_graph = rel.create_all_relationships(ast_dict[latest_commit])
-    print("List of nodes: ", list(latest_graph.nodes))
-    print("List of edges: ", list(latest_graph.edges))
+    # print("List of nodes: ", list(latest_graph.nodes))
+    # print("List of edges: ", list(latest_graph.edges))
 
     graph_data = rel.graph_to_json(latest_graph)
 
     latest_commit += ".json"
 
     with open(os.path.join(current_dir, "module_data", latest_commit), "w") as f:
-        json.dump(graph_data, f, indent= 4)
+        json.dump(graph_data, f, indent=4)
 
     print("Displaying graph.\n")
 
