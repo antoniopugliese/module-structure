@@ -774,6 +774,8 @@ def create_all_relationships(graph):
     import_relationship(new_graph)
     function_call_relationship(new_graph)
     inheritance_relationship(new_graph)
+    
+    print("New_graph", new_graph)
 
     return new_graph
 
@@ -822,4 +824,4 @@ def graph_to_json(graph):
     :return: a json formatted graph
     :rtype: networkx.MultiDiGraph
     """
-    return json_graph.node_link_data(graph)
+    return json_graph.node_link_data(graph)  
