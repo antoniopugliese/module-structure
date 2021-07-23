@@ -183,7 +183,7 @@ def main_db():
 
     # save updated data (if any)
     rs.execute_command('BGSAVE SCHEDULE')
-    #visual.display(repo_name, rs, commits, commit_dict)
+    visual.display(repo_name, rs, commits, commit_dict)
 
 
 def main():
