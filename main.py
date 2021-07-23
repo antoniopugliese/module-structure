@@ -173,7 +173,10 @@ def main_db():
 
     latest_commit += ".json"
 
-    with open(os.path.join(current_dir, "frontend", "module_data", latest_commit), "w") as f:
+    data_path = os.path.join(current_dir, "frontend", "module_data")
+    if not os.path.isdir(data_path):
+        os.mkdir(data_path)
+    with open(os.path.join(data_path, latest_commit), "w") as f:
         json.dump(graph_data, f, indent=4)
 
     print("Displaying graph.\n")

@@ -822,19 +822,19 @@ def graph_to_json(graph: nx.MultiDiGraph):
     :return: a json formatted graph
     :rtype: networkx.MultiDiGraph
     """
-    # {"nodes": [], "links": []}
-    # Node: {"id":,"group":}
-    # Edge: {"source":,"target":,"value":}
     nodelist = []
     edgelist = []
 
     for n in graph.nodes:
-        nodelist.append({"id": n.get_name(), "group": 1})
+        n_type = type(n).__name__
+        nodelist.append({"id": n.get_name(), "type": n_type})
 
-    for u, v, d in graph.edges:
+    for u, v, d in graph.edges(data=True):
         assert (u is not None) and (v is not None)
 
-        edgelist.append(
-            {"source": u.get_name(), "target": v.get_name(), "value": 1})
+        e_type = type(d['edge']).__name__
 
-    return {"nodes": nodelist, "links": edgelist}
+        edgelist.append(
+            {"source": u.get_name(), "target": v.get_name(), "type": e_type})
+
+    return {"nodes": nodelist, "edges": edgelist}
