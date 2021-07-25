@@ -1,6 +1,13 @@
-const svg = d3.select("#graph-display")
-width = +svg.attr("width"),
-  height = +svg.attr("height");
+// const svg = d3.select("#graph-display")
+// width = +svg.attr("width"),
+//   height = +svg.attr("height");
+
+const width = 300;
+const height = 300;
+
+const svg = d3.select("#svg-container").append("svg")
+  .attr("width", width).attr("height", height)
+  .attr("viewBox", [0, 0, width, height]);
 
 const g = svg.append("g")
   .attr("cursor", "grab");
@@ -18,7 +25,7 @@ d3.json("../module_data/39dc1c46adcb3b8500b4e232fbe0efc41e65f0e1.json", (error, 
   let link = svg.append("g")
     .attr("class", "links")
     .selectAll("line")
-    .data(graph.links)
+    .data(graph.edges)
     .enter().append("line")
     .attr("stroke-width", (d) => { return Math.sqrt(d.value); });
 
@@ -48,7 +55,7 @@ d3.json("../module_data/39dc1c46adcb3b8500b4e232fbe0efc41e65f0e1.json", (error, 
     .on("tick", ticked);
 
   simulation.force("link")
-    .links(graph.links);
+    .links(graph.edges);
 
   function ticked() {
     link
