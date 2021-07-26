@@ -26,6 +26,8 @@
   <!--Custom CSS-->
   <link href="dashboard.css" rel="stylesheet">
 
+  <link rel="stylesheet" type="text/css" href="./inspector.css">
+
   <title>Module Structure</title>
 </head>
 
@@ -40,8 +42,20 @@
           <div class="card-body">
             <div id="svg-container">
               <!-- <script src="test_d3_graph.js"></script> -->
-              <script src="subgraph.js"></script>
-              <script src="collapsible_tree.js"></script>
+              <script type="module">
+                import { Runtime, Inspector } from "https://cdn.jsdelivr.net/npm/@observablehq/runtime@4/dist/runtime.js";
+                import define from "./index.js";
+
+                const runtime = new Runtime();
+                const main = runtime.module(define, name => {
+                  if (name === "chart") {
+                    return new Inspector(document.querySelector("#svg-container"));
+                  }
+                });
+
+              </script>
+              <!-- <script src="subgraph.js"></script>
+              <script src="collapsible_tree.js"></script> -->
             </div>
           </div>
         </div>
