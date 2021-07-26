@@ -81,7 +81,7 @@ Click a black node to expand or collapse [the tree](/@d3/tidy-tree).`
         .attr("dy", "0.31em")
         .attr("x", d => d._children ? -6 : 6)
         .attr("text-anchor", d => d._children ? "end" : "start")
-        .text(d => d.data.name)
+        .text(d => d.data.name.split("\\").pop())
         .clone(true).lower()
         .attr("stroke-linejoin", "round")
         .attr("stroke-width", 3)
@@ -150,7 +150,7 @@ Click a black node to expand or collapse [the tree](/@d3/tidy-tree).`
   });
   main.variable(observer("dx")).define("dx", function () {
     return (
-      10
+      25
     )
   });
   main.variable(observer("dy")).define("dy", ["width"], function (width) {
@@ -160,7 +160,7 @@ Click a black node to expand or collapse [the tree](/@d3/tidy-tree).`
   });
   main.variable(observer("margin")).define("margin", function () {
     return (
-      { top: 10, right: 10, bottom: 10, left: 10 }
+      { top: 10, right: 50, bottom: 10, left: 50 }
     )
   });
   main.variable(observer("d3")).define("d3", ["require"], function (require) {

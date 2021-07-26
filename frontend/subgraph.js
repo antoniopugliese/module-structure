@@ -29,6 +29,19 @@ const subgraph = (g, node_types, edge_types) => {
   return { "nodes": sub_nodes, "edges": sub_edges }
 }
 
+/** */
+const format_as_tree = (node, directory_data) => {
+  let children = []
+  for (let e of directory_data["edges"]) {
+    if (e.source === node.id && e.target !== node.id) {
+      t_node = get_node(e.target, directory_data["nodes"])
+      children.push(format_as_tree(t_node, directory_data))
+    }
+  }
+
+  return { "name": node.id, "children": children }
+}
+
 /* TESTS */
 // const fs = require('fs')
 // const path = require('path')

@@ -42,16 +42,25 @@
           <div class="card-body">
             <div id="svg-container">
               <!-- <script src="test_d3_graph.js"></script> -->
+              <script src="./subgraph.js"></script>
               <script type="module">
                 import { Runtime, Inspector } from "https://cdn.jsdelivr.net/npm/@observablehq/runtime@4/dist/runtime.js";
                 import define from "./index.js";
 
-                const runtime = new Runtime();
-                const main = runtime.module(define, name => {
+                const main = new Runtime().module(define, name => {
                   if (name === "chart") {
                     return new Inspector(document.querySelector("#svg-container"));
                   }
                 });
+
+                // format data before displaying with D3
+                d3.json('./module_data/39dc1c46adcb3b8500b4e232fbe0efc41e65f0e1.json', (err, graph) => {
+                  if (err) throw err;
+
+                  graph = subgraph(graph, ["FileNode", "FolderNode"], ["DirectoryEdge"]);
+                  graph = format_as_tree({ id: "snorkel", type: "FolderNode" }, graph);
+                  main.redefine("data", graph);
+                })
 
               </script>
               <!-- <script src="subgraph.js"></script>
