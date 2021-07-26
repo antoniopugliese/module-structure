@@ -1,6 +1,10 @@
 """
 This module is used to display the module structure network.
 
+This entire module utilizes dash cytoscape and is entirely based on python. A 
+faster, more detailed exploration of the graph is found within the frontend 
+directory.
+
 The display function is heavily adapted from this user: https://github.com/xhlulu.
 """
 

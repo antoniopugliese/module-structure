@@ -16,7 +16,7 @@ import node
 import edge
 import json
 
-# possible nodes
+# List of possible nodes
 NODES = {
     "Folder": node.FolderNode,
     "File": node.FileNode,
@@ -30,7 +30,7 @@ NODES = {
     "Try": node.TryNode,
 }
 
-# possible edges
+# List of possible edges
 EDGES = {
     "Directory": edge.DirectoryEdge,
     "Import": edge.ImportEdge,
@@ -38,7 +38,6 @@ EDGES = {
     "Inheritance": edge.InheritanceEdge,
     "Definition": edge.DefinitionEdge
 }
-
 
 def get_preferences():
     """
@@ -97,8 +96,6 @@ def str_to_edge(str):
         raise ValueError(f"Edge must be one of {EDGES}")
 
 
-
-
 def subgraph(graph: nx.MultiDiGraph, nodes, edges):
     """
     Creates a subgraph of the given graph based on user preferences.
@@ -135,12 +132,12 @@ def subgraph(graph: nx.MultiDiGraph, nodes, edges):
                  for start, end, edge_attribute in graph.edges(data=True)
                  if (type(edge_attribute['edge']) in edge_list)]
 
+    # add all nodes and edges to the graph
     subgraph.add_nodes_from(sub_nodes)
     subgraph.add_edges_from(sub_edges)
 
     # remove nodes not to be included
-    removes = [n
-               for n in subgraph.nodes if type(n) not in node_list]
+    removes = [n for n in subgraph.nodes if type(n) not in node_list]
     subgraph.remove_nodes_from(removes)
 
     return subgraph
