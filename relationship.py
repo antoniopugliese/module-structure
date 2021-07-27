@@ -267,10 +267,10 @@ class NodeMaker(ast.NodeVisitor):
             var_name = node.id
             var_node = self.get_var(var_name)
 
+            node_list = [FileNode, ClassNode, FuncNode, IfNode, ForNode, WhileNode, TryNode] 
             # if previously defined variable is used
             if var_node is not None:
-
-                if type(self.starting_node) in [FileNode, ClassNode, FuncNode, IfNode, ForNode, WhileNode, TryNode]:
+                if type(self.starting_node) in node_list:
                     # edge (u,v): "variable u is used in v"
                     self.graph.add_edge(var_node, self.starting_node,
                                         edge=edge.VariableEdge(""))
@@ -503,6 +503,7 @@ def get_repo_node_helper(graph, starting_node, mod, level):
 
         if n == mod_folder or n == (mod_file):
             return node
+    
     return None
 
 
@@ -711,10 +712,7 @@ def inheritance_relationship(graph: nx.MultiDiGraph):
 
             # gather the ClassNodes defined in this class
             defined_nodes = []
-            for c in graph.successors(node):
-                n = c.get_name().split(os.sep)[-1]
-                if n in node_visitor.classes:
-                    defined_nodes.append(c)
+            inheritance_relationship_class_helper(defined_nodes, graph, node, node_visitor)
 
             for defined_class in defined_nodes:
                 defined_class_name = str(defined_class).split(os.sep)[-1]
