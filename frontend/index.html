@@ -127,26 +127,33 @@
 
             <!--Node options multiselect-->
             <div id="node-options-container">
+              <script src= ./subgraph.js></script>
               <label class="form-select-label" for="node-dropdown">Nodes</label>
-              <select class="form-select" id='node-dropdown' multiple aria-label="Nodes">
-                <option value='1'>Item 1</option>
-                <option value='2'>Item 2</option>
-                <option value='3'>Item 3</option>
-                <option value='4'>Item 4</option>
-                <option value='5'>Item 5</option>
+              <select class="form-select" id='node-dropdown' multiple aria-label="Nodes" onchange = "subgraph(this.option)">
+                <option value='1'>Folder</option>
+                <option value='2'>File</option>
+                <option value='3'>Class</option>
+                <option value='4'>Function</option>
+                <option value='5'>Variable</option>
+                <option value='6'>Lambda</option>
+                <option value='7'>If</option>
+                <option value='8'>For</option>
+                <option value='9'>While</option>
+                <option value='10'>Try</option>
               </select>
             </div>
 
 
             <!--Edge options multiselect-->
             <div id="edge-options-container">
+              <script src= ./subgraph.js></script>
               <label class="form-select-label" for="edge-dropdown">Edges</label>
               <select class="form-select" id='edge-dropdown' multiple aria-label="Edges">
-                <option value='1'>Item 1</option>
-                <option value='2'>Item 2</option>
-                <option value='3'>Item 3</option>
-                <option value='4'>Item 4</option>
-                <option value='5'>Item 5</option>
+                <option value='1'>Directory</option>
+                <option value='2'>Import</option>
+                <option value='3'>Function Call</option>
+                <option value='4'>Inheritance</option>
+                <option value='5'>Definition</option>
               </select>
             </div>
 
