@@ -42,6 +42,12 @@ const format_as_tree = (node, directory_data) => {
   return { "name": node.id, "children": children }
 }
 
+function changeGraph(graph, nodes, edges) {
+  graph = subgraph(graph, nodes, edges)
+  graph = format_as_tree({id: "snorkel", type: "FolderNode", graph})
+  main.redefine("data", graph);
+}
+
 /* TESTS */
 // const fs = require('fs')
 // const path = require('path')

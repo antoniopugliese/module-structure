@@ -61,7 +61,6 @@
                   graph = format_as_tree({ id: "snorkel", type: "FolderNode" }, graph);
                   main.redefine("data", graph);
                 })
-
               </script>
               <!-- <script src="subgraph.js"></script>
               <script src="collapsible_tree.js"></script> -->
@@ -104,8 +103,9 @@
 
             <!--Dropdown presets-->
             <div id="presets-container">
+              <script src= "./subgraph.js"></script>
               <label class="form-select-label" for="presets-dropdown">Preset</label>
-              <select class="form-select" id="presets-dropdown" aria-label="Presets">
+              <select class="form-select" id="presets-dropdown" aria-label="Presets" onclick="changeGraph(this.value)">
                 <option value="1">One</option>
                 <option value="2">Two</option>
                 <option value="3">Three</option>
@@ -115,8 +115,9 @@
 
             <!--Dropdown layouts-->
             <div id="layouts-container">
+              <script src= "./subgraph.js"></script>
               <label class="form-select-label" for="layouts-dropdown">Layout</label>
-              <select class="form-select" id="layouts-dropdown" aria-label="Layouts">
+              <select class="form-select" id="layouts-dropdown" aria-label="Layouts" onclick="changeGraph(this.value)">
                 <option value="1">One</option>
                 <option value="2">Two</option>
                 <option value="3">Three</option>
@@ -148,7 +149,7 @@
             <div id="edge-options-container">
               <script src= ./subgraph.js></script>
               <label class="form-select-label" for="edge-dropdown">Edges</label>
-              <select class="form-select" id='edge-dropdown' multiple aria-label="Edges">
+              <select class="form-select" id='edge-dropdown' multiple aria-label="Edges" onclick= "subgraph(this.option)">
                 <option value='1'>Directory</option>
                 <option value='2'>Import</option>
                 <option value='3'>Function Call</option>
