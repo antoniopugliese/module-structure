@@ -6,7 +6,7 @@ the file structure of a code repo, and the structure of its Python code files.
 from abc import ABC
 
 
-class Node(dict):
+class Node(ABC):
     """
     This abstract Node class is extended to build a tree that represents a software 
     module. The Node subclasses represent a folder, Python file, Python class, or
@@ -49,7 +49,6 @@ class Node(dict):
         :rtype: Node
         """
         self.name = n
-        dict.__init__(self, name=n)
 
     def get_name(self):
         """

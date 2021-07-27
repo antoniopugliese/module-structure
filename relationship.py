@@ -14,7 +14,6 @@ from node import (FileNode, FolderNode, ClassNode, FuncNode,
                   VarNode, LambdaNode, ForNode, IfNode, WhileNode, TryNode)
 import edge
 import networkx as nx
-from networkx.readwrite import json_graph
 
 
 class CallLister(ast.NodeVisitor):
