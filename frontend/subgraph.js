@@ -42,10 +42,37 @@ const format_as_tree = (node, directory_data) => {
   return { "name": node.id, "children": children }
 }
 
-function changeGraph(graph, nodes, edges) {
-  graph = subgraph(graph, nodes, edges)
-  graph = format_as_tree({id: "snorkel", type: "FolderNode", graph})
-  main.redefine("data", graph);
+
+const PRESETS = {
+  'file directory': [
+    ['FolderNode', 'FileNode'], ['DirectoryEdge'], 'tree', true,
+    "The file organization of the repo. Nodes are either folders or Python files. " +
+    "A directed edge from **u** to **v** represents '**u** is the parent folder of **v**.'"],
+  'class inheritance': [
+    ["ClassNode"], ["InheritanceNode"], 'force directed', false,
+    "The classes that inherit from another class defined within the repo. Nodes are Python classes. " +
+    "A directed edge from **u** to **v** represents '**u** is a parent class for **v**.'"],
+  'function dependency': [
+    ["FileNode", "ClassNode", "FunctionNode"], ["Function Call"], 'circle', false,
+    "The function calls within the repo. Nodes represent a Python file, function, or class. " +
+    "A directed edge from **u** to **v**  represents '**u** is called by **v**.'"],
+  'import dependency': [
+    ["FileNode", "FolderNode"], ["ImportEdge"], 'concentric', false,
+    "The imports of each Python file. Nodes are Python files or folders (as Python packages). " +
+    "A directed edge from **u** to **v**  represents '**u** is imported by **v**.'"],
+  'broad definitions': [
+    ["File", "Class", "Function"], ["Definition"], 'cose', false,
+    "The organization of Python class and function definitions. Nodes are files, functions, or classes. " +
+    "A directed edge from **u** to **v**  represents '**u** defines **v**.'"],
+  'granular definitions': [
+    ["File", "Class", "Function", "Variable", "Lambda", "If", "For", "While", "Try"], ["Definition"], 'cose', false,
+    "The variables, lambda expressions, if-statements, for loops, while loops, and try-statements defined within Python files." +
+    "A directed edge from **u** to **v**  represents '**u** defines **v**.'"],
+  'all': [
+    ["File", "Folder", "Class", "Function"], ["Inheritance", "Directory", "Function Call", "Import", "Definition"], 'concentric', false,
+    "Every type of node and edge displayed at once."],
+  'custom': [
+    [], [], 'concentric', true, "Choose the Node and Edge types to include. "]
 }
 
 /* TESTS */
