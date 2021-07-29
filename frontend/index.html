@@ -26,6 +26,8 @@
   <!--Custom CSS-->
   <link href="dashboard.css" rel="stylesheet">
 
+
+  <!-- External CSS -->
   <link rel="stylesheet" type="text/css" href="./inspector.css">
 
   <title>Module Structure</title>
@@ -42,7 +44,6 @@
           <div class="card-body">
             <div id="svg-container">
               <!-- <script src="test_d3_graph.js"></script> -->
-              <script src="./subgraph.js"></script>
               <script type="module">
                 import { Runtime, Inspector } from "https://cdn.jsdelivr.net/npm/@observablehq/runtime@4/dist/runtime.js";
                 import define from "./index.js";
@@ -104,7 +105,6 @@
 
             <!--Dropdown presets-->
             <div id="presets-container">
-              <script src="./subgraph.js"></script>
               <label class="form-select-label" for="presets-dropdown">Preset</label>
               <select class="form-select" id="presets-dropdown" aria-label="Presets">
                 <option value="file directory">File Directory</option>
@@ -144,7 +144,6 @@
 
             <!--Dropdown layouts-->
             <div id="layouts-container">
-              <script src="./subgraph.js"></script>
               <label class="form-select-label" for="layouts-dropdown">Layout</label>
               <select class="form-select" id="layouts-dropdown" aria-label="Layouts">
                 <option value="force directed">Force Directed</option>
@@ -153,40 +152,52 @@
             </div>
 
 
+            <!-- Graph Customization -->
             <div id="custom-options-container" hidden>
+              <script src="https://unpkg.com/select-pure@latest/dist/index.js"></script>
 
               <!--Node options multiselect-->
               <div id="node-options-container">
-                <script src=./subgraph.js></script>
-                <label class="form-select-label" for="node-dropdown">Nodes</label>
-                <select class="form-select" id='node-dropdown' multiple aria-label="Nodes">
-                  <option value='1'>Folder</option>
-                  <option value='2'>File</option>
-                  <option value='3'>Class</option>
-                  <option value='4'>Function</option>
-                  <option value='5'>Variable</option>
-                  <option value='6'>Lambda</option>
-                  <option value='7'>If</option>
-                  <option value='8'>For</option>
-                  <option value='9'>While</option>
-                  <option value='10'>Try</option>
-                </select>
-              </div>
 
+                <select-pure id="node-options" multiple>
+                  <option-pure value="FileNode">File</option-pure>
+                  <option-pure value="FolderNode">Folder</option-pure>
+                  <option-pure value="ClassNode">Class</option-pure>
+                  <option-pure value="FuncNode">Function</option-pure>
+                  <option-pure value="VarNode">Variable</option-pure>
+                  <option-pure value="LambdaNode">Lambda</option-pure>
+                  <option-pure value="IfNode">If</option-pure>
+                  <option-pure value="ForNode">For</option-pure>
+                  <option-pure value="WhileNode">While</option-pure>
+                  <option-pure value="TryNode">Try</option-pure>
+                </select-pure>
+                <script type="module">
+                  const selectPure = document.getElementById("node-options");
+                  selectPure.addEventListener("change", (event) => {
+                    console.log(selectPure.values)
+                  });
+                </script>
+              </div>
 
               <!--Edge options multiselect-->
               <div id="edge-options-container">
-                <script src=./subgraph.js></script>
-                <label class="form-select-label" for="edge-dropdown">Edges</label>
-                <select class="form-select" id='edge-dropdown' multiple aria-label="Edges">
-                  <option value='1'>Directory</option>
-                  <option value='2'>Import</option>
-                  <option value='3'>Function Call</option>
-                  <option value='4'>Inheritance</option>
-                  <option value='5'>Definition</option>
-                </select>
-              </div>
+                <select-pure id="edge-options" multiple>
+                  <option-pure value="DirectoryEdge">Directory</option-pure>
+                  <option-pure value="ImportEdge">Import</option-pure>
+                  <option-pure value="FunctionCallEdge">Function Call</option-pure>
+                  <option-pure value="InheritanceEdge">Inheritance</option-pure>
+                  <option-pure value="DefinitionEdge">Defintion</option-pure>
+                  <option-pure value="VariableEdge">Variable</option-pure>
+                  <option-pure value="ControlFlowEdge">Control Flow</option-pure>
+                </select-pure>
+                <script type="module">
+                  const selectPure = document.getElementById("edge-options");
+                  selectPure.addEventListener("change", (event) => {
+                    console.log(selectPure.values)
+                  });
+                </script>
 
+              </div>
             </div>
 
 
@@ -222,10 +233,8 @@
     integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
     crossorigin="anonymous"></script>
 
-  <!--External Components-->
-  <script src="./external_components/multiselect.min.js"></script>
-  <script>document.multiselect('#node-dropdown');</script>
-  <script>document.multiselect('#edge-dropdown');</script>
+  <!-- Subgraphing -->
+  <script src="./subgraph.js"></script>
 
   </div>
 
