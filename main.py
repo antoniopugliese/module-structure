@@ -1,4 +1,6 @@
 import os
+
+from networkx.classes import graph
 import parsing
 import json
 import pickle
@@ -107,7 +109,7 @@ def main():
     rs = redis.Redis(db=0)
 
     # Locations in file directory w.r.t local device
-    home = os.path.expanduser("~")
+    # home = os.path.expanduser("~")
     current_dir = os.path.dirname(os.path.abspath(__file__))
 
     # Opening the config file
@@ -119,7 +121,6 @@ def main():
 
     print("Finding path to target repo...", end="", flush=True)
 
-    # repo_path = get_repo(rs, repo_name, home)
     repo_path = find_repo(rs, repo_name, repo_link, current_dir)
 
     try:
@@ -167,26 +168,24 @@ def main():
         add_to_database(rs, repo_name, "commit_dict", commit_dict)
         print("Done!")
 
-    latest_commit = "39dc1c46adcb3b8500b4e232fbe0efc41e65f0e1"
-    latest_graph = rel.create_all_relationships(ast_dict[latest_commit])
-    # print("List of nodes: ", list(latest_graph.nodes))
-    # print("List of edges: ", list(latest_graph.edges))
-
-    graph_data = rel.graph_to_json(latest_graph)
-
-    latest_commit += ".json"
-
     data_path = os.path.join(current_dir, "frontend", "module_data")
     if not os.path.isdir(data_path):
         os.mkdir(data_path)
-    with open(os.path.join(data_path, latest_commit), "w") as f:
-        json.dump(graph_data, f, indent=4)
+    
+    for key in list(commit_dict.keys()):
+        filename = key + ".json"
+        curr_graph = commit_dict[key]
+        graph_data = rel.graph_to_json(curr_graph)
+        
+        with open(os.path.join(data_path, filename), "w") as f:
+            json.dump(graph_data, f, indent= 4)
 
-    print("Displaying graph.\n")
+
+    print("Graph ready to be displayed.\n")
 
     # save updated data (if any)
     rs.execute_command('BGSAVE SCHEDULE')
-    visual.display(repo_name, rs, commits, commit_dict)
+    # visual.display(repo_name, rs, commits, commit_dict)
 
 if __name__ == "__main__":
     main()
