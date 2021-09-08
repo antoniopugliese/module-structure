@@ -14,19 +14,19 @@ be an edge attribute in the networkx module.
 import networkx as nx
 
 
-class Edge(dict):
+class Edge():
     """
     Object that represents an edge in a graph. This is an abstract class.
     """
 
-    def __init__(self, name):
+    def __init__(self, n):
         """
         Object initializer.
 
         :param name: name of the edge
         :type name: str
         """
-        dict.__init__(self, name = name)
+        self.name = n
 
     def get_name(self):
         """
@@ -145,12 +145,13 @@ class VariableEdge(Edge):
         """
         super().__init__(name)
 
+
 class ControlFlowEdge(Edge):
     """
     A ControlFlowEdge from Node ``u`` to Node ``v`` represents the control flow
     of the program.
     """
-    
+
     def __init__(self, name):
         """
         Object initializer
@@ -158,4 +159,4 @@ class ControlFlowEdge(Edge):
         :param name: name of edge
         :type name: str
         """
-        super().__init__(name) 
+        super().__init__(name)

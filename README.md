@@ -1,5 +1,5 @@
 # Module-Structure
-
+![Imports Example](./examples/imports_example.png)
 ## Overview
 
 This research repo is a tool to analyze Git repositories of Python code for internal dependency relationships. Give a link to a Git repository (or a path to an already downloaded repositiory) and the tool will create a graph representation of import, function call, class inheritance, and other relationships between Python files.
@@ -9,6 +9,13 @@ Relationships can be as broad as directories in a repo, to the granularity of va
 Run the frontend to interactively explore various relationship graphs and discover insights into your repository. Use several pre-made presets showing useful data, or customize a view with any combination of node or relationship types.  
 
 Use the backend modules to create a Python `networkx` graph representation of a Git repo for your own analysis.
+
+## Examples
+Relationships can be as broad as directories in a repo...
+![File Directory Example](./examples/file_directory_example.png)
+...to the granularity of variable usage within Python files.
+![Granular Defintion Example](./examples/granular_definitons_example.png)
+
 
 ## Installation 
 Requires Python ### or later. Clone this repository to use its tools and run the interface. 
