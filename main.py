@@ -81,6 +81,7 @@ def get_repo(rs, repo_name, start):
 
     return repo_path
 
+
 def find_repo(rs, repo_name, repo_link, dir):
     repo_path = get_from_database(rs, repo_name, "repo_path")
 
@@ -171,21 +172,21 @@ def main():
     data_path = os.path.join(current_dir, "frontend", "module_data")
     if not os.path.isdir(data_path):
         os.mkdir(data_path)
-    
+
     for key in list(commit_dict.keys()):
         filename = key + ".json"
         curr_graph = commit_dict[key]
         graph_data = rel.graph_to_json(curr_graph)
-        
-        with open(os.path.join(data_path, filename), "w") as f:
-            json.dump(graph_data, f, indent= 4)
 
+        with open(os.path.join(data_path, filename), "w") as f:
+            json.dump(graph_data, f, indent=4)
 
     print("Graph ready to be displayed.\n")
 
     # save updated data (if any)
     rs.execute_command('BGSAVE SCHEDULE')
-    # visual.display(repo_name, rs, commits, commit_dict)
+    visual.display(repo_name, rs, commits, commit_dict)
+
 
 if __name__ == "__main__":
     main()
